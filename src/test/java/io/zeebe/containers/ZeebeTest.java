@@ -20,7 +20,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import io.zeebe.client.ZeebeClient;
 import io.zeebe.containers.broker.BrokerContainer;
 import io.zeebe.containers.gateway.GatewayContainer;
+import java.util.stream.Stream;
 import org.junit.Test;
+import org.testcontainers.containers.GenericContainer;
 
 public class ZeebeTest {
   @Test
@@ -35,8 +37,7 @@ public class ZeebeTest {
         .getEnvironment()
         .withContactPoint(broker.getInternalAddress(ZeebePort.INTERNAL_API))
         .withClusterName("zeebe");
-    gateway.start();
-    broker.start();
+    Stream.of(gateway, broker).parallel().forEach(GenericContainer::start);
 
     // then
     final ZeebeClient client =
@@ -45,7 +46,6 @@ public class ZeebeTest {
             .build();
     assertThat(client.newTopologyRequest().send().join().getClusterSize()).isEqualTo(1);
 
-    broker.stop();
-    gateway.stop();
+    Stream.of(broker, gateway).parallel().forEach(GenericContainer::stop);
   }
 }
