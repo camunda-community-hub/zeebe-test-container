@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.zeebe.client.ZeebeClient;
 import io.zeebe.client.api.response.BrokerInfo;
+import io.zeebe.client.api.response.Topology;
 import io.zeebe.containers.ZeebePort;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -44,7 +45,13 @@ public class BrokerContainerTest {
   @Test
   public void shouldStartWithEmbeddedGateway() {
     // given
-    container.getEnvironment().withHost("zeebe-0").withNodeId(0).withEmbeddedGateway(true);
+    container
+        .getEnvironment()
+        .withHost("zeebe-0")
+        .withNodeId(0)
+        .withEmbeddedGateway(true)
+        .withPartitionCount(3)
+        .withReplicationFactor(1);
     Timeouts.doWithTimeout(30, TimeUnit.SECONDS, container::start);
 
     // when
@@ -52,9 +59,13 @@ public class BrokerContainerTest {
         ZeebeClient.newClientBuilder()
             .brokerContactPoint(container.getExternalAddress(ZeebePort.GATEWAY))
             .build();
-    final List<BrokerInfo> brokers = client.newTopologyRequest().send().join().getBrokers();
+    final Topology topology = client.newTopologyRequest().send().join();
+    final List<BrokerInfo> brokers = topology.getBrokers();
 
     // then
+    assertThat(topology.getClusterSize()).isEqualTo(1);
+    assertThat(topology.getReplicationFactor()).isEqualTo(1);
+    assertThat(topology.getPartitionsCount()).isEqualTo(3);
     assertThat(brokers).hasSize(1);
 
     final BrokerInfo brokerInfo = brokers.get(0);
@@ -63,6 +74,6 @@ public class BrokerContainerTest {
     assertThat(brokerInfo.getPort()).isEqualTo(ZeebePort.COMMAND_API.getPort());
     assertThat(brokerInfo.getAddress())
         .isEqualTo(container.getInternalAddress(ZeebePort.COMMAND_API));
-    assertThat(brokerInfo.getPartitions()).hasSize(1);
+    assertThat(brokerInfo.getPartitions()).hasSize(3);
   }
 }
