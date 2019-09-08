@@ -106,12 +106,12 @@ public class ZeebeTest {
   private ZeebeClient newClient(final ZeebeGatewayContainer gateway) {
     return ZeebeClient.newClientBuilder()
         .brokerContactPoint(gateway.getExternalAddress(ZeebePort.GATEWAY))
+        .usePlaintext()
         .build();
   }
 
   private ZeebeGatewayContainer newGatewayForBroker(final ZeebeBrokerContainer broker) {
-    final ZeebeGatewayContainer container =
-        new ZeebeGatewayContainer().withNetwork(broker.getNetwork());
+    final ZeebeGatewayContainer container = newGateway().withNetwork(broker.getNetwork());
     container
         .withClusterHost("gateway")
         .withClusterMemberId("gateway")

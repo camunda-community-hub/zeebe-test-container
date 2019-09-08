@@ -36,10 +36,10 @@ import org.rnorth.ducttape.timeouts.Timeouts;
 
 @RunWith(Parameterized.class)
 public class ZeebeBrokerContainerTest {
-  private ZeebeBrokerContainer container;
-
   @Parameter(0)
   public String zeebeVersion;
+
+  private ZeebeBrokerContainer container;
 
   @Parameters(name = "{0}")
   public static Collection<Object[]> data() {
@@ -72,6 +72,7 @@ public class ZeebeBrokerContainerTest {
     // when
     final ZeebeClient client =
         ZeebeClient.newClientBuilder()
+            .usePlaintext()
             .brokerContactPoint(container.getExternalAddress(ZeebePort.GATEWAY))
             .build();
     final Topology topology = client.newTopologyRequest().send().join();
