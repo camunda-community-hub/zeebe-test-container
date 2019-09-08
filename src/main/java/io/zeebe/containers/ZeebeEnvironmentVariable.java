@@ -13,28 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.zeebe.containers.broker;
+package io.zeebe.containers;
 
-import io.zeebe.containers.EnvVar;
-
-public enum ZeebeBrokerEnvVar implements EnvVar {
-  NODE_ID("ZEEBE_NODE_ID"),
-  HOST("ZEEBE_HOST"),
-  PORT_OFFSET("ZEEBE_PORT_OFFSET"),
-  CONTACT_POINTS("ZEEBE_CONTACT_POINTS"),
-  PARTITION_COUNT("ZEEBE_PARTITIONS_COUNT"),
-  REPLICATION_FACTOR("ZEEBE_REPLICATION_FACTOR"),
-  CLUSTER_SIZE("ZEEBE_CLUSTER_SIZE"),
-  CLUSTER_NAME("ZEEBE_CLUSTER_NAME"),
-  EMBED_GATEWAY("ZEEBE_EMBED_GATEWAY"),
-  DEBUG("ZEEBE_DEBUG");
+public enum ZeebeEnvironmentVariable implements EnvironmentVariable {
+  ZEEBE_LOG_LEVEL,
+  ATOMIX_LOG_LEVEL;
 
   private final String variableName;
 
-  ZeebeBrokerEnvVar(String variableName) {
+  ZeebeEnvironmentVariable() {
+    variableName = name();
+  }
+
+  ZeebeEnvironmentVariable(final String variableName) {
     this.variableName = variableName;
   }
 
+  @Override
   public String getVariableName() {
     return variableName;
   }

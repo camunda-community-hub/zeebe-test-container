@@ -15,29 +15,66 @@
  */
 package io.zeebe.containers.broker;
 
+import io.zeebe.containers.ZeebeConfigurable;
 import io.zeebe.containers.ZeebeContainer;
+import io.zeebe.containers.ZeebeNetworkable;
 import io.zeebe.containers.ZeebePort;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.utility.Base58;
 
-public class ZeebeBrokerContainer extends ZeebeContainer<ZeebeBrokerEnvironment, ZeebeBrokerContainer> {
-  private static final String DEFAULT_CLUSTER_NAME = "zeebe";
+@SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
+public class ZeebeBrokerContainer extends GenericContainer<ZeebeBrokerContainer>
+    implements ZeebeContainer<ZeebeBrokerContainer>,
+        ZeebeConfigurable<ZeebeBrokerContainer>,
+        ZeebeNetworkable {
+  protected String host;
+  protected int portOffset;
+  protected boolean embedGateway;
 
-  public int getPort(ZeebePort port) {
-    return port.getPort() + (environment.getPortOffset() * 10);
+  public ZeebeBrokerContainer() {
+    this(DEFAULT_ZEEBE_VERSION);
+  }
+
+  public ZeebeBrokerContainer(final String version) {
+    this(ZeebeContainer.getDefaultImage(), version);
+  }
+
+  public ZeebeBrokerContainer(final String image, final String version) {
+    super(image + ":" + version);
+    applyDefaultConfiguration();
   }
 
   @Override
-  protected ZeebeBrokerEnvironment newDefaultEnvironment() {
+  public String getInternalHost() {
+    return host;
+  }
+
+  @Override
+  protected void configure() {
+    final String name = getInternalHost() + Base58.randomString(6);
+    final Set<ZeebePort> exposedPorts = EnumSet.allOf(ZeebePort.class);
+    if (!embedGateway) {
+      exposedPorts.remove(ZeebePort.GATEWAY);
+    }
+
+    super.configure();
+    withExposedPorts(exposedPorts.stream().map(ZeebePort::getPort).toArray(Integer[]::new));
+    withNetworkAliases(getInternalHost());
+    withCreateContainerCmdModifier(createContainerCmd -> createContainerCmd.withName(name));
+  }
+
+  @Override
+  public void applyDefaultConfiguration() {
     final String host = "zeebe-broker-" + Base58.randomString(6);
-    return new ZeebeBrokerEnvironment()
-        .withHost(host)
+    setWaitStrategy(new LogMessageWaitStrategy().withRegEx(".*Broker is ready.*"));
+
+    withHost(host)
         .withPartitionCount(1)
         .withReplicationFactor(1)
         .withEmbeddedGateway(true)
@@ -46,27 +83,54 @@ public class ZeebeBrokerContainer extends ZeebeContainer<ZeebeBrokerEnvironment,
         .withClusterSize(1)
         .withContactPoints(Collections.emptyList())
         .withNodeId(0);
+
+    withNetwork(Network.newNetwork());
   }
 
-  @Override
-  protected Map<ZeebePort, Integer> getPorts() {
-    final Set<ZeebePort> exposedPorts = EnumSet.allOf(ZeebePort.class);
-
-    if (!environment.shouldEmbedGateway()) {
-      exposedPorts.remove(ZeebePort.GATEWAY);
-    }
-
-    return exposedPorts.stream().collect(Collectors.toMap(Function.identity(), this::getPort));
+  public String getContactPoint() {
+    return getInternalAddress(ZeebePort.INTERNAL_API);
   }
 
-  @Override
-  protected String getInternalHost() {
-    return environment.getHost();
+  public ZeebeBrokerContainer withHost(final String host) {
+    this.host = host;
+    return withEnv(ZeebeBrokerEnvironmentVariable.HOST, host);
   }
 
-  @Override
-  protected void applyDefaultConfiguration() {
-    setWaitStrategy(new LogMessageWaitStrategy().withRegEx(".*Broker is ready.*"));
-    super.applyDefaultConfiguration();
+  public ZeebeBrokerContainer withNodeId(final int nodeId) {
+    return withEnv(ZeebeBrokerEnvironmentVariable.NODE_ID, nodeId);
+  }
+
+  public ZeebeBrokerContainer withPortOffset(final int portOffset) {
+    this.portOffset = portOffset;
+    return withEnv(ZeebeBrokerEnvironmentVariable.PORT_OFFSET, portOffset);
+  }
+
+  public ZeebeBrokerContainer withReplicationFactor(final int replicationFactor) {
+    return withEnv(ZeebeBrokerEnvironmentVariable.REPLICATION_FACTOR, replicationFactor);
+  }
+
+  public ZeebeBrokerContainer withPartitionCount(final int partitionCount) {
+    return withEnv(ZeebeBrokerEnvironmentVariable.PARTITION_COUNT, partitionCount);
+  }
+
+  public ZeebeBrokerContainer withClusterSize(final int clusterSize) {
+    return withEnv(ZeebeBrokerEnvironmentVariable.CLUSTER_SIZE, clusterSize);
+  }
+
+  public ZeebeBrokerContainer withClusterName(final String clusterName) {
+    return withEnv(ZeebeBrokerEnvironmentVariable.CLUSTER_NAME, clusterName);
+  }
+
+  public ZeebeBrokerContainer withContactPoints(final Collection<String> contactPoints) {
+    return withEnv(ZeebeBrokerEnvironmentVariable.CONTACT_POINTS, contactPoints);
+  }
+
+  public ZeebeBrokerContainer withDebug(final boolean debug) {
+    return withEnv(ZeebeBrokerEnvironmentVariable.DEBUG, debug);
+  }
+
+  public ZeebeBrokerContainer withEmbeddedGateway(final boolean embedGateway) {
+    this.embedGateway = embedGateway;
+    return withEnv(ZeebeBrokerEnvironmentVariable.EMBED_GATEWAY, embedGateway);
   }
 }

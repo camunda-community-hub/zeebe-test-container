@@ -15,7 +15,7 @@
  */
 package io.zeebe.containers;
 
-public interface EnvVar {
+public interface EnvironmentVariable {
   String name();
 
   default String getVariableName() {

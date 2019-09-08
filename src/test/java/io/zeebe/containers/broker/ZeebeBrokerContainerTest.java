@@ -21,19 +21,35 @@ import io.zeebe.client.ZeebeClient;
 import io.zeebe.client.api.response.BrokerInfo;
 import io.zeebe.client.api.response.Topology;
 import io.zeebe.containers.ZeebePort;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
 import org.rnorth.ducttape.timeouts.Timeouts;
 
+@RunWith(Parameterized.class)
 public class ZeebeBrokerContainerTest {
   private ZeebeBrokerContainer container;
 
+  @Parameter(0)
+  public String zeebeVersion;
+
+  @Parameters(name = "{0}")
+  public static Collection<Object[]> data() {
+    return Arrays.asList(
+        new Object[] {"0.20.0"}, new Object[] {"0.21.0-alpha1"}, new Object[] {"0.21.0-alpha2"});
+  }
+
   @Before
   public void setUp() {
-    container = new ZeebeBrokerContainer();
+    container = new ZeebeBrokerContainer(zeebeVersion);
   }
 
   @After
@@ -46,7 +62,6 @@ public class ZeebeBrokerContainerTest {
   public void shouldStartWithEmbeddedGateway() {
     // given
     container
-        .getEnvironment()
         .withHost("zeebe-0")
         .withNodeId(0)
         .withEmbeddedGateway(true)

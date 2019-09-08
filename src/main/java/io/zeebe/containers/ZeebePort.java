@@ -23,7 +23,7 @@ public enum ZeebePort {
 
   private final int port;
 
-  ZeebePort(int port) {
+  ZeebePort(final int port) {
     this.port = port;
   }
 

@@ -22,23 +22,44 @@ import io.zeebe.client.api.response.BrokerInfo;
 import io.zeebe.client.api.response.Topology;
 import io.zeebe.containers.broker.ZeebeBrokerContainer;
 import io.zeebe.containers.gateway.ZeebeGatewayContainer;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
+import org.slf4j.Logger;
 import org.testcontainers.containers.GenericContainer;
 
+@RunWith(Parameterized.class)
 public class ZeebeTest {
+  private static final String CLUSTER_NAME = "zeebe";
+
+  @Parameter(0)
+  public String zeebeVersion;
+
+  @Parameters(name = "{0}")
+  public static Collection<Object[]> data() {
+    return Arrays.asList(
+        new Object[] {"0.20.0"},
+        new Object[] {"0.21.0-alpha1"},
+        new Object[] {"0.21.0-alpha2"});
+  }
+
   @Test
   public void shouldStartConnectedGatewayAndBroker() {
     // given
-    final ZeebeBrokerContainer broker = new ZeebeBrokerContainer();
-    final ZeebeGatewayContainer gateway = new ZeebeGatewayContainer().withNetwork(broker.getNetwork());
+    final ZeebeBrokerContainer broker = newBroker();
+    final ZeebeGatewayContainer gateway =
+        newGateway().withNetwork(broker.getNetwork());
 
     // when
-    broker.getEnvironment().withEmbeddedGateway(false).withHost("zeebe-0");
-    gateway.getEnvironment().withContactPoint(broker.getInternalAddress(ZeebePort.INTERNAL_API));
+    broker.withEmbeddedGateway(false).withHost("zeebe-0");
+    gateway.withContactPoint(broker.getInternalAddress(ZeebePort.INTERNAL_API));
     Stream.of(gateway, broker).parallel().forEach(GenericContainer::start);
 
     // then
@@ -69,9 +90,9 @@ public class ZeebeTest {
             .collect(Collectors.toList());
 
     // set contact points for all
-    zeebe0.getEnvironment().withContactPoints(contactPoints);
-    zeebe1.getEnvironment().withContactPoints(contactPoints);
-    zeebe2.getEnvironment().withContactPoints(contactPoints);
+    zeebe0.withContactPoints(contactPoints);
+    zeebe1.withContactPoints(contactPoints);
+    zeebe2.withContactPoints(contactPoints);
 
     // start all brokers
     Stream.of(gateway, zeebe0, zeebe1, zeebe2).parallel().forEach(GenericContainer::start);
@@ -86,36 +107,43 @@ public class ZeebeTest {
     Stream.of(zeebe0, zeebe1, zeebe2, gateway).parallel().forEach(GenericContainer::stop);
   }
 
-  private ZeebeClient newClient(ZeebeGatewayContainer gateway) {
+  private ZeebeClient newClient(final ZeebeGatewayContainer gateway) {
     return ZeebeClient.newClientBuilder()
         .brokerContactPoint(gateway.getExternalAddress(ZeebePort.GATEWAY))
         .build();
   }
 
-  private ZeebeGatewayContainer newGatewayForBroker(ZeebeBrokerContainer broker) {
-    final ZeebeGatewayContainer container = new ZeebeGatewayContainer().withNetwork(broker.getNetwork());
+  private ZeebeGatewayContainer newGatewayForBroker(final ZeebeBrokerContainer broker) {
+    final ZeebeGatewayContainer container =
+        new ZeebeGatewayContainer().withNetwork(broker.getNetwork());
     container
-        .getEnvironment()
         .withClusterHost("gateway")
         .withClusterMemberId("gateway")
-        .withClusterName(broker.getEnvironment().getClusterName())
+        .withClusterName(CLUSTER_NAME)
         .withContactPoint(broker.getInternalAddress(ZeebePort.INTERNAL_API));
 
     return container;
   }
 
-  private ZeebeBrokerContainer newClusterBroker(int nodeId, int clusterSize) {
-    final ZeebeBrokerContainer container = new ZeebeBrokerContainer();
+  private ZeebeBrokerContainer newClusterBroker(final int nodeId, final int clusterSize) {
+    final ZeebeBrokerContainer container = newBroker();
     container
-        .environment
         .withEmbeddedGateway(false)
         .withPartitionCount(clusterSize)
         .withReplicationFactor(clusterSize)
         .withNodeId(nodeId)
         .withHost("zeebe-" + nodeId)
-        .withClusterName("zeebe")
+        .withClusterName(CLUSTER_NAME)
         .withClusterSize(clusterSize);
 
     return container;
+  }
+
+  private ZeebeBrokerContainer newBroker() {
+    return new ZeebeBrokerContainer(zeebeVersion);
+  }
+
+  private ZeebeGatewayContainer newGateway() {
+    return new ZeebeGatewayContainer(zeebeVersion);
   }
 }

@@ -9,6 +9,23 @@ Features
 - [x] Start a Zeebe broker container with configurable environment
 - [x] Start a Zeebe gateway container with configurable environment
 
+Planned
+=======
+
+Current plans are to add more tests and QoL features:
+
+- [ ] Gateway tests
+- [ ] Client builder
+- [ ] Cluster rule
+- [ ] Helper client (wrapper around ZBClient with QoL)
+
+Supported Zeebe versions
+========================
+
+- 0.20.0
+- 0.21.0-alpha1
+- 0.21.0-alpha2
+
 Example usage
 =============
 
@@ -19,7 +36,7 @@ tests as:
 ```java
 class MyFeatureTest {
   @Rule
-  public BrokerContainer zeebe = new BrokerContainer();
+  public ZeebeBrokerContainer zeebe = new ZeebeBrokerContainer();
 
   @Test
   public void shouldTestMyFeature() {
@@ -43,7 +60,7 @@ class MyFeatureTest {
     .withReplicationFactor(1);
   
   @Rule
-  public BrokerContainer zeebe = new BrokerContainer(zeebeEnv);
+  public ZeebeBrokerContainer zeebe = new ZeebeBrokerContainer(zeebeEnv);
 
   @Test
   public void shouldTestMyFeature() {
@@ -65,9 +82,9 @@ class MyFeatureTest {
   @Test
   public void shouldTestMyFeature() {
     // create a broker and a standalone gateway
-    final BrokerContainer broker = new BrokerContainer();
-    final GatewayContainer gateway =
-        new GatewayContainer()
+    final ZeebeBrokerContainer broker = new ZeebeBrokerContainer();
+    final ZeebeGatewayContainer gateway =
+        new ZeebeGatewayContainer()
             .withNetwork(broker.getNetwork()); // make sure they are on the same network
 
     // configure broker so it doesn't start an embedded gateway
@@ -87,6 +104,36 @@ class MyFeatureTest {
     // ...
 
     Stream.of(gateway, broker).parallel().forEach(GenericContainer::stop);
+  }
+}
+```
+
+### Cluster of 3 brokers
+```java
+class MyClusteredTest {
+  @Test
+  public void shouldTestWithCluster() {
+    final Network network = Network.newNetwork();
+    final ZeebeBrokerContainer zeebe0 = new ZeebeBrokerContainer().withNetwork(network).withNodeId(0).withHost("zeebe-0");
+    final ZeebeBrokerContainer zeebe1 = new ZeebeBrokerContainer().withNetwork(network).withNodeId(1).withHost("zeebe-1");
+    final ZeebeBrokerContainer zeebe2 = new ZeebeBrokerContainer().withNetwork(network).withNodeId(2).withHost("zeebe-2");
+    final Collection<String> contactPoints =
+        Stream.of(zeebe0, zeebe1, zeebe2)
+            .map(ZeebeBrokerContainer::getContactPoint)
+            .collect(Collectors.toList());
+
+    // set contact points for all
+    Stream.of(zeebe0, zeebe1, zeebe2).forEach(node -> node.withContactPoints(contactPoints));
+
+    // start all brokers
+    // it's important to start the brokers in parallel as they will not be ready until a Raft is formed
+    Stream.of(zeebe0, zeebe1, zeebe2).parallel().forEach(GenericContainer::start);
+
+    // Run your tests
+    // ...
+
+    // stop all brokers
+    Stream.of(zeebe0, zeebe1, zeebe2).parallel().forEach(GenericContainer::stop);
   }
 }
 ```
