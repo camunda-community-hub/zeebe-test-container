@@ -57,7 +57,7 @@ public class ZeebeBrokerContainer extends GenericContainer<ZeebeBrokerContainer>
 
   @Override
   protected void configure() {
-    final String name = getInternalHost() + Base58.randomString(6);
+    final String name = getInternalHost() + "-" + Base58.randomString(6);
     final Set<ZeebePort> exposedPorts = EnumSet.allOf(ZeebePort.class);
     if (!embedGateway) {
       exposedPorts.remove(ZeebePort.GATEWAY);

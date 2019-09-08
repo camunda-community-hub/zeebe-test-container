@@ -70,7 +70,7 @@ public class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContaine
 
   @Override
   protected void configure() {
-    final String name = getInternalHost() + Base58.randomString(6);
+    final String name = getInternalHost() + "-" + Base58.randomString(6);
     final Set<ZeebePort> exposedPorts = EnumSet.of(ZeebePort.GATEWAY);
     if (monitoringEnabled) {
       exposedPorts.add(ZeebePort.MONITORING_API);
