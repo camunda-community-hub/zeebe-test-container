@@ -20,8 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import io.zeebe.client.ZeebeClient;
 import io.zeebe.client.api.response.BrokerInfo;
 import io.zeebe.client.api.response.Topology;
-import io.zeebe.containers.broker.BrokerContainer;
-import io.zeebe.containers.gateway.GatewayContainer;
+import io.zeebe.containers.broker.ZeebeBrokerContainer;
+import io.zeebe.containers.gateway.ZeebeGatewayContainer;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,8 +33,8 @@ public class ZeebeTest {
   @Test
   public void shouldStartConnectedGatewayAndBroker() {
     // given
-    final BrokerContainer broker = new BrokerContainer();
-    final GatewayContainer gateway = new GatewayContainer().withNetwork(broker.getNetwork());
+    final ZeebeBrokerContainer broker = new ZeebeBrokerContainer();
+    final ZeebeGatewayContainer gateway = new ZeebeGatewayContainer().withNetwork(broker.getNetwork());
 
     // when
     broker.getEnvironment().withEmbeddedGateway(false).withHost("zeebe-0");
@@ -59,10 +59,10 @@ public class ZeebeTest {
 
   @Test
   public void shouldStartClusterAndGateway() {
-    final BrokerContainer zeebe0 = newClusterBroker(0, 3);
-    final BrokerContainer zeebe1 = newClusterBroker(1, 3).withNetwork(zeebe0.getNetwork());
-    final BrokerContainer zeebe2 = newClusterBroker(2, 3).withNetwork(zeebe0.getNetwork());
-    final GatewayContainer gateway = newGatewayForBroker(zeebe0);
+    final ZeebeBrokerContainer zeebe0 = newClusterBroker(0, 3);
+    final ZeebeBrokerContainer zeebe1 = newClusterBroker(1, 3).withNetwork(zeebe0.getNetwork());
+    final ZeebeBrokerContainer zeebe2 = newClusterBroker(2, 3).withNetwork(zeebe0.getNetwork());
+    final ZeebeGatewayContainer gateway = newGatewayForBroker(zeebe0);
     final Collection<String> contactPoints =
         Stream.of(zeebe0, zeebe1, zeebe2)
             .map(b -> b.getInternalAddress(ZeebePort.INTERNAL_API))
@@ -86,14 +86,14 @@ public class ZeebeTest {
     Stream.of(zeebe0, zeebe1, zeebe2, gateway).parallel().forEach(GenericContainer::stop);
   }
 
-  private ZeebeClient newClient(GatewayContainer gateway) {
+  private ZeebeClient newClient(ZeebeGatewayContainer gateway) {
     return ZeebeClient.newClientBuilder()
         .brokerContactPoint(gateway.getExternalAddress(ZeebePort.GATEWAY))
         .build();
   }
 
-  private GatewayContainer newGatewayForBroker(BrokerContainer broker) {
-    final GatewayContainer container = new GatewayContainer().withNetwork(broker.getNetwork());
+  private ZeebeGatewayContainer newGatewayForBroker(ZeebeBrokerContainer broker) {
+    final ZeebeGatewayContainer container = new ZeebeGatewayContainer().withNetwork(broker.getNetwork());
     container
         .getEnvironment()
         .withClusterHost("gateway")
@@ -104,8 +104,8 @@ public class ZeebeTest {
     return container;
   }
 
-  private BrokerContainer newClusterBroker(int nodeId, int clusterSize) {
-    final BrokerContainer container = new BrokerContainer();
+  private ZeebeBrokerContainer newClusterBroker(int nodeId, int clusterSize) {
+    final ZeebeBrokerContainer container = new ZeebeBrokerContainer();
     container
         .environment
         .withEmbeddedGateway(false)

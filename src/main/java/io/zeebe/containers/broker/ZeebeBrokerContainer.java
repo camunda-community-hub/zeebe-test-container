@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.utility.Base58;
 
-public class BrokerContainer extends ZeebeContainer<BrokerEnvironment, BrokerContainer> {
+public class ZeebeBrokerContainer extends ZeebeContainer<ZeebeBrokerEnvironment, ZeebeBrokerContainer> {
   private static final String DEFAULT_CLUSTER_NAME = "zeebe";
 
   public int getPort(ZeebePort port) {
@@ -34,9 +34,9 @@ public class BrokerContainer extends ZeebeContainer<BrokerEnvironment, BrokerCon
   }
 
   @Override
-  protected BrokerEnvironment newDefaultEnvironment() {
+  protected ZeebeBrokerEnvironment newDefaultEnvironment() {
     final String host = "zeebe-broker-" + Base58.randomString(6);
-    return new BrokerEnvironment()
+    return new ZeebeBrokerEnvironment()
         .withHost(host)
         .withPartitionCount(1)
         .withReplicationFactor(1)

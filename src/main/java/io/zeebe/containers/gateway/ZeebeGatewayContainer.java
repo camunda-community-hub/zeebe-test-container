@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.utility.Base58;
 
-public class GatewayContainer extends ZeebeContainer<GatewayEnvironment, GatewayContainer> {
+public class ZeebeGatewayContainer extends ZeebeContainer<ZeebeGatewayEnvironment, ZeebeGatewayContainer> {
   private static final String DEFAULT_CLUSTER_NAME = "zeebe";
 
   @Override
@@ -35,9 +35,9 @@ public class GatewayContainer extends ZeebeContainer<GatewayEnvironment, Gateway
   }
 
   @Override
-  protected GatewayEnvironment newDefaultEnvironment() {
+  protected ZeebeGatewayEnvironment newDefaultEnvironment() {
     final String host = "zeebe-gateway-" + Base58.randomString(6);
-    return new GatewayEnvironment()
+    return new ZeebeGatewayEnvironment()
         .withHost("0.0.0.0")
         .withPort(ZeebePort.GATEWAY.getPort())
         .withClusterName(DEFAULT_CLUSTER_NAME)
@@ -61,7 +61,7 @@ public class GatewayContainer extends ZeebeContainer<GatewayEnvironment, Gateway
   @Override
   protected void applyDefaultConfiguration() {
     setWaitStrategy(new HostPortWaitStrategy());
-    withEnv(GatewayEnvVar.STANDALONE.getVariableName(), "true");
+    withEnv(ZeebeGatewayEnvVar.STANDALONE.getVariableName(), "true");
     super.applyDefaultConfiguration();
   }
 

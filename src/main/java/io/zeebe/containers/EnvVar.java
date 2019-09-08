@@ -16,5 +16,9 @@
 package io.zeebe.containers;
 
 public interface EnvVar {
-  String getVariableName();
+  String name();
+
+  default String getVariableName() {
+    return name().toUpperCase();
+  }
 }

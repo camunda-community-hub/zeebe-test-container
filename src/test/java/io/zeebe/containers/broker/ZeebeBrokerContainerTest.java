@@ -28,12 +28,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.rnorth.ducttape.timeouts.Timeouts;
 
-public class BrokerContainerTest {
-  private BrokerContainer container;
+public class ZeebeBrokerContainerTest {
+  private ZeebeBrokerContainer container;
 
   @Before
   public void setUp() {
-    container = new BrokerContainer();
+    container = new ZeebeBrokerContainer();
   }
 
   @After

@@ -17,7 +17,7 @@ package io.zeebe.containers.gateway;
 
 import io.zeebe.containers.EnvVar;
 
-public enum GatewayEnvVar implements EnvVar {
+public enum ZeebeGatewayEnvVar implements EnvVar {
   STANDALONE("ZEEBE_STANDALONE_GATEWAY"),
   HOST("ZEEBE_GATEWAY_HOST"),
   PORT("ZEEBE_GATEWAY_PORT"),
@@ -38,7 +38,7 @@ public enum GatewayEnvVar implements EnvVar {
 
   private final String variableName;
 
-  GatewayEnvVar(String variableName) {
+  ZeebeGatewayEnvVar(String variableName) {
     this.variableName = variableName;
   }
 

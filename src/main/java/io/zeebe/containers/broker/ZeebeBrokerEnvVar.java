@@ -17,7 +17,7 @@ package io.zeebe.containers.broker;
 
 import io.zeebe.containers.EnvVar;
 
-public enum BrokerEnvVar implements EnvVar {
+public enum ZeebeBrokerEnvVar implements EnvVar {
   NODE_ID("ZEEBE_NODE_ID"),
   HOST("ZEEBE_HOST"),
   PORT_OFFSET("ZEEBE_PORT_OFFSET"),
@@ -31,7 +31,7 @@ public enum BrokerEnvVar implements EnvVar {
 
   private final String variableName;
 
-  BrokerEnvVar(String variableName) {
+  ZeebeBrokerEnvVar(String variableName) {
     this.variableName = variableName;
   }
 

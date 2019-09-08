@@ -17,7 +17,7 @@ package io.zeebe.containers.gateway;
 
 import io.zeebe.containers.ZeebeEnvironment;
 
-public class GatewayEnvironment extends ZeebeEnvironment<GatewayEnvironment> {
+public class ZeebeGatewayEnvironment extends ZeebeEnvironment<ZeebeGatewayEnvironment> {
   private String host;
   private int port;
   private String contactPoint;
@@ -43,8 +43,8 @@ public class GatewayEnvironment extends ZeebeEnvironment<GatewayEnvironment> {
     return host;
   }
 
-  public GatewayEnvironment withHost(String host) {
-    this.envMap.put(GatewayEnvVar.HOST, host);
+  public ZeebeGatewayEnvironment withHost(String host) {
+    this.envMap.put(ZeebeGatewayEnvVar.HOST, host);
     this.host = host;
     return this;
   }
@@ -53,8 +53,8 @@ public class GatewayEnvironment extends ZeebeEnvironment<GatewayEnvironment> {
     return port;
   }
 
-  public GatewayEnvironment withPort(int port) {
-    this.envMap.put(GatewayEnvVar.PORT, port);
+  public ZeebeGatewayEnvironment withPort(int port) {
+    this.envMap.put(ZeebeGatewayEnvVar.PORT, port);
     this.port = port;
     return this;
   }
@@ -63,8 +63,8 @@ public class GatewayEnvironment extends ZeebeEnvironment<GatewayEnvironment> {
     return contactPoint;
   }
 
-  public GatewayEnvironment withContactPoint(String contactPoint) {
-    this.envMap.put(GatewayEnvVar.CONTACT_POINT, contactPoint);
+  public ZeebeGatewayEnvironment withContactPoint(String contactPoint) {
+    this.envMap.put(ZeebeGatewayEnvVar.CONTACT_POINT, contactPoint);
     this.contactPoint = contactPoint;
     return this;
   }
@@ -73,8 +73,8 @@ public class GatewayEnvironment extends ZeebeEnvironment<GatewayEnvironment> {
     return transportBuffer;
   }
 
-  public GatewayEnvironment withTransportBuffer(int transportBuffer) {
-    this.envMap.put(GatewayEnvVar.TRANSPORT_BUFFER, transportBuffer);
+  public ZeebeGatewayEnvironment withTransportBuffer(int transportBuffer) {
+    this.envMap.put(ZeebeGatewayEnvVar.TRANSPORT_BUFFER, transportBuffer);
     this.transportBuffer = transportBuffer;
     return this;
   }
@@ -83,8 +83,8 @@ public class GatewayEnvironment extends ZeebeEnvironment<GatewayEnvironment> {
     return requestTimeout;
   }
 
-  public GatewayEnvironment withRequestTimeout(int requestTimeout) {
-    this.envMap.put(GatewayEnvVar.REQUEST_TIMEOUT, requestTimeout);
+  public ZeebeGatewayEnvironment withRequestTimeout(int requestTimeout) {
+    this.envMap.put(ZeebeGatewayEnvVar.REQUEST_TIMEOUT, requestTimeout);
     this.requestTimeout = requestTimeout;
     return this;
   }
@@ -93,8 +93,8 @@ public class GatewayEnvironment extends ZeebeEnvironment<GatewayEnvironment> {
     return clusterName;
   }
 
-  public GatewayEnvironment withClusterName(String clusterName) {
-    this.envMap.put(GatewayEnvVar.CLUSTER_NAME, clusterName);
+  public ZeebeGatewayEnvironment withClusterName(String clusterName) {
+    this.envMap.put(ZeebeGatewayEnvVar.CLUSTER_NAME, clusterName);
     this.clusterName = clusterName;
     return this;
   }
@@ -103,8 +103,8 @@ public class GatewayEnvironment extends ZeebeEnvironment<GatewayEnvironment> {
     return clusterMemberId;
   }
 
-  public GatewayEnvironment withClusterMemberId(String clusterMemberId) {
-    this.envMap.put(GatewayEnvVar.CLUSTER_MEMBER_ID, clusterMemberId);
+  public ZeebeGatewayEnvironment withClusterMemberId(String clusterMemberId) {
+    this.envMap.put(ZeebeGatewayEnvVar.CLUSTER_MEMBER_ID, clusterMemberId);
     this.clusterMemberId = clusterMemberId;
     return this;
   }
@@ -113,8 +113,8 @@ public class GatewayEnvironment extends ZeebeEnvironment<GatewayEnvironment> {
     return clusterHost;
   }
 
-  public GatewayEnvironment withClusterHost(String clusterHost) {
-    this.envMap.put(GatewayEnvVar.CLUSTER_HOST, clusterHost);
+  public ZeebeGatewayEnvironment withClusterHost(String clusterHost) {
+    this.envMap.put(ZeebeGatewayEnvVar.CLUSTER_HOST, clusterHost);
     this.clusterHost = clusterHost;
     return this;
   }
@@ -123,8 +123,8 @@ public class GatewayEnvironment extends ZeebeEnvironment<GatewayEnvironment> {
     return clusterPort;
   }
 
-  public GatewayEnvironment withClusterPort(int clusterPort) {
-    this.envMap.put(GatewayEnvVar.CLUSTER_PORT, clusterPort);
+  public ZeebeGatewayEnvironment withClusterPort(int clusterPort) {
+    this.envMap.put(ZeebeGatewayEnvVar.CLUSTER_PORT, clusterPort);
     this.clusterPort = clusterPort;
     return this;
   }
@@ -133,8 +133,8 @@ public class GatewayEnvironment extends ZeebeEnvironment<GatewayEnvironment> {
     return managementThreadCount;
   }
 
-  public GatewayEnvironment withManagementThreadCount(int managementThreadCount) {
-    this.envMap.put(GatewayEnvVar.MANAGEMENT_THREAD_COUNT, managementThreadCount);
+  public ZeebeGatewayEnvironment withManagementThreadCount(int managementThreadCount) {
+    this.envMap.put(ZeebeGatewayEnvVar.MANAGEMENT_THREAD_COUNT, managementThreadCount);
     this.managementThreadCount = managementThreadCount;
     return this;
   }
@@ -143,8 +143,8 @@ public class GatewayEnvironment extends ZeebeEnvironment<GatewayEnvironment> {
     return securityEnabled;
   }
 
-  public GatewayEnvironment withSecurityEnabled(boolean securityEnabled) {
-    this.envMap.put(GatewayEnvVar.SECURITY_ENABLED, securityEnabled);
+  public ZeebeGatewayEnvironment withSecurityEnabled(boolean securityEnabled) {
+    this.envMap.put(ZeebeGatewayEnvVar.SECURITY_ENABLED, securityEnabled);
     this.securityEnabled = securityEnabled;
     return this;
   }
@@ -153,8 +153,8 @@ public class GatewayEnvironment extends ZeebeEnvironment<GatewayEnvironment> {
     return certificatePath;
   }
 
-  public GatewayEnvironment withCertificatePath(String certificatePath) {
-    this.envMap.put(GatewayEnvVar.CERTIFICATE_PATH, certificatePath);
+  public ZeebeGatewayEnvironment withCertificatePath(String certificatePath) {
+    this.envMap.put(ZeebeGatewayEnvVar.CERTIFICATE_PATH, certificatePath);
     this.certificatePath = certificatePath;
     return this;
   }
@@ -163,8 +163,8 @@ public class GatewayEnvironment extends ZeebeEnvironment<GatewayEnvironment> {
     return privateKeyPath;
   }
 
-  public GatewayEnvironment withPrivateKeyPath(String privateKeyPath) {
-    this.envMap.put(GatewayEnvVar.PRIVATE_KEY_PATH, privateKeyPath);
+  public ZeebeGatewayEnvironment withPrivateKeyPath(String privateKeyPath) {
+    this.envMap.put(ZeebeGatewayEnvVar.PRIVATE_KEY_PATH, privateKeyPath);
     this.privateKeyPath = privateKeyPath;
     return this;
   }
@@ -173,8 +173,8 @@ public class GatewayEnvironment extends ZeebeEnvironment<GatewayEnvironment> {
     return monitoringEnabled;
   }
 
-  public GatewayEnvironment withMonitoringEnabled(boolean monitoringEnabled) {
-    this.envMap.put(GatewayEnvVar.MONITORING_ENABLED, monitoringEnabled);
+  public ZeebeGatewayEnvironment withMonitoringEnabled(boolean monitoringEnabled) {
+    this.envMap.put(ZeebeGatewayEnvVar.MONITORING_ENABLED, monitoringEnabled);
     this.monitoringEnabled = monitoringEnabled;
     return this;
   }
@@ -183,8 +183,8 @@ public class GatewayEnvironment extends ZeebeEnvironment<GatewayEnvironment> {
     return monitoringHost;
   }
 
-  public GatewayEnvironment withMonitoringHost(String monitoringHost) {
-    this.envMap.put(GatewayEnvVar.MONITORING_HOST, monitoringHost);
+  public ZeebeGatewayEnvironment withMonitoringHost(String monitoringHost) {
+    this.envMap.put(ZeebeGatewayEnvVar.MONITORING_HOST, monitoringHost);
     this.monitoringHost = monitoringHost;
     return this;
   }
@@ -193,8 +193,8 @@ public class GatewayEnvironment extends ZeebeEnvironment<GatewayEnvironment> {
     return monitoringPort;
   }
 
-  public GatewayEnvironment withMonitoringPort(int monitoringPort) {
-    this.envMap.put(GatewayEnvVar.MONITORING_PORT, monitoringPort);
+  public ZeebeGatewayEnvironment withMonitoringPort(int monitoringPort) {
+    this.envMap.put(ZeebeGatewayEnvVar.MONITORING_PORT, monitoringPort);
     this.monitoringPort = monitoringPort;
     return this;
   }

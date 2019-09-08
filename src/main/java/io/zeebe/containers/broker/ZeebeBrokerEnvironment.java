@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class BrokerEnvironment extends ZeebeEnvironment<BrokerEnvironment> {
+public class ZeebeBrokerEnvironment extends ZeebeEnvironment<ZeebeBrokerEnvironment> {
   private String host;
   private int portOffset;
 
@@ -39,8 +39,8 @@ public class BrokerEnvironment extends ZeebeEnvironment<BrokerEnvironment> {
     return host;
   }
 
-  public BrokerEnvironment withHost(String host) {
-    envMap.put(BrokerEnvVar.HOST, host);
+  public ZeebeBrokerEnvironment withHost(String host) {
+    envMap.put(ZeebeBrokerEnvVar.HOST, host);
     this.host = host;
     return this;
   }
@@ -49,8 +49,8 @@ public class BrokerEnvironment extends ZeebeEnvironment<BrokerEnvironment> {
     return nodeId;
   }
 
-  public BrokerEnvironment withNodeId(int nodeId) {
-    envMap.put(BrokerEnvVar.NODE_ID, nodeId);
+  public ZeebeBrokerEnvironment withNodeId(int nodeId) {
+    envMap.put(ZeebeBrokerEnvVar.NODE_ID, nodeId);
     this.nodeId = nodeId;
     return this;
   }
@@ -59,8 +59,8 @@ public class BrokerEnvironment extends ZeebeEnvironment<BrokerEnvironment> {
     return portOffset;
   }
 
-  public BrokerEnvironment withPortOffset(int portOffset) {
-    envMap.put(BrokerEnvVar.PORT_OFFSET, portOffset);
+  public ZeebeBrokerEnvironment withPortOffset(int portOffset) {
+    envMap.put(ZeebeBrokerEnvVar.PORT_OFFSET, portOffset);
     this.portOffset = portOffset;
     return this;
   }
@@ -69,8 +69,8 @@ public class BrokerEnvironment extends ZeebeEnvironment<BrokerEnvironment> {
     return replicationFactor;
   }
 
-  public BrokerEnvironment withReplicationFactor(int replicationFactor) {
-    envMap.put(BrokerEnvVar.REPLICATION_FACTOR, replicationFactor);
+  public ZeebeBrokerEnvironment withReplicationFactor(int replicationFactor) {
+    envMap.put(ZeebeBrokerEnvVar.REPLICATION_FACTOR, replicationFactor);
     this.replicationFactor = replicationFactor;
     return this;
   }
@@ -79,8 +79,8 @@ public class BrokerEnvironment extends ZeebeEnvironment<BrokerEnvironment> {
     return partitionCount;
   }
 
-  public BrokerEnvironment withPartitionCount(int partitionCount) {
-    envMap.put(BrokerEnvVar.PARTITION_COUNT, partitionCount);
+  public ZeebeBrokerEnvironment withPartitionCount(int partitionCount) {
+    envMap.put(ZeebeBrokerEnvVar.PARTITION_COUNT, partitionCount);
     this.partitionCount = partitionCount;
     return this;
   }
@@ -89,8 +89,8 @@ public class BrokerEnvironment extends ZeebeEnvironment<BrokerEnvironment> {
     return clusterSize;
   }
 
-  public BrokerEnvironment withClusterSize(int clusterSize) {
-    envMap.put(BrokerEnvVar.CLUSTER_SIZE, clusterSize);
+  public ZeebeBrokerEnvironment withClusterSize(int clusterSize) {
+    envMap.put(ZeebeBrokerEnvVar.CLUSTER_SIZE, clusterSize);
     this.clusterSize = clusterSize;
     return this;
   }
@@ -99,8 +99,8 @@ public class BrokerEnvironment extends ZeebeEnvironment<BrokerEnvironment> {
     return clusterName;
   }
 
-  public BrokerEnvironment withClusterName(String clusterName) {
-    envMap.put(BrokerEnvVar.CLUSTER_NAME, clusterName);
+  public ZeebeBrokerEnvironment withClusterName(String clusterName) {
+    envMap.put(ZeebeBrokerEnvVar.CLUSTER_NAME, clusterName);
     this.clusterName = clusterName;
     return this;
   }
@@ -109,8 +109,8 @@ public class BrokerEnvironment extends ZeebeEnvironment<BrokerEnvironment> {
     return contactPoints;
   }
 
-  public BrokerEnvironment withContactPoints(Collection<String> contactPoints) {
-    envMap.put(BrokerEnvVar.CONTACT_POINTS, contactPoints);
+  public ZeebeBrokerEnvironment withContactPoints(Collection<String> contactPoints) {
+    envMap.put(ZeebeBrokerEnvVar.CONTACT_POINTS, contactPoints);
     this.contactPoints = new ArrayList<>(contactPoints);
     return this;
   }
@@ -119,8 +119,8 @@ public class BrokerEnvironment extends ZeebeEnvironment<BrokerEnvironment> {
     return debug;
   }
 
-  public BrokerEnvironment withDebug(boolean debug) {
-    envMap.put(BrokerEnvVar.DEBUG, debug);
+  public ZeebeBrokerEnvironment withDebug(boolean debug) {
+    envMap.put(ZeebeBrokerEnvVar.DEBUG, debug);
     this.debug = debug;
     return this;
   }
@@ -129,8 +129,8 @@ public class BrokerEnvironment extends ZeebeEnvironment<BrokerEnvironment> {
     return embedGateway;
   }
 
-  public BrokerEnvironment withEmbeddedGateway(boolean embedGateway) {
-    envMap.put(BrokerEnvVar.EMBED_GATEWAY, embedGateway);
+  public ZeebeBrokerEnvironment withEmbeddedGateway(boolean embedGateway) {
+    envMap.put(ZeebeBrokerEnvVar.EMBED_GATEWAY, embedGateway);
     this.embedGateway = embedGateway;
     return this;
   }
