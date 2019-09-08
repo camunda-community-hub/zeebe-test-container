@@ -32,7 +32,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
-import org.slf4j.Logger;
 import org.testcontainers.containers.GenericContainer;
 
 @RunWith(Parameterized.class)
@@ -45,17 +44,14 @@ public class ZeebeTest {
   @Parameters(name = "{0}")
   public static Collection<Object[]> data() {
     return Arrays.asList(
-        new Object[] {"0.20.0"},
-        new Object[] {"0.21.0-alpha1"},
-        new Object[] {"0.21.0-alpha2"});
+        new Object[] {"0.20.0"}, new Object[] {"0.21.0-alpha1"}, new Object[] {"0.21.0-alpha2"});
   }
 
   @Test
   public void shouldStartConnectedGatewayAndBroker() {
     // given
     final ZeebeBrokerContainer broker = newBroker();
-    final ZeebeGatewayContainer gateway =
-        newGateway().withNetwork(broker.getNetwork());
+    final ZeebeGatewayContainer gateway = newGateway().withNetwork(broker.getNetwork());
 
     // when
     broker.withEmbeddedGateway(false).withHost("zeebe-0");
