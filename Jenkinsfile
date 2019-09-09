@@ -6,7 +6,7 @@ pipeline {
       cloud 'zeebe-ci'
       label "zeebe-ci-build_${env.JOB_BASE_NAME}-${env.BUILD_ID}"
       defaultContainer 'jnlp'
-      yamlFile '.ci/specs/distribution.yml'
+      yamlFile '.ci/specs/default.yml'
     }
   }
 
