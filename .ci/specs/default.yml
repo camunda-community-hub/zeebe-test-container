@@ -11,7 +11,7 @@ spec:
       operator: "Exists"
       effect: "NoSchedule"
   containers:
-    - name: maven-jdk11
+    - name: maven
       image: maven:3.6.0-jdk-11
       command: ["cat"]
       tty: true
@@ -28,23 +28,6 @@ spec:
         requests:
           cpu: 1
           memory: 2Gi
-    - name: maven-jdk8
-        image: maven:3.6.0-jdk-8
-        command: ["cat"]
-        tty: true
-        env:
-          - name: JAVA_TOOL_OPTIONS
-            value: |
-              -XX:+UseContainerSupport
-          - name: DOCKER_HOST
-            value: tcp://localhost:2375
-        resources:
-          limits:
-            cpu: 1
-            memory: 2Gi
-          requests:
-            cpu: 1
-            memory: 2Gi
     - name: dind
       image: docker:18.09.4-dind
       args: ["--storage-driver=overlay2"]
