@@ -29,7 +29,7 @@ Supported Zeebe versions
 Example usage
 =============
 
-Import `zeebe-container` to your project, and you can use the containers in your
+Import `zeebe-test-container` to your project, and you can use the containers in your
 tests as:
 
 ### Simple broker with embedded gateway
