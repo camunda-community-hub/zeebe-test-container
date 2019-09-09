@@ -10,7 +10,7 @@
   <groupId>io.zeebe</groupId>
   <version>1.0.0-SNAPSHOT</version>
   <inceptionYear>2019</inceptionYear>
-  <url>https://github.com/npepinpe/zeebe-test-container</url>
+  <url>https://github.com/zeebe-io/zeebe-test-container</url>
 
   <parent>
     <groupId>org.camunda</groupId>
