@@ -99,7 +99,7 @@ public class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContaine
       return true;
     }
 
-    if (!(o instanceof ZeebeGatewayContainer)) {
+    if (o == null || this.getClass() != o.getClass()) {
       return false;
     }
 

@@ -74,7 +74,7 @@ public class ZeebeBrokerContainer extends GenericContainer<ZeebeBrokerContainer>
       return true;
     }
 
-    if (!(o instanceof ZeebeBrokerContainer)) {
+    if (o == null || this.getClass() != o.getClass()) {
       return false;
     }
 
