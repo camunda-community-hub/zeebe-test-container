@@ -30,7 +30,7 @@ pipeline {
   stages {
     stage('Prepare') {
       steps {
-        container('maven-') {
+        container('maven') {
             sh 'mvn clean install -B -s .ci/settings.xml -DskipTests'
         }
       }
