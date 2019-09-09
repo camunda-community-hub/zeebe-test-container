@@ -3,6 +3,12 @@ Zeebe Test Container
 
 Easily test your application against a containerized, configurable Zeebe instance.
 
+> **NOTE**: the module uses the same versions as the Zeebe version it targets, e.g. version `0.21.0-alpha2` targets Zeebe `0.21.0-alpha2`. 
+            While we try to maintain backwards compatibility it is not always guaranteed.
+
+Please refer to [testcontainers.org](https://testcontainers.org) for general documentation on how to
+use containers for your tests.
+
 Features
 ========
 
@@ -25,6 +31,21 @@ Supported Zeebe versions
 - 0.20.0
 - 0.21.0-alpha1
 - 0.21.0-alpha2
+
+Quickstart
+==========
+
+Add the project to your dependencies:
+
+```xml
+<dependency>
+  <groupId>io.zeebe</groupId>
+  <artifactId>zeebe-test-container</artifactId>
+  <version>0.21.0-alpha2</version>
+</dependency>
+```
+
+You can then use `ZeebeBrokerContainer` and `ZeebeGatewayContainer` as you would any `GenericContainer`.
 
 Example usage
 =============
