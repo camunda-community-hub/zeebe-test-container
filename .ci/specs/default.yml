@@ -36,8 +36,8 @@ spec:
         privileged: true
       resources:
         limits:
-          cpu: 4
-          memory: 4Gi
+          cpu: 6
+          memory: 8Gi
         requests:
-          cpu: 4
-          memory: 4Gi
+          cpu: 6
+          memory: 8Gi
