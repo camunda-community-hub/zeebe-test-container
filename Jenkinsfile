@@ -91,7 +91,7 @@ pipeline {
             sh 'git config --global user.name "camunda-jenkins"'
             sh 'mkdir ~/.ssh/ && ssh-keyscan github.com >> ~/.ssh/known_hosts'
             sh 'mvn -B -s .ci/settings.xml -DskipTests source:jar javadoc:jar release:prepare release:perform -Prelease'
-            sh '.ci/scripts/github-release.sh'
+            sh '.ci/scripts/release.sh'
           }
         }
       }
