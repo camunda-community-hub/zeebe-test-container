@@ -8,7 +8,7 @@
   <artifactId>zeebe-test-container</artifactId>
   <packaging>jar</packaging>
   <groupId>io.zeebe</groupId>
-  <version>0.21.0-alpha2</version>
+  <version>0.21.0-alpha2-SNAPSHOT</version>
   <inceptionYear>2019</inceptionYear>
   <url>https://github.com/zeebe-io/zeebe-test-container</url>
 
