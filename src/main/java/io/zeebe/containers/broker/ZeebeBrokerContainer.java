@@ -16,12 +16,13 @@
 package io.zeebe.containers.broker;
 
 import io.zeebe.containers.ZeebeConfigurable;
-import io.zeebe.containers.ZeebeContainer;
+import io.zeebe.containers.ZeebeDefaults;
 import io.zeebe.containers.ZeebeNetworkable;
 import io.zeebe.containers.ZeebePort;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Set;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
@@ -30,19 +31,17 @@ import org.testcontainers.utility.Base58;
 
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
 public class ZeebeBrokerContainer extends GenericContainer<ZeebeBrokerContainer>
-    implements ZeebeContainer<ZeebeBrokerContainer>,
-        ZeebeConfigurable<ZeebeBrokerContainer>,
-        ZeebeNetworkable {
+    implements ZeebeConfigurable<ZeebeBrokerContainer>, ZeebeNetworkable {
   protected String host;
   protected int portOffset;
   protected boolean embedGateway;
 
   public ZeebeBrokerContainer() {
-    this(DEFAULT_ZEEBE_VERSION);
+    this(ZeebeDefaults.getInstance().getDefaultVersion());
   }
 
   public ZeebeBrokerContainer(final String version) {
-    this(ZeebeContainer.getDefaultImage(), version);
+    this(ZeebeDefaults.getInstance().getDefaultImage(), version);
   }
 
   public ZeebeBrokerContainer(final String image, final String version) {
@@ -70,16 +69,40 @@ public class ZeebeBrokerContainer extends GenericContainer<ZeebeBrokerContainer>
   }
 
   @Override
+  public boolean equals(final Object o) {
+    if (this == o) {
+      return true;
+    }
+
+    if (!(o instanceof ZeebeBrokerContainer)) {
+      return false;
+    }
+
+    if (!super.equals(o)) {
+      return false;
+    }
+
+    final ZeebeBrokerContainer that = (ZeebeBrokerContainer) o;
+    return portOffset == that.portOffset
+        && embedGateway == that.embedGateway
+        && Objects.equals(host, that.host);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), host, portOffset, embedGateway);
+  }
+
   public void applyDefaultConfiguration() {
-    final String host = "zeebe-broker-" + Base58.randomString(6);
+    final String defaultHost = "zeebe-broker-" + Base58.randomString(6);
     setWaitStrategy(new LogMessageWaitStrategy().withRegEx(".*Broker is ready.*"));
 
-    withHost(host)
+    withHost(defaultHost)
         .withPartitionCount(1)
         .withReplicationFactor(1)
         .withEmbeddedGateway(true)
         .withDebug(false)
-        .withClusterName(DEFAULT_CLUSTER_NAME)
+        .withClusterName(ZeebeDefaults.getInstance().getDefaultClusterName())
         .withClusterSize(1)
         .withContactPoints(Collections.emptyList())
         .withNodeId(0);

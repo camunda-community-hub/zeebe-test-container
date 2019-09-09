@@ -22,7 +22,7 @@ public interface ZeebeContainer<SELF extends ZeebeContainer<SELF>> extends Conta
   String DEFAULT_CLUSTER_NAME = "zeebe";
   String ZEEBE_CONTAINER_IMAGE_PROPERTY = "zeebe.container.image";
   String DEFAULT_ZEEBE_CONTAINER_IMAGE = "camunda/zeebe";
-  String DEFAULT_ZEEBE_VERSION = "0.20.0";
+  String DEFAULT_ZEEBE_VERSION = "0.21.0-alpha2";
 
   static String getDefaultImage() {
     return TestcontainersConfiguration.getInstance()

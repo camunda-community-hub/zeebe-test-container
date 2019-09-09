@@ -17,10 +17,12 @@ package io.zeebe.containers.gateway;
 
 import io.zeebe.containers.ZeebeConfigurable;
 import io.zeebe.containers.ZeebeContainer;
+import io.zeebe.containers.ZeebeDefaults;
 import io.zeebe.containers.ZeebeNetworkable;
 import io.zeebe.containers.ZeebePort;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
@@ -29,9 +31,7 @@ import org.testcontainers.utility.Base58;
 
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
 public class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContainer>
-    implements ZeebeContainer<ZeebeGatewayContainer>,
-        ZeebeConfigurable<ZeebeGatewayContainer>,
-        ZeebeNetworkable {
+    implements ZeebeConfigurable<ZeebeGatewayContainer>, ZeebeNetworkable {
 
   protected static final String DEFAULT_CLUSTER_MEMBER_ID = "zeebe-gateway-0";
   protected static final String DEFAULT_HOST = "0.0.0.0";
@@ -40,7 +40,7 @@ public class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContaine
   protected boolean monitoringEnabled;
 
   public ZeebeGatewayContainer() {
-    this(DEFAULT_ZEEBE_VERSION);
+    this(ZeebeDefaults.getInstance().getDefaultVersion());
   }
 
   public ZeebeGatewayContainer(final String version) {
@@ -52,16 +52,15 @@ public class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContaine
     applyDefaultConfiguration();
   }
 
-  @Override
   public void applyDefaultConfiguration() {
-    final String internalHost = "zeebe-gateway-" + Base58.randomString(6);
+    final String defaultInternalHost = "zeebe-gateway-" + Base58.randomString(6);
 
     withHost(DEFAULT_HOST)
         .withPort(ZeebePort.GATEWAY.getPort())
-        .withClusterName(DEFAULT_CLUSTER_NAME)
+        .withClusterName(ZeebeDefaults.getInstance().getDefaultClusterName())
         .withClusterMemberId(DEFAULT_CLUSTER_MEMBER_ID)
         .withClusterPort(ZeebePort.INTERNAL_API.getPort())
-        .withClusterHost(internalHost);
+        .withClusterHost(defaultInternalHost);
 
     setWaitStrategy(new HostPortWaitStrategy());
     withEnv(ZeebeGatewayEnvironmentVariable.STANDALONE, true);
@@ -92,6 +91,30 @@ public class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContaine
   @Override
   public String getInternalHost() {
     return internalHost;
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (this == o) {
+      return true;
+    }
+
+    if (!(o instanceof ZeebeGatewayContainer)) {
+      return false;
+    }
+
+    if (!super.equals(o)) {
+      return false;
+    }
+
+    final ZeebeGatewayContainer that = (ZeebeGatewayContainer) o;
+    return monitoringEnabled == that.monitoringEnabled
+        && Objects.equals(getInternalHost(), that.getInternalHost());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), getInternalHost(), monitoringEnabled);
   }
 
   public ZeebeGatewayContainer withHost(final String host) {

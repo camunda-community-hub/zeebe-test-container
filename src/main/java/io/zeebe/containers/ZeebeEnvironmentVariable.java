@@ -25,10 +25,6 @@ public enum ZeebeEnvironmentVariable implements EnvironmentVariable {
     variableName = name();
   }
 
-  ZeebeEnvironmentVariable(final String variableName) {
-    this.variableName = variableName;
-  }
-
   @Override
   public String getVariableName() {
     return variableName;

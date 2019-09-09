@@ -30,8 +30,6 @@ import org.testcontainers.containers.Container;
 import org.testcontainers.utility.MountableFile;
 
 public interface ZeebeConfigurable<SELF extends ZeebeConfigurable<SELF>> extends Container<SELF> {
-  String DEFAULT_CONFIGURATION_PATH = "/usr/local/zeebe/conf/zeebe.cfg.toml";
-
   default SELF withEnv(final EnvironmentVariable envVar, final String value) {
     return withEnv(envVar.getVariableName(), value);
   }
@@ -57,7 +55,7 @@ public interface ZeebeConfigurable<SELF extends ZeebeConfigurable<SELF>> extends
   }
 
   default SELF withCopyFileToContainer(final MountableFile file) {
-    return withCopyFileToContainer(file, DEFAULT_CONFIGURATION_PATH);
+    return withCopyFileToContainer(file, ZeebeDefaults.getInstance().getDefaultConfigurationPath());
   }
 
   default SELF withConfigurationResource(final String configurationResource) {
@@ -71,7 +69,8 @@ public interface ZeebeConfigurable<SELF extends ZeebeConfigurable<SELF>> extends
   default SELF withConfiguration(final InputStream configuration) {
     try {
       final Path tempFile = Files.createTempFile(getClass().getPackage().getName(), ".tmp");
-      long bytesRead, offset = 0;
+      long bytesRead;
+      long offset = 0;
       try (final ReadableByteChannel input = Channels.newChannel(configuration);
           final FileChannel output = FileChannel.open(tempFile)) {
         while ((bytesRead = output.transferFrom(input, offset, 4096L)) > 0) {
