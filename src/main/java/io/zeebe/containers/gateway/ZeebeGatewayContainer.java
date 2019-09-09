@@ -16,7 +16,6 @@
 package io.zeebe.containers.gateway;
 
 import io.zeebe.containers.ZeebeConfigurable;
-import io.zeebe.containers.ZeebeContainer;
 import io.zeebe.containers.ZeebeDefaults;
 import io.zeebe.containers.ZeebeNetworkable;
 import io.zeebe.containers.ZeebePort;
@@ -44,7 +43,7 @@ public class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContaine
   }
 
   public ZeebeGatewayContainer(final String version) {
-    this(ZeebeContainer.getDefaultImage(), version);
+    this(ZeebeDefaults.getInstance().getDefaultImage(), version);
   }
 
   public ZeebeGatewayContainer(final String image, final String version) {
