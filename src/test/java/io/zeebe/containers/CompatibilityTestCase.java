@@ -38,7 +38,7 @@ public abstract class CompatibilityTestCase {
 
   @Parameters(name = "{0}")
   public static Collection<Object[]> data() {
-    return Stream.of("0.20.0", "0.21.0-alpha1", "0.21.0-alpha2")
+    return Stream.of("0.20.1", "0.21.1", "0.22.0-alpha1")
         .map(version -> new Object[] {version})
         .collect(Collectors.toList());
   }
