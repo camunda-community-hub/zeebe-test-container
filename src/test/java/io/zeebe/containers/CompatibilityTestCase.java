@@ -15,14 +15,22 @@
  */
 package io.zeebe.containers;
 
+import io.zeebe.client.ZeebeClient;
+import io.zeebe.client.api.response.BrokerInfo;
+import io.zeebe.client.api.response.Topology;
 import java.util.Collection;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
+import org.rnorth.ducttape.unreliables.Unreliables;
 
+@SuppressWarnings("WeakerAccess")
 @RunWith(Parameterized.class)
 public abstract class CompatibilityTestCase {
   @Parameter(0)
@@ -33,5 +41,30 @@ public abstract class CompatibilityTestCase {
     return Stream.of("0.20.0", "0.21.0-alpha1", "0.21.0-alpha2")
         .map(version -> new Object[] {version})
         .collect(Collectors.toList());
+  }
+
+  protected Topology tryGetTopology(
+      final ZeebeClient client, final int expectedBrokersCount, final int expectedPartitionsCount) {
+    return Unreliables.retryUntilSuccess(
+        5,
+        TimeUnit.SECONDS,
+        () -> getTopology(client, expectedBrokersCount, expectedPartitionsCount));
+  }
+
+  protected Topology getTopology(
+      final ZeebeClient client, final int expectedBrokersCount, final int expectedPartitionsCount) {
+    final Topology topology = client.newTopologyRequest().send().join();
+    final List<BrokerInfo> brokers = topology.getBrokers();
+
+    if (brokers.size() == expectedBrokersCount) {
+      if (brokers.stream().allMatch(b -> b.getPartitions().size() == expectedPartitionsCount)) {
+        return topology;
+      }
+    }
+
+    throw new NoSuchElementException(
+        String.format(
+            "Expected topology to contain %d brokers with %d partitions, but got %s",
+            expectedBrokersCount, expectedPartitionsCount, topology.toString()));
   }
 }

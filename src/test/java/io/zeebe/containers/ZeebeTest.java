@@ -43,7 +43,7 @@ public class ZeebeTest extends CompatibilityTestCase {
 
     // then
     final ZeebeClient client = newClient(gateway);
-    final Topology topology = client.newTopologyRequest().send().join();
+    final Topology topology = tryGetTopology(client, 1, 1);
     final List<BrokerInfo> brokers = topology.getBrokers();
     assertThat(brokers).hasSize(1);
 
@@ -78,7 +78,7 @@ public class ZeebeTest extends CompatibilityTestCase {
 
     // Verify topology
     final ZeebeClient client = newClient(gateway);
-    final Topology topology = client.newTopologyRequest().send().join();
+    final Topology topology = tryGetTopology(client, 3, 3);
     final List<BrokerInfo> brokers = topology.getBrokers();
     assertThat(brokers).hasSize(3);
 

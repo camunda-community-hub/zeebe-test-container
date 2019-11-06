@@ -44,11 +44,12 @@ public class ZeebeBrokerContainerTest extends CompatibilityTestCase {
   @Test
   public void shouldStartWithEmbeddedGateway() {
     // given
+    final int partitionsCount = 3;
     container
         .withHost("zeebe-0")
         .withNodeId(0)
         .withEmbeddedGateway(true)
-        .withPartitionCount(3)
+        .withPartitionCount(partitionsCount)
         .withReplicationFactor(1);
     Timeouts.doWithTimeout(30, TimeUnit.SECONDS, container::start);
 
@@ -58,21 +59,21 @@ public class ZeebeBrokerContainerTest extends CompatibilityTestCase {
             .usePlaintext()
             .brokerContactPoint(container.getExternalAddress(ZeebePort.GATEWAY))
             .build();
-    final Topology topology = client.newTopologyRequest().send().join();
+    // we need to wait until the broker's topology is stable in order to really test it, as the
+    final Topology topology = tryGetTopology(client, 1, partitionsCount);
     final List<BrokerInfo> brokers = topology.getBrokers();
+    final BrokerInfo brokerInfo = brokers.get(0);
 
     // then
     assertThat(topology.getClusterSize()).isEqualTo(1);
     assertThat(topology.getReplicationFactor()).isEqualTo(1);
-    assertThat(topology.getPartitionsCount()).isEqualTo(3);
+    assertThat(topology.getPartitionsCount()).isEqualTo(partitionsCount);
     assertThat(brokers).hasSize(1);
-
-    final BrokerInfo brokerInfo = brokers.get(0);
     assertThat(brokerInfo.getHost()).isEqualTo("zeebe-0");
     assertThat(brokerInfo.getNodeId()).isEqualTo(0);
     assertThat(brokerInfo.getPort()).isEqualTo(ZeebePort.COMMAND_API.getPort());
     assertThat(brokerInfo.getAddress())
         .isEqualTo(container.getInternalAddress(ZeebePort.COMMAND_API));
-    assertThat(brokerInfo.getPartitions()).hasSize(3);
+    assertThat(brokerInfo.getPartitions()).hasSize(partitionsCount);
   }
 }
