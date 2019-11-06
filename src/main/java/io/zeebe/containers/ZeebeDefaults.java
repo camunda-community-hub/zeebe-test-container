@@ -25,12 +25,10 @@ public final class ZeebeDefaults {
   private static final String DEFAULT_ZEEBE_VERSION = "0.21.0-alpha2";
   private static final String DEFAULT_CONFIGURATION_PATH = "/usr/local/zeebe/conf/zeebe.cfg.toml";
 
-  private static final ZeebeDefaults INSTANCE = new ZeebeDefaults();
-
   private ZeebeDefaults() {}
 
   public static ZeebeDefaults getInstance() {
-    return INSTANCE;
+    return Singleton.INSTANCE;
   }
 
   public String getDefaultImage() {
@@ -50,5 +48,9 @@ public final class ZeebeDefaults {
 
   public String getDefaultConfigurationPath() {
     return DEFAULT_CONFIGURATION_PATH;
+  }
+
+  private static final class Singleton {
+    private static final ZeebeDefaults INSTANCE = new ZeebeDefaults();
   }
 }
