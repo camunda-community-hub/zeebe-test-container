@@ -17,7 +17,7 @@ package io.zeebe.containers;
 
 import org.testcontainers.utility.TestcontainersConfiguration;
 
-@SuppressWarnings("squid:S1075")
+@SuppressWarnings({"squid:S1075", "WeakerAccess"})
 public final class ZeebeDefaults {
   private static final String DEFAULT_CLUSTER_NAME = "zeebe";
   private static final String ZEEBE_CONTAINER_IMAGE_PROPERTY = "zeebe.container.image";

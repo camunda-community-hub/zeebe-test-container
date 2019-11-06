@@ -13,12 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.zeebe.containers.gateway;
+package io.zeebe.containers;
 
-import io.zeebe.containers.ZeebeConfigurable;
-import io.zeebe.containers.ZeebeDefaults;
-import io.zeebe.containers.ZeebeNetworkable;
-import io.zeebe.containers.ZeebePort;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Objects;
@@ -29,8 +25,11 @@ import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.utility.Base58;
 
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
-public class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContainer>
-    implements ZeebeConfigurable<ZeebeGatewayContainer>, ZeebeNetworkable {
+public class ZeebeStandaloneGatewayContainer
+    extends GenericContainer<ZeebeStandaloneGatewayContainer>
+    implements ZeebeContainer<ZeebeStandaloneGatewayContainer>,
+        ZeebeGatewayContainer<ZeebeStandaloneGatewayContainer>,
+        ZeebeNetworkable {
 
   protected static final String DEFAULT_CLUSTER_MEMBER_ID = "zeebe-gateway-0";
   protected static final String DEFAULT_HOST = "0.0.0.0";
@@ -38,15 +37,15 @@ public class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContaine
   protected String internalHost;
   protected boolean monitoringEnabled;
 
-  public ZeebeGatewayContainer() {
+  public ZeebeStandaloneGatewayContainer() {
     this(ZeebeDefaults.getInstance().getDefaultVersion());
   }
 
-  public ZeebeGatewayContainer(final String version) {
+  public ZeebeStandaloneGatewayContainer(final String version) {
     this(ZeebeDefaults.getInstance().getDefaultImage(), version);
   }
 
-  public ZeebeGatewayContainer(final String image, final String version) {
+  public ZeebeStandaloneGatewayContainer(final String image, final String version) {
     super(image + ":" + version);
     applyDefaultConfiguration();
   }
@@ -62,7 +61,7 @@ public class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContaine
         .withClusterHost(defaultInternalHost);
 
     setWaitStrategy(new HostPortWaitStrategy());
-    withEnv(ZeebeGatewayEnvironmentVariable.STANDALONE, true);
+    withEnv(ZeebeStandaloneGatewayEnvironment.STANDALONE, true);
     withNetwork(Network.newNetwork());
   }
 
@@ -106,7 +105,7 @@ public class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContaine
       return false;
     }
 
-    final ZeebeGatewayContainer that = (ZeebeGatewayContainer) o;
+    final ZeebeStandaloneGatewayContainer that = (ZeebeStandaloneGatewayContainer) o;
     return monitoringEnabled == that.monitoringEnabled
         && Objects.equals(getInternalHost(), that.getInternalHost());
   }
@@ -116,69 +115,26 @@ public class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContaine
     return Objects.hash(super.hashCode(), getInternalHost(), monitoringEnabled);
   }
 
-  public ZeebeGatewayContainer withHost(final String host) {
-    return withEnv(ZeebeGatewayEnvironmentVariable.HOST, host);
+  public ZeebeStandaloneGatewayContainer withClusterName(final String clusterName) {
+    return withEnv(ZeebeStandaloneGatewayEnvironment.CLUSTER_NAME, clusterName);
   }
 
-  public ZeebeGatewayContainer withPort(final int port) {
-    return withEnv(ZeebeGatewayEnvironmentVariable.PORT, port);
+  public ZeebeStandaloneGatewayContainer withClusterMemberId(final String clusterMemberId) {
+    return withEnv(ZeebeStandaloneGatewayEnvironment.CLUSTER_MEMBER_ID, clusterMemberId);
   }
 
-  public ZeebeGatewayContainer withContactPoint(final String contactPoint) {
-    return withEnv(ZeebeGatewayEnvironmentVariable.CONTACT_POINT, contactPoint);
-  }
-
-  public ZeebeGatewayContainer withTransportBuffer(final int transportBuffer) {
-    return withEnv(ZeebeGatewayEnvironmentVariable.TRANSPORT_BUFFER, transportBuffer);
-  }
-
-  public ZeebeGatewayContainer withRequestTimeout(final int requestTimeout) {
-    return withEnv(ZeebeGatewayEnvironmentVariable.REQUEST_TIMEOUT, requestTimeout);
-  }
-
-  public ZeebeGatewayContainer withClusterName(final String clusterName) {
-    return withEnv(ZeebeGatewayEnvironmentVariable.CLUSTER_NAME, clusterName);
-  }
-
-  public ZeebeGatewayContainer withClusterMemberId(final String clusterMemberId) {
-    return withEnv(ZeebeGatewayEnvironmentVariable.CLUSTER_MEMBER_ID, clusterMemberId);
-  }
-
-  public ZeebeGatewayContainer withClusterHost(final String clusterHost) {
+  public ZeebeStandaloneGatewayContainer withClusterHost(final String clusterHost) {
     internalHost = clusterHost;
-    return withEnv(ZeebeGatewayEnvironmentVariable.CLUSTER_HOST, clusterHost);
+    return withEnv(ZeebeStandaloneGatewayEnvironment.CLUSTER_HOST, clusterHost);
   }
 
-  public ZeebeGatewayContainer withClusterPort(final int clusterPort) {
-    return withEnv(ZeebeGatewayEnvironmentVariable.CLUSTER_PORT, clusterPort);
+  public ZeebeStandaloneGatewayContainer withClusterPort(final int clusterPort) {
+    return withEnv(ZeebeStandaloneGatewayEnvironment.CLUSTER_PORT, clusterPort);
   }
 
-  public ZeebeGatewayContainer withManagementThreadCount(final int managementThreadCount) {
-    return withEnv(ZeebeGatewayEnvironmentVariable.MANAGEMENT_THREAD_COUNT, managementThreadCount);
-  }
-
-  public ZeebeGatewayContainer withSecurityEnabled(final boolean securityEnabled) {
-    return withEnv(ZeebeGatewayEnvironmentVariable.SECURITY_ENABLED, securityEnabled);
-  }
-
-  public ZeebeGatewayContainer withCertificatePath(final String certificatePath) {
-    return withEnv(ZeebeGatewayEnvironmentVariable.CERTIFICATE_PATH, certificatePath);
-  }
-
-  public ZeebeGatewayContainer withPrivateKeyPath(final String privateKeyPath) {
-    return withEnv(ZeebeGatewayEnvironmentVariable.PRIVATE_KEY_PATH, privateKeyPath);
-  }
-
-  public ZeebeGatewayContainer withMonitoringEnabled(final boolean monitoringEnabled) {
+  @Override
+  public ZeebeStandaloneGatewayContainer withMonitoringEnabled(final boolean monitoringEnabled) {
     this.monitoringEnabled = monitoringEnabled;
-    return withEnv(ZeebeGatewayEnvironmentVariable.MONITORING_ENABLED, monitoringEnabled);
-  }
-
-  public ZeebeGatewayContainer withMonitoringHost(final String monitoringHost) {
-    return withEnv(ZeebeGatewayEnvironmentVariable.MONITORING_HOST, monitoringHost);
-  }
-
-  public ZeebeGatewayContainer withMonitoringPort(final int monitoringPort) {
-    return withEnv(ZeebeGatewayEnvironmentVariable.MONITORING_PORT, monitoringPort);
+    return ZeebeGatewayContainer.super.withMonitoringEnabled(monitoringEnabled);
   }
 }

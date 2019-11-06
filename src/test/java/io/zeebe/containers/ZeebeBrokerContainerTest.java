@@ -13,43 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.zeebe.containers.broker;
+package io.zeebe.containers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.zeebe.client.ZeebeClient;
 import io.zeebe.client.api.response.BrokerInfo;
 import io.zeebe.client.api.response.Topology;
-import io.zeebe.containers.ZeebePort;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
 import org.rnorth.ducttape.timeouts.Timeouts;
 
-@RunWith(Parameterized.class)
-public class ZeebeBrokerContainerTest {
-  @Parameter(0)
-  public String zeebeVersion;
-
+public class ZeebeBrokerContainerTest extends CompatibilityTestCase {
   private ZeebeBrokerContainer container;
-
-  @Parameters(name = "{0}")
-  public static Collection<Object[]> data() {
-    return Arrays.asList(
-        new Object[] {"0.20.0"}, new Object[] {"0.21.0-alpha1"}, new Object[] {"0.21.0-alpha2"});
-  }
 
   @Before
   public void setUp() {
-    container = new ZeebeBrokerContainer(zeebeVersion);
+    container = new ZeebeBrokerContainer(version);
   }
 
   @After

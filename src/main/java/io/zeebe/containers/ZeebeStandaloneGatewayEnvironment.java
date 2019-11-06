@@ -15,10 +15,21 @@
  */
 package io.zeebe.containers;
 
-public interface EnvironmentVariable {
-  String name();
+public enum ZeebeStandaloneGatewayEnvironment implements Environment {
+  STANDALONE("ZEEBE_STANDALONE_GATEWAY"),
+  CLUSTER_NAME("ZEEBE_GATEWAY_CLUSTER_NAME"),
+  CLUSTER_MEMBER_ID("ZEEBE_GATEWAY_CLUSTER_MEMBER_ID"),
+  CLUSTER_HOST("ZEEBE_GATEWAY_CLUSTER_HOST"),
+  CLUSTER_PORT("ZEEBE_GATEWAY_CLUSTER_PORT");
 
-  default String getVariableName() {
-    return name().toUpperCase();
+  private final String variable;
+
+  ZeebeStandaloneGatewayEnvironment(String variable) {
+    this.variable = variable;
+  }
+
+  @Override
+  public String variable() {
+    return variable;
   }
 }

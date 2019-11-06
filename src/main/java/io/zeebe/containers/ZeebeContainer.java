@@ -29,29 +29,29 @@ import org.slf4j.event.Level;
 import org.testcontainers.containers.Container;
 import org.testcontainers.utility.MountableFile;
 
-public interface ZeebeConfigurable<SELF extends ZeebeConfigurable<SELF>> extends Container<SELF> {
-  default SELF withEnv(final EnvironmentVariable envVar, final String value) {
-    return withEnv(envVar.getVariableName(), value);
+public interface ZeebeContainer<SELF extends ZeebeContainer<SELF>> extends Container<SELF> {
+  default SELF withEnv(final Environment envVar, final String value) {
+    return withEnv(envVar.variable(), value);
   }
 
-  default SELF withEnv(final EnvironmentVariable envVar, final boolean value) {
+  default SELF withEnv(final Environment envVar, final boolean value) {
     return withEnv(envVar, String.valueOf(value));
   }
 
-  default SELF withEnv(final EnvironmentVariable envVar, final int value) {
+  default SELF withEnv(final Environment envVar, final int value) {
     return withEnv(envVar, String.valueOf(value));
   }
 
-  default SELF withEnv(final EnvironmentVariable envVar, final Collection<String> value) {
+  default SELF withEnv(final Environment envVar, final Collection<String> value) {
     return withEnv(envVar, String.join(",", value));
   }
 
   default SELF withLogLevel(final Level logLevel) {
-    return withEnv(ZeebeEnvironmentVariable.ZEEBE_LOG_LEVEL, logLevel.toString());
+    return withEnv(ZeebeEnvironment.ZEEBE_LOG_LEVEL, logLevel.toString());
   }
 
   default SELF withAtomixLogLevel(final Level logLevel) {
-    return withEnv(ZeebeEnvironmentVariable.ATOMIX_LOG_LEVEL, logLevel.toString());
+    return withEnv(ZeebeEnvironment.ATOMIX_LOG_LEVEL, logLevel.toString());
   }
 
   default SELF withCopyFileToContainer(final MountableFile file) {

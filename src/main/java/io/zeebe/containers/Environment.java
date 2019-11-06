@@ -15,18 +15,10 @@
  */
 package io.zeebe.containers;
 
-public enum ZeebeEnvironmentVariable implements EnvironmentVariable {
-  ZEEBE_LOG_LEVEL,
-  ATOMIX_LOG_LEVEL;
+public interface Environment {
+  String name();
 
-  private final String variableName;
-
-  ZeebeEnvironmentVariable() {
-    variableName = name();
-  }
-
-  @Override
-  public String getVariableName() {
-    return variableName;
+  default String variable() {
+    return name().toUpperCase();
   }
 }
