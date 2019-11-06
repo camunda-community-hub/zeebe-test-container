@@ -13,21 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.zeebe.containers.gateway;
+package io.zeebe.containers;
 
-import io.zeebe.containers.EnvironmentVariable;
-
-public enum ZeebeGatewayEnvironmentVariable implements EnvironmentVariable {
-  STANDALONE("ZEEBE_STANDALONE_GATEWAY"),
+public enum ZeebeGatewayEnvironment implements Environment {
   HOST("ZEEBE_GATEWAY_HOST"),
   PORT("ZEEBE_GATEWAY_PORT"),
   CONTACT_POINT("ZEEBE_GATEWAY_CONTACT_POINT"),
   TRANSPORT_BUFFER("ZEEBE_GATEWAY_TRANSPORT_BUFFER"),
   REQUEST_TIMEOUT("ZEEBE_GATEWAY_REQUEST_TIMEOUT"),
-  CLUSTER_NAME("ZEEBE_GATEWAY_CLUSTER_NAME"),
-  CLUSTER_MEMBER_ID("ZEEBE_GATEWAY_CLUSTER_MEMBER_ID"),
-  CLUSTER_HOST("ZEEBE_GATEWAY_CLUSTER_HOST"),
-  CLUSTER_PORT("ZEEBE_GATEWAY_CLUSTER_PORT"),
   MANAGEMENT_THREAD_COUNT("ZEEBE_GATEWAY_MANAGEMENT_THREADS"),
   SECURITY_ENABLED("ZEEBE_GATEWAY_SECURITY_ENABLED"),
   CERTIFICATE_PATH("ZEEBE_GATEWAY_CERTIFICATE_PATH"),
@@ -36,14 +29,14 @@ public enum ZeebeGatewayEnvironmentVariable implements EnvironmentVariable {
   MONITORING_HOST("ZEEBE_GATEWAY_MONITORING_HOST"),
   MONITORING_PORT("ZEEBE_GATEWAY_MONITORING_PORT");
 
-  private final String variableName;
+  private final String variable;
 
-  ZeebeGatewayEnvironmentVariable(String variableName) {
-    this.variableName = variableName;
+  ZeebeGatewayEnvironment(final String variable) {
+    this.variable = variable;
   }
 
   @Override
-  public String getVariableName() {
-    return variableName;
+  public String variable() {
+    return variable;
   }
 }
