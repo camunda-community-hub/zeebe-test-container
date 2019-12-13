@@ -4,6 +4,11 @@ template: |
     # What's Changed
 
     $CHANGES
+
+    # Contributors
+
+    $CONTRIBUTORS
+
 categories:
   - title: 🚀 Features
     label: type/feature
@@ -11,10 +16,10 @@ categories:
     label: type/bug
   - title: 📖 Documentation
     label: type/docs
-  - title: 🧹 Housekeeping
+  - title: 🧹 Maintenance
     labels:
-      - type/housekeeping
-      - type/test-improvement
+      - type/maintenance
+      - type/test
   - title: 📦 Dependency updates
     label: dependencies
 
