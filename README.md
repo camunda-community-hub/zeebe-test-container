@@ -23,7 +23,6 @@ Current plans are to add more tests and QoL features:
 - [ ] Gateway tests
 - [ ] Client builder
 - [ ] Cluster rule
-- [ ] Helper client (wrapper around ZBClient with QoL)
 
 Supported Zeebe versions
 ========================
@@ -31,6 +30,7 @@ Supported Zeebe versions
 - 0.20.0
 - 0.21.0-alpha1
 - 0.21.0-alpha2
+- 0.22.0-alpha1
 
 Quickstart
 ==========
@@ -41,7 +41,7 @@ Add the project to your dependencies:
 <dependency>
   <groupId>io.zeebe</groupId>
   <artifactId>zeebe-test-container</artifactId>
-  <version>0.21.0-alpha2</version>
+  <version>0.22.0-alpha1</version>
 </dependency>
 ```
 
