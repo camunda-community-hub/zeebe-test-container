@@ -27,10 +27,10 @@ Current plans are to add more tests and QoL features:
 Supported Zeebe versions
 ========================
 
-- 0.20.0
-- 0.21.0-alpha1
-- 0.21.0-alpha2
+- 0.20.1
+- 0.21.1
 - 0.22.0-alpha1
+- 0.22.0-alpha2
 
 Quickstart
 ==========
@@ -41,7 +41,7 @@ Add the project to your dependencies:
 <dependency>
   <groupId>io.zeebe</groupId>
   <artifactId>zeebe-test-container</artifactId>
-  <version>0.22.0-alpha1</version>
+  <version>0.22.0-alpha2</version>
 </dependency>
 ```
 

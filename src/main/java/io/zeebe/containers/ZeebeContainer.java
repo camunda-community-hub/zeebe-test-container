@@ -83,4 +83,8 @@ public interface ZeebeContainer<SELF extends ZeebeContainer<SELF>> extends Conta
       throw new UncheckedIOException(e);
     }
   }
+
+  default SELF withAdvertisedHost(final String advertisedHost) {
+    return withEnv(ZeebeEnvironment.ZEEBE_ADVERTISED_HOST, advertisedHost);
+  }
 }
