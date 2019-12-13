@@ -17,7 +17,8 @@ package io.zeebe.containers;
 
 public enum ZeebeEnvironment implements Environment {
   ZEEBE_LOG_LEVEL,
-  ATOMIX_LOG_LEVEL;
+  ATOMIX_LOG_LEVEL,
+  ZEEBE_ADVERTISED_HOST;
 
   private final String variableName;
 
