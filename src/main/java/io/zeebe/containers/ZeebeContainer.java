@@ -71,8 +71,8 @@ public interface ZeebeContainer<SELF extends ZeebeContainer<SELF>> extends Conta
       final Path tempFile = Files.createTempFile(getClass().getPackage().getName(), ".tmp");
       long bytesRead;
       long offset = 0;
-      try (final ReadableByteChannel input = Channels.newChannel(configuration);
-          final FileChannel output = FileChannel.open(tempFile)) {
+      try (ReadableByteChannel input = Channels.newChannel(configuration);
+          FileChannel output = FileChannel.open(tempFile)) {
         while ((bytesRead = output.transferFrom(input, offset, 4096L)) > 0) {
           offset += bytesRead;
         }

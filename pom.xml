@@ -168,7 +168,6 @@
           <sourceDirectories>
             <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
             <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
-            <sourceDirectory>${project.basedir}/src/test/jmh</sourceDirectory>
           </sourceDirectories>
         </configuration>
         <executions>
@@ -208,11 +207,6 @@
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <additionalSourceDirectories>
-            <additionalSourceDirectory>${project.basedir}/src/test/jmh</additionalSourceDirectory>
-          </additionalSourceDirectories>
-        </configuration>
       </plugin>
     </plugins>
   </build>
