@@ -20,6 +20,7 @@ categories:
     labels:
       - type/maintenance
       - type/test
+      - type/project
   - title: 📦 Dependency updates
     label: dependencies
 
