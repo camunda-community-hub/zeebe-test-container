@@ -23,11 +23,11 @@ spec:
           value: tcp://localhost:2375
       resources:
         limits:
-          cpu: 1
+          cpu: 2
           memory: 2Gi
         requests:
           cpu: 1
-          memory: 2Gi
+          memory: 1Gi
     - name: dind
       image: docker:18.09.4-dind
       args: ["--storage-driver=overlay2"]
@@ -36,8 +36,8 @@ spec:
         privileged: true
       resources:
         limits:
-          cpu: 6
-          memory: 8Gi
+          cpu: 12
+          memory: 16Gi
         requests:
-          cpu: 6
-          memory: 8Gi
+          cpu: 2
+          memory: 4Gi
