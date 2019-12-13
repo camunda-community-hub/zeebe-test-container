@@ -36,9 +36,10 @@
     <!-- project dependencies -->
     <version.assertj>3.11.1</version.assertj>
     <version.junit>4.12</version.junit>
+    <version.junit-jupiter>5.5.2</version.junit-jupiter>
     <version.kafka>2.1.0</version.kafka>
     <version.log4j>2.11.1</version.log4j>
-    <version.slf4j>1.7.25</version.slf4j>
+    <version.slf4j>1.7.29</version.slf4j>
     <version.testcontainers>1.12.3</version.testcontainers>
     <version.zeebe>0.22.0-alpha1</version.zeebe>
 
@@ -47,7 +48,7 @@
     <plugin.version.enforcer>3.0.0-M2</plugin.version.enforcer>
     <plugin.version.fmt>2.6.0</plugin.version.fmt>
     <plugin.version.license>3.0</plugin.version.license>
-    <plugin.version.sonar>3.6.0.1398</plugin.version.sonar>
+    <plugin.version.sonar>3.7.0.1746</plugin.version.sonar>
     <plugin.version.surefire>2.22.1</plugin.version.surefire>
 
     <!-- maven extensions -->
@@ -84,6 +85,28 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>${version.junit}</version>
+    </dependency>
+
+    <!-- for now, only use junit-jupiter for testing -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>${version.junit-jupiter}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>${version.junit-jupiter}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <version>${version.junit-jupiter}</version>
+      <scope>test</scope>
     </dependency>
 
     <dependency>

@@ -18,32 +18,16 @@ package io.zeebe.containers;
 import io.zeebe.client.ZeebeClient;
 import io.zeebe.client.api.response.BrokerInfo;
 import io.zeebe.client.api.response.Topology;
-import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
 import org.rnorth.ducttape.unreliables.Unreliables;
 
-@SuppressWarnings("WeakerAccess")
-@RunWith(Parameterized.class)
-public abstract class CompatibilityTestCase {
-  @Parameter(0)
-  public String version;
-
-  @Parameters(name = "{0}")
-  public static Collection<Object[]> data() {
-    return Stream.of("0.20.1", "0.21.1", "0.22.0-alpha1")
-        .map(version -> new Object[] {version})
-        .collect(Collectors.toList());
-  }
-
-  protected Topology tryGetTopology(
+/**
+ * Provides a collection of synchronous methods to wait until the system reaches a certain state.
+ */
+public final class Awaitables {
+  static Topology awaitTopology(
       final ZeebeClient client, final int expectedBrokersCount, final int expectedPartitionsCount) {
     return Unreliables.retryUntilSuccess(
         5,
@@ -51,7 +35,7 @@ public abstract class CompatibilityTestCase {
         () -> getTopology(client, expectedBrokersCount, expectedPartitionsCount));
   }
 
-  protected Topology getTopology(
+  private static Topology getTopology(
       final ZeebeClient client, final int expectedBrokersCount, final int expectedPartitionsCount) {
     final Topology topology = client.newTopologyRequest().send().join();
     final List<BrokerInfo> brokers = topology.getBrokers();

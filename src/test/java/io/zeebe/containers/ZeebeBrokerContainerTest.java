@@ -22,29 +22,30 @@ import io.zeebe.client.api.response.BrokerInfo;
 import io.zeebe.client.api.response.Topology;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.rnorth.ducttape.timeouts.Timeouts;
 
-public class ZeebeBrokerContainerTest extends CompatibilityTestCase {
+@Timeout(value = 15, unit = TimeUnit.MINUTES)
+class ZeebeBrokerContainerTest {
   private ZeebeBrokerContainer container;
 
-  @Before
-  public void setUp() {
-    container = new ZeebeBrokerContainer(version);
+  @AfterEach
+  void tearDown() {
+    if (container != null) {
+      container.stop();
+      container = null;
+    }
   }
 
-  @After
-  public void tearDown() {
-    container.stop();
-    container = null;
-  }
-
-  @Test
-  public void shouldStartWithEmbeddedGateway() {
+  @ParameterizedTest
+  @EnumSource(SupportedVersion.class)
+  void shouldStartWithEmbeddedGateway(final SupportedVersion version) {
     // given
     final int partitionsCount = 3;
+    container = new ZeebeBrokerContainer(version.version());
     container
         .withHost("zeebe-0")
         .withNodeId(0)
@@ -60,7 +61,7 @@ public class ZeebeBrokerContainerTest extends CompatibilityTestCase {
             .brokerContactPoint(container.getExternalAddress(ZeebePort.GATEWAY))
             .build();
     // we need to wait until the broker's topology is stable in order to really test it, as the
-    final Topology topology = tryGetTopology(client, 1, partitionsCount);
+    final Topology topology = Awaitables.awaitTopology(client, 1, partitionsCount);
     final List<BrokerInfo> brokers = topology.getBrokers();
     final BrokerInfo brokerInfo = brokers.get(0);
 
