@@ -36,7 +36,7 @@
     <!-- project dependencies -->
     <version.assertj>3.11.1</version.assertj>
     <version.junit>4.13</version.junit>
-    <version.junit-jupiter>5.5.2</version.junit-jupiter>
+    <version.junit-jupiter>5.6.0</version.junit-jupiter>
     <version.kafka>2.1.0</version.kafka>
     <version.log4j>2.11.1</version.log4j>
     <version.slf4j>1.7.29</version.slf4j>
