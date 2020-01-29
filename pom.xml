@@ -39,7 +39,7 @@
     <version.junit-jupiter>5.6.0</version.junit-jupiter>
     <version.kafka>2.1.0</version.kafka>
     <version.log4j>2.13.0</version.log4j>
-    <version.slf4j>1.7.29</version.slf4j>
+    <version.slf4j>1.7.30</version.slf4j>
     <version.testcontainers>1.12.5</version.testcontainers>
     <version.zeebe>0.22.0-alpha2</version.zeebe>
 
