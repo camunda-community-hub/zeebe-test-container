@@ -1,10 +1,12 @@
 // vim: set filetype=groovy:
 
+def buildName = "${env.JOB_BASE_NAME.replaceAll("%2F", "-").replaceAll("\\.", "-").take(20)}-${env.BUILD_ID}"
+
 pipeline {
   agent {
     kubernetes {
       cloud 'zeebe-ci'
-      label "zeebe-ci-build_${env.JOB_BASE_NAME}-${env.BUILD_ID}"
+      label "zeebe-ci-build_${buildName}"
       defaultContainer 'jnlp'
       yamlFile '.ci/specs/default.yml'
     }
