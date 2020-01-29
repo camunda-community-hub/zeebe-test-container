@@ -46,7 +46,7 @@
     <!-- plugin version -->
     <plugin.version.checkstyle>3.1.0</plugin.version.checkstyle>
     <plugin.version.enforcer>3.0.0-M2</plugin.version.enforcer>
-    <plugin.version.fmt>2.6.0</plugin.version.fmt>
+    <plugin.version.fmt>2.9</plugin.version.fmt>
     <plugin.version.license>3.0</plugin.version.license>
     <plugin.version.sonar>3.7.0.1746</plugin.version.sonar>
     <plugin.version.surefire>2.22.1</plugin.version.surefire>
