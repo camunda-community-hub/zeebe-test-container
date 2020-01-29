@@ -34,7 +34,7 @@
     <license.header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</license.header>
 
     <!-- project dependencies -->
-    <version.assertj>3.11.1</version.assertj>
+    <version.assertj>3.14.0</version.assertj>
     <version.junit>4.13</version.junit>
     <version.junit-jupiter>5.6.0</version.junit-jupiter>
     <version.kafka>2.1.0</version.kafka>
@@ -49,7 +49,7 @@
     <plugin.version.fmt>2.9</plugin.version.fmt>
     <plugin.version.license>3.0</plugin.version.license>
     <plugin.version.sonar>3.7.0.1746</plugin.version.sonar>
-    <plugin.version.surefire>2.22.1</plugin.version.surefire>
+    <plugin.version.surefire>2.22.2</plugin.version.surefire>
 
     <!-- maven extensions -->
     <extension.version.os-maven-plugin>1.6.1</extension.version.os-maven-plugin>
