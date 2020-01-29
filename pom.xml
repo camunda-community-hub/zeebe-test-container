@@ -34,7 +34,7 @@
     <license.header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</license.header>
 
     <!-- project dependencies -->
-    <version.assertj>3.14.0</version.assertj>
+    <version.assertj>3.15.0</version.assertj>
     <version.junit>4.13</version.junit>
     <version.junit-jupiter>5.6.0</version.junit-jupiter>
     <version.log4j>2.13.0</version.log4j>
