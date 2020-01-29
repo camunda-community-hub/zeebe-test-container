@@ -1,5 +1,5 @@
 ---
-name: Project management
+name: Project management issue
 about: Changes or improvements to the project, e.g. bot configurations, code style, etc.
 title: ''
 labels: 'type/project'

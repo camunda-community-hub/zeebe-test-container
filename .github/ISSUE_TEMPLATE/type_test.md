@@ -1,5 +1,5 @@
 ---
-name: Test
+name: Test issue
 about: Improvements or changes to the existing tests
 title: ''
 labels: 'type/test'
