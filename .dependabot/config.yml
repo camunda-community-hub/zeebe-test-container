@@ -6,4 +6,6 @@ update_configs:
     automerged_updates:
       - match: { dependency_type: "development", update_type: "semver:minor" }
       - match: { dependency_type: "production", update_type: "semver:minor" }
-
+    ignored_updates:
+      - match:
+          dependency_name: "zeebe*" # Zeebe dependencies will be manually updated
