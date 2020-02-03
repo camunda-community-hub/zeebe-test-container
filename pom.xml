@@ -6,7 +6,7 @@
   <artifactId>zeebe-test-container</artifactId>
   <packaging>jar</packaging>
   <groupId>io.zeebe</groupId>
-  <version>0.22.1</version>
+  <version>0.22.1-SNAPSHOT</version>
   <inceptionYear>2019</inceptionYear>
   <url>https://github.com/zeebe-io/zeebe-test-container</url>
 
