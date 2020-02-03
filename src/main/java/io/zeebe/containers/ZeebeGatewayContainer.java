@@ -33,8 +33,12 @@ public interface ZeebeGatewayContainer<SELF extends ZeebeGatewayContainer<SELF>>
     return withEnv(ZeebeGatewayEnvironment.TRANSPORT_BUFFER, transportBuffer);
   }
 
-  default SELF withRequestTimeout(final int requestTimeout) {
+  default SELF withRequestTimeout(final String requestTimeout) {
     return withEnv(ZeebeGatewayEnvironment.REQUEST_TIMEOUT, requestTimeout);
+  }
+
+  default SELF withRequestTimeout(final int requestTimeoutMs) {
+    return withEnv(ZeebeGatewayEnvironment.REQUEST_TIMEOUT, requestTimeoutMs);
   }
 
   default SELF withManagementThreadCount(final int managementThreadCount) {
@@ -63,5 +67,21 @@ public interface ZeebeGatewayContainer<SELF extends ZeebeGatewayContainer<SELF>>
 
   default SELF withMonitoringPort(final int monitoringPort) {
     return withEnv(ZeebeGatewayEnvironment.MONITORING_PORT, monitoringPort);
+  }
+
+  default SELF withKeepAliveInterval(final String keepAliveInterval) {
+    return withEnv(ZeebeGatewayEnvironment.KEEP_ALIVE_INTERVAL, keepAliveInterval);
+  }
+
+  default SELF withKeepAliveInterval(final int keepAliveIntervalMs) {
+    return withEnv(ZeebeGatewayEnvironment.KEEP_ALIVE_INTERVAL, keepAliveIntervalMs);
+  }
+
+  default SELF withMaxMessageCount(final int maxMessageCount) {
+    return withEnv(ZeebeGatewayEnvironment.MAX_MESSAGE_COUNT, maxMessageCount);
+  }
+
+  default SELF withMaxMessageSize(final int maxMessageSize) {
+    return withEnv(ZeebeGatewayEnvironment.MAX_MESSAGE_SIZE, maxMessageSize);
   }
 }
