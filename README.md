@@ -3,7 +3,7 @@ Zeebe Test Container
 
 Easily test your application against a containerized, configurable Zeebe instance.
 
-> **NOTE**: the module uses the same versions as the Zeebe version it targets, e.g. version `0.21.0-alpha2` targets Zeebe `0.21.0-alpha2`. 
+> **NOTE**: the module uses the same versions as the Zeebe version it targets, e.g. version `0.21.0-alpha2` targets Zeebe `0.21.0-alpha2`.
             While we try to maintain backwards compatibility it is not always guaranteed.
 
 Please refer to [testcontainers.org](https://testcontainers.org) for general documentation on how to
@@ -29,8 +29,7 @@ Supported Zeebe versions
 
 - 0.20.1
 - 0.21.1
-- 0.22.0-alpha1
-- 0.22.0-alpha2
+- 0.22.1
 
 Quickstart
 ==========
@@ -41,7 +40,7 @@ Add the project to your dependencies:
 <dependency>
   <groupId>io.zeebe</groupId>
   <artifactId>zeebe-test-container</artifactId>
-  <version>0.22.0-alpha2</version>
+  <version>0.22.1</version>
 </dependency>
 ```
 
@@ -79,7 +78,7 @@ class MyFeatureTest {
   private final BrokerEnvironment zeebeEnv = new BrokerEnvironment()
     .withPartitionCount(3)
     .withReplicationFactor(1);
-  
+
   @Rule
   public ZeebeBrokerContainer zeebe = new ZeebeBrokerContainer(zeebeEnv);
 

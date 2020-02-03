@@ -33,6 +33,7 @@ public class ZeebeBrokerContainer extends GenericContainer<ZeebeBrokerContainer>
   protected String host;
   protected int portOffset;
   protected boolean embedGateway;
+  protected String version;
 
   public ZeebeBrokerContainer() {
     this(ZeebeDefaults.getInstance().getDefaultVersion());
@@ -44,6 +45,7 @@ public class ZeebeBrokerContainer extends GenericContainer<ZeebeBrokerContainer>
 
   public ZeebeBrokerContainer(final String image, final String version) {
     super(image + ":" + version);
+    this.version = version;
     applyDefaultConfiguration();
   }
 
@@ -93,8 +95,9 @@ public class ZeebeBrokerContainer extends GenericContainer<ZeebeBrokerContainer>
 
   public void applyDefaultConfiguration() {
     final String defaultHost = "zeebe-broker-" + Base58.randomString(6);
-    setWaitStrategy(new LogMessageWaitStrategy().withRegEx(".*Broker is ready.*"));
-
+    setWaitStrategy(
+        new LogMessageWaitStrategy()
+            .withRegEx(SupportedVersion.fromVersion(version).logStringRegex()));
     withHost(defaultHost)
         .withPartitionCount(1)
         .withReplicationFactor(1)
