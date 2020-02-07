@@ -22,7 +22,6 @@ import java.util.Objects;
 import java.util.Set;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
-import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.utility.Base58;
 
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
@@ -30,6 +29,7 @@ public class ZeebeBrokerContainer extends GenericContainer<ZeebeBrokerContainer>
     implements ZeebeContainer<ZeebeBrokerContainer>,
         ZeebeGatewayContainer<ZeebeBrokerContainer>,
         ZeebeNetworkable {
+
   protected String host;
   protected int portOffset;
   protected boolean embedGateway;
@@ -95,9 +95,8 @@ public class ZeebeBrokerContainer extends GenericContainer<ZeebeBrokerContainer>
 
   public void applyDefaultConfiguration() {
     final String defaultHost = "zeebe-broker-" + Base58.randomString(6);
-    setWaitStrategy(
-        new LogMessageWaitStrategy()
-            .withRegEx(SupportedVersion.fromVersion(version).logStringRegex()));
+    setWaitStrategy(new BrokerWaitStrategy());
+
     withHost(defaultHost)
         .withPartitionCount(1)
         .withReplicationFactor(1)
