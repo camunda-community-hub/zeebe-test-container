@@ -23,14 +23,18 @@ import io.zeebe.client.api.response.Topology;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.rnorth.ducttape.timeouts.Timeouts;
+import org.testcontainers.containers.Network;
 
 @Timeout(value = 15, unit = TimeUnit.MINUTES)
 class ZeebeBrokerContainerTest {
+
   private ZeebeBrokerContainer container;
+  private Network network;
 
   @AfterEach
   void tearDown() {
@@ -38,6 +42,16 @@ class ZeebeBrokerContainerTest {
       container.stop();
       container = null;
     }
+
+    if (network != null) {
+      network.close();
+      network = null;
+    }
+  }
+
+  @BeforeEach
+  void setUp() {
+    network = Network.newNetwork();
   }
 
   @ParameterizedTest
@@ -45,13 +59,15 @@ class ZeebeBrokerContainerTest {
   void shouldStartWithEmbeddedGateway(final SupportedVersion version) {
     // given
     final int partitionsCount = 3;
-    container = new ZeebeBrokerContainer(version.version());
-    container
-        .withHost("zeebe-0")
-        .withNodeId(0)
-        .withEmbeddedGateway(true)
-        .withPartitionCount(partitionsCount)
-        .withReplicationFactor(1);
+    container =
+        new ZeebeBrokerContainer(version.version())
+            .withHost("zeebe-0")
+            .withNodeId(0)
+            .withEmbeddedGateway(true)
+            .withPartitionCount(partitionsCount)
+            .withReplicationFactor(1)
+            .withNetwork(network);
+
     Timeouts.doWithTimeout(30, TimeUnit.SECONDS, container::start);
 
     // when
