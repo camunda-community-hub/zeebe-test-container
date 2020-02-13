@@ -24,12 +24,14 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Collection;
 import org.slf4j.event.Level;
 import org.testcontainers.containers.Container;
 import org.testcontainers.utility.MountableFile;
 
 public interface ZeebeContainer<SELF extends ZeebeContainer<SELF>> extends Container<SELF> {
+
   default SELF withEnv(final Environment envVar, final String value) {
     return withEnv(envVar.variable(), value);
   }
@@ -86,5 +88,17 @@ public interface ZeebeContainer<SELF extends ZeebeContainer<SELF>> extends Conta
 
   default SELF withAdvertisedHost(final String advertisedHost) {
     return withEnv(ZeebeEnvironment.ZEEBE_ADVERTISED_HOST, advertisedHost);
+  }
+
+  /**
+   * Attempts to stop the container gracefully. If it times out, the container is abruptly killed.
+   *
+   * @param timeout must be greater than 1 second
+   */
+  default void shutdownGracefully(Duration timeout) {
+    getDockerClient()
+        .stopContainerCmd(getContainerId())
+        .withTimeout((int) timeout.getSeconds())
+        .exec();
   }
 }
