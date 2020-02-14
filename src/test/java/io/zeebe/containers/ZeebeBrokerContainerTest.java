@@ -66,7 +66,8 @@ class ZeebeBrokerContainerTest {
             .withEmbeddedGateway(true)
             .withPartitionCount(partitionsCount)
             .withReplicationFactor(1)
-            .withNetwork(network);
+            .withNetwork(network)
+            .withConfiguration(getClass().getClassLoader().getResourceAsStream("zeebe.cfg.toml"));
 
     Timeouts.doWithTimeout(30, TimeUnit.SECONDS, container::start);
 

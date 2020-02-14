@@ -24,6 +24,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.util.Collection;
 import org.slf4j.event.Level;
@@ -74,7 +75,7 @@ public interface ZeebeContainer<SELF extends ZeebeContainer<SELF>> extends Conta
       long bytesRead;
       long offset = 0;
       try (ReadableByteChannel input = Channels.newChannel(configuration);
-          FileChannel output = FileChannel.open(tempFile)) {
+          FileChannel output = FileChannel.open(tempFile, StandardOpenOption.WRITE)) {
         while ((bytesRead = output.transferFrom(input, offset, 4096L)) > 0) {
           offset += bytesRead;
         }
