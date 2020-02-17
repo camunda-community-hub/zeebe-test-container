@@ -44,7 +44,7 @@ Add the project to your dependencies:
 <dependency>
   <groupId>io.zeebe</groupId>
   <artifactId>zeebe-test-container</artifactId>
-  <version>0.30.0</version>
+  <version>0.31.1</version>
 </dependency>
 ```
 
@@ -79,12 +79,10 @@ class MyFeatureTest {
 ### Configured broker with embedded gateway
 ```java
 class MyFeatureTest {
-  private final BrokerEnvironment zeebeEnv = new BrokerEnvironment()
+  @Rule
+  public ZeebeBrokerContainer zeebe = new ZeebeBrokerContainer()
     .withPartitionCount(3)
     .withReplicationFactor(1);
-
-  @Rule
-  public ZeebeBrokerContainer zeebe = new ZeebeBrokerContainer(zeebeEnv);
 
   @Test
   public void shouldTestMyFeature() {
@@ -112,11 +110,11 @@ class MyFeatureTest {
             .withNetwork(broker.getNetwork()); // make sure they are on the same network
 
     // configure broker so it doesn't start an embedded gateway
-    broker.getEnvironment().withEmbeddedGateway(false).withHost("zeebe-0");
-    gateway.getEnvironment().withContactPoint(broker.getInternalAddress(ZeebePort.INTERNAL_API));
+    broker.withEmbeddedGateway(false).withHost("zeebe-0");
+    gateway.withContactPoint(broker.getInternalAddress(ZeebePort.INTERNAL_API));
 
     // start both containers
-    Stream.of(gateway, broker).parallel().forEach(GenericContainer::start);
+    Stream.of(gateway, broker).parallel().forEach(Startable::start);
 
     // create a client to connect to the gateway
     final ZeebeClient client =
@@ -127,7 +125,7 @@ class MyFeatureTest {
     // test stuff
     // ...
 
-    Stream.of(gateway, broker).parallel().forEach(GenericContainer::stop);
+    Stream.of(gateway, broker).parallel().forEach(Startable::stop);
   }
 }
 ```
@@ -151,13 +149,13 @@ class MyClusteredTest {
 
     // start all brokers
     // it's important to start the brokers in parallel as they will not be ready until a Raft is formed
-    Stream.of(zeebe0, zeebe1, zeebe2).parallel().forEach(GenericContainer::start);
+    Stream.of(zeebe0, zeebe1, zeebe2).parallel().forEach(Startable::start);
 
     // Run your tests
     // ...
 
     // stop all brokers
-    Stream.of(zeebe0, zeebe1, zeebe2).parallel().forEach(GenericContainer::stop);
+    Stream.of(zeebe0, zeebe1, zeebe2).parallel().forEach(Startable::stop);
   }
 }
 ```
