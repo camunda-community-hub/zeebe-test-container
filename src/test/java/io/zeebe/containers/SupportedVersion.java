@@ -25,26 +25,16 @@ public enum SupportedVersion {
   ZEEBE_0_20_1(parseVersion("0.20.1")),
   ZEEBE_0_21_1(parseVersion("0.21.1")),
   ZEEBE_0_22_1(parseVersion("0.22.1")),
-  SNAPSHOT(parseVersion("0.22.1"), "SNAPSHOT");
+  ZEEBE_0_23_0_alpha2(parseVersion("0.23.0-alpha2"));
 
   private final Version version;
-  private final String tagName;
 
   SupportedVersion(final Version version) {
-    this(version, version.toString());
-  }
-
-  SupportedVersion(final Version version, String tagName) {
     this.version = version;
-    this.tagName = version.toString();
   }
 
-  public Version version() {
+  public Version semanticVersion() {
     return version;
-  }
-
-  public String tagName() {
-    return tagName;
   }
 
   @Override

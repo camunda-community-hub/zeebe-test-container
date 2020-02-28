@@ -13,12 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.zeebe.containers;
+package io.zeebe.containers.generation2;
 
-public interface Environment {
-  String name();
+import de.skuzzle.semantic.Version;
+import io.zeebe.containers.api.EnvVar;
 
-  default String variable() {
-    return name().toUpperCase();
-  }
+@SuppressWarnings({"squid:S1075", "WeakerAccess"})
+public final class Gen2ZeebeDefaults {
+
+  protected static final EnvVar CONFIG_FILE_LOCATION = new EnvVar("SPRING_CONFIG_LOCATION");
+
+  static final Version DEFAULT_ZEEBE_VERSION = Version.parseVersion("0.23.0-alpha2");
+  static final String DEFAULT_CONFIGURATION_PATH_BROKER = "/usr/local/zeebe/config/zeebe.cfg.yaml";
+  static final String DEFAULT_CONFIGURATION_PATH_GATEWAY =
+      "/usr/local/zeebe/config/gateway.cfg.yaml";
 }

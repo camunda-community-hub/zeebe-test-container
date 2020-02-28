@@ -13,22 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.zeebe.containers;
+package io.zeebe.containers.impl;
 
-import de.skuzzle.semantic.Version;
 import org.testcontainers.utility.TestcontainersConfiguration;
 
 @SuppressWarnings({"squid:S1075", "WeakerAccess"})
-public final class ZeebeDefaults {
+public final class ZeebeGlobalDefaults {
   private static final String DEFAULT_CLUSTER_NAME = "zeebe";
   private static final String ZEEBE_CONTAINER_IMAGE_PROPERTY = "zeebe.container.image";
   private static final String DEFAULT_ZEEBE_CONTAINER_IMAGE = "camunda/zeebe";
-  private static final Version DEFAULT_ZEEBE_VERSION = Version.parseVersion("0.21.0-alpha2");
-  private static final String DEFAULT_CONFIGURATION_PATH = "/usr/local/zeebe/conf/zeebe.cfg.toml";
 
-  private ZeebeDefaults() {}
+  private ZeebeGlobalDefaults() {}
 
-  public static ZeebeDefaults getInstance() {
+  public static ZeebeGlobalDefaults globalDefaults() {
     return Singleton.INSTANCE;
   }
 
@@ -39,19 +36,11 @@ public final class ZeebeDefaults {
         .toString();
   }
 
-  public Version getDefaultVersion() {
-    return DEFAULT_ZEEBE_VERSION;
-  }
-
   public String getDefaultClusterName() {
     return DEFAULT_CLUSTER_NAME;
   }
 
-  public String getDefaultConfigurationPath() {
-    return DEFAULT_CONFIGURATION_PATH;
-  }
-
   private static final class Singleton {
-    private static final ZeebeDefaults INSTANCE = new ZeebeDefaults();
+    private static final ZeebeGlobalDefaults INSTANCE = new ZeebeGlobalDefaults();
   }
 }

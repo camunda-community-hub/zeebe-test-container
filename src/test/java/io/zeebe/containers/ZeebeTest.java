@@ -15,12 +15,16 @@
  */
 package io.zeebe.containers;
 
+import static io.zeebe.containers.ZeebeTestContainer.getFactory;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.zeebe.client.ZeebeClient;
 import io.zeebe.client.api.response.BrokerInfo;
 import io.zeebe.client.api.response.Topology;
-import java.util.Collection;
+import io.zeebe.containers.api.ZeebeBrokerContainer;
+import io.zeebe.containers.api.ZeebeContainer;
+import io.zeebe.containers.api.ZeebeGatewayContainer;
+import io.zeebe.containers.impl.ZeebePort;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -28,7 +32,6 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.testcontainers.containers.GenericContainer;
 
 @Timeout(value = 15, unit = TimeUnit.MINUTES)
 class ZeebeTest {
@@ -39,13 +42,12 @@ class ZeebeTest {
   void shouldStartConnectedGatewayAndBroker(final SupportedVersion version) {
     // given
     final ZeebeBrokerContainer broker = newBroker(version);
-    final ZeebeStandaloneGatewayContainer gateway =
-        newGateway(version).withNetwork(broker.getNetwork());
+    final ZeebeGatewayContainer gateway = newGateway(version).withNetwork(broker.getNetwork());
 
     // when
-    broker.withEmbeddedGateway(false).withHost("zeebe-0");
-    gateway.withContactPoint(broker.getInternalAddress(ZeebePort.INTERNAL_API));
-    Stream.of(gateway, broker).parallel().forEach(GenericContainer::start);
+    broker.withEmbeddedGateway(false).withBrokerHost("zeebe-0");
+    gateway.withGatewayContactPoint(broker.getInternalAddress(ZeebePort.INTERNAL_API));
+    Stream.of(gateway, broker).parallel().forEach(ZeebeContainer::start);
 
     // then
     final ZeebeClient client = newClient(gateway);
@@ -60,7 +62,7 @@ class ZeebeTest {
     assertThat(brokerInfo.getAddress()).isEqualTo(broker.getInternalAddress(ZeebePort.COMMAND_API));
     assertThat(topology.getClusterSize()).isEqualTo(1);
 
-    Stream.of(broker, gateway).parallel().forEach(GenericContainer::stop);
+    Stream.of(broker, gateway).parallel().forEach(ZeebeContainer::stop);
   }
 
   @ParameterizedTest
@@ -71,8 +73,8 @@ class ZeebeTest {
         newClusterBroker(version, 1, 3).withNetwork(zeebe0.getNetwork());
     final ZeebeBrokerContainer zeebe2 =
         newClusterBroker(version, 2, 3).withNetwork(zeebe0.getNetwork());
-    final ZeebeStandaloneGatewayContainer gateway = newGatewayForBroker(version, zeebe0);
-    final Collection<String> contactPoints =
+    final ZeebeGatewayContainer gateway = newGatewayForBroker(version, zeebe0);
+    final List<String> contactPoints =
         Stream.of(zeebe0, zeebe1, zeebe2)
             .map(b -> b.getInternalAddress(ZeebePort.INTERNAL_API))
             .collect(Collectors.toList());
@@ -83,7 +85,7 @@ class ZeebeTest {
     zeebe2.withContactPoints(contactPoints);
 
     // start all brokers
-    Stream.of(gateway, zeebe0, zeebe1, zeebe2).parallel().forEach(GenericContainer::start);
+    Stream.of(gateway, zeebe0, zeebe1, zeebe2).parallel().forEach(ZeebeContainer::start);
 
     // Verify topology
     final ZeebeClient client = newClient(gateway);
@@ -92,25 +94,25 @@ class ZeebeTest {
     assertThat(brokers).hasSize(3);
 
     // stop all brokers
-    Stream.of(zeebe0, zeebe1, zeebe2, gateway).parallel().forEach(GenericContainer::stop);
+    Stream.of(zeebe0, zeebe1, zeebe2, gateway).parallel().forEach(ZeebeContainer::stop);
   }
 
-  private ZeebeClient newClient(final ZeebeStandaloneGatewayContainer gateway) {
+  private ZeebeClient newClient(final ZeebeGatewayContainer gateway) {
     return ZeebeClient.newClientBuilder()
         .brokerContactPoint(gateway.getExternalAddress(ZeebePort.GATEWAY))
         .usePlaintext()
         .build();
   }
 
-  private ZeebeStandaloneGatewayContainer newGatewayForBroker(
+  private ZeebeGatewayContainer newGatewayForBroker(
       final SupportedVersion version, final ZeebeBrokerContainer broker) {
-    final ZeebeStandaloneGatewayContainer container =
-        newGateway(version).withNetwork(broker.getNetwork());
+    final ZeebeGatewayContainer container = newGateway(version);
     container
-        .withClusterHost("gateway")
+        .withNetwork(broker.getNetwork())
+        .withGatewayClusterHost("gateway")
         .withClusterMemberId("gateway")
         .withClusterName(CLUSTER_NAME)
-        .withContactPoint(broker.getInternalAddress(ZeebePort.INTERNAL_API));
+        .withGatewayContactPoint(broker.getInternalAddress(ZeebePort.INTERNAL_API));
 
     return container;
   }
@@ -122,8 +124,8 @@ class ZeebeTest {
         .withEmbeddedGateway(false)
         .withPartitionCount(clusterSize)
         .withReplicationFactor(clusterSize)
-        .withNodeId(nodeId)
-        .withHost("zeebe-" + nodeId)
+        .withBrokerNodeId(nodeId)
+        .withBrokerHost("zeebe-" + nodeId)
         .withClusterName(CLUSTER_NAME)
         .withClusterSize(clusterSize);
 
@@ -131,12 +133,10 @@ class ZeebeTest {
   }
 
   private ZeebeBrokerContainer newBroker(final SupportedVersion version) {
-    return new ZeebeBrokerContainer(
-        ZeebeDefaults.getInstance().getDefaultImage(), version.version(), version.tagName());
+    return getFactory(version.semanticVersion()).createBrokerContainer();
   }
 
-  private ZeebeStandaloneGatewayContainer newGateway(final SupportedVersion version) {
-    return new ZeebeStandaloneGatewayContainer(
-        ZeebeDefaults.getInstance().getDefaultImage(), version.version(), version.tagName());
+  private ZeebeGatewayContainer newGateway(final SupportedVersion version) {
+    return getFactory(version.semanticVersion()).createGatewayContainer();
   }
 }

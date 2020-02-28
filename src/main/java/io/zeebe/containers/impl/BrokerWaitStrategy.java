@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.zeebe.containers;
+package io.zeebe.containers.impl;
 
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import java.time.Duration;

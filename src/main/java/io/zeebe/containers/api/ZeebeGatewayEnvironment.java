@@ -13,21 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.zeebe.containers;
+package io.zeebe.containers.api;
 
-public enum ZeebePort {
-  GATEWAY(26500),
-  COMMAND_API(26501),
-  INTERNAL_API(26502),
-  MONITORING_API(9600);
+public interface ZeebeGatewayEnvironment extends ZeebeEnvironment {
 
-  private final int port;
+  EnvVar getStandaloneGateway();
 
-  ZeebePort(final int port) {
-    this.port = port;
-  }
+  EnvVar getGatewayHost();
 
-  public int getPort() {
-    return port;
-  }
+  EnvVar getGatewayPort();
+
+  EnvVar getGatewayClusterName();
+
+  EnvVar getGatewayClusterMemberId();
+
+  EnvVar getGatewayClusterHost();
+
+  EnvVar getGatewayClusterPort();
+
+  EnvVar getGatewayKeepAliveInterval();
+
+  EnvVar getGatewayContactPoint();
+
+  EnvVar getGatewayRequestTimeout();
+
+  EnvVar getGatewayManagementThreadCount();
 }

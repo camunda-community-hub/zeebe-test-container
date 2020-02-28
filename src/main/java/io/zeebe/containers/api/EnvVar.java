@@ -13,23 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.zeebe.containers;
+package io.zeebe.containers.api;
 
-public enum ZeebeStandaloneGatewayEnvironment implements Environment {
-  STANDALONE("ZEEBE_STANDALONE_GATEWAY"),
-  CLUSTER_NAME("ZEEBE_GATEWAY_CLUSTER_NAME"),
-  CLUSTER_MEMBER_ID("ZEEBE_GATEWAY_CLUSTER_MEMBER_ID"),
-  CLUSTER_HOST("ZEEBE_GATEWAY_CLUSTER_HOST"),
-  CLUSTER_PORT("ZEEBE_GATEWAY_CLUSTER_PORT");
+import java.util.Objects;
 
-  private final String variable;
+public final class EnvVar {
+  private final String name;
 
-  ZeebeStandaloneGatewayEnvironment(String variable) {
-    this.variable = variable;
+  public EnvVar(String name) {
+    this.name = name;
+  }
+
+  String name() {
+    return name;
+  }
+
+  String variable() {
+    return name().toUpperCase();
   }
 
   @Override
-  public String variable() {
-    return variable;
+  public boolean equals(final Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    final EnvVar that = (EnvVar) o;
+    return Objects.equals(name, that.name);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(name);
   }
 }

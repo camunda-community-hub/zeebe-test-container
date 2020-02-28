@@ -13,28 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.zeebe.containers;
+package io.zeebe.containers.impl;
 
-public enum ZeebeBrokerEnvironment implements Environment {
-  NODE_ID("ZEEBE_NODE_ID"),
-  HOST("ZEEBE_HOST"),
-  PORT_OFFSET("ZEEBE_PORT_OFFSET"),
-  CONTACT_POINTS("ZEEBE_CONTACT_POINTS"),
-  PARTITION_COUNT("ZEEBE_PARTITIONS_COUNT"),
-  REPLICATION_FACTOR("ZEEBE_REPLICATION_FACTOR"),
-  CLUSTER_SIZE("ZEEBE_CLUSTER_SIZE"),
-  CLUSTER_NAME("ZEEBE_CLUSTER_NAME"),
-  EMBED_GATEWAY("ZEEBE_EMBED_GATEWAY"),
-  DEBUG("ZEEBE_DEBUG");
+public enum ZeebePort {
+  GATEWAY(26500),
+  COMMAND_API(26501),
+  INTERNAL_API(26502),
+  MONITORING_API(9600);
 
-  private final String variable;
+  private final int port;
 
-  ZeebeBrokerEnvironment(final String variable) {
-    this.variable = variable;
+  ZeebePort(final int port) {
+    this.port = port;
   }
 
-  @Override
-  public String variable() {
-    return variable;
+  public int getPort() {
+    return port;
   }
 }

@@ -13,21 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.zeebe.containers;
+package io.zeebe.containers.api;
 
-public enum ZeebeEnvironment implements Environment {
-  ZEEBE_LOG_LEVEL,
-  ATOMIX_LOG_LEVEL,
-  ZEEBE_ADVERTISED_HOST;
+public interface ZeebeEnvironment {
 
-  private final String variableName;
+  EnvVar getZeebeLogLevel();
 
-  ZeebeEnvironment() {
-    variableName = name();
-  }
+  EnvVar getAtomixLogLevel();
 
-  @Override
-  public String variable() {
-    return variableName;
-  }
+  EnvVar getAdvertisedHost();
 }

@@ -13,19 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.zeebe.containers;
+package io.zeebe.containers.generation1;
 
-import org.testcontainers.containers.ContainerState;
+import de.skuzzle.semantic.Version;
 
-public interface ZeebeNetworkable extends ContainerState {
-
-  String getInternalHost();
-
-  default String getInternalAddress(final ZeebePort port) {
-    return String.format("%s:%d", getInternalHost(), port.getPort());
-  }
-
-  default String getExternalAddress(final ZeebePort port) {
-    return String.format("%s:%d", getContainerIpAddress(), getMappedPort(port.getPort()));
-  }
+@SuppressWarnings({"squid:S1075", "WeakerAccess"})
+public final class Gen1ZeebeDefaults {
+  static final Version DEFAULT_ZEEBE_VERSION = Version.parseVersion("0.21.0-alpha2");
+  static final String DEFAULT_CONFIGURATION_PATH_BROKER = "/usr/local/zeebe/conf/zeebe.cfg.toml";
+  static final String DEFAULT_CONFIGURATION_PATH_GATEWAY = "/usr/local/zeebe/conf/gateway.cfg.toml";
 }
