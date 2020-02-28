@@ -15,6 +15,7 @@
  */
 package io.zeebe.containers;
 
+import de.skuzzle.semantic.Version;
 import org.testcontainers.utility.TestcontainersConfiguration;
 
 @SuppressWarnings({"squid:S1075", "WeakerAccess"})
@@ -22,7 +23,7 @@ public final class ZeebeDefaults {
   private static final String DEFAULT_CLUSTER_NAME = "zeebe";
   private static final String ZEEBE_CONTAINER_IMAGE_PROPERTY = "zeebe.container.image";
   private static final String DEFAULT_ZEEBE_CONTAINER_IMAGE = "camunda/zeebe";
-  private static final String DEFAULT_ZEEBE_VERSION = "0.21.0-alpha2";
+  private static final Version DEFAULT_ZEEBE_VERSION = Version.parseVersion("0.21.0-alpha2");
   private static final String DEFAULT_CONFIGURATION_PATH = "/usr/local/zeebe/conf/zeebe.cfg.toml";
 
   private ZeebeDefaults() {}
@@ -38,7 +39,7 @@ public final class ZeebeDefaults {
         .toString();
   }
 
-  public String getDefaultVersion() {
+  public Version getDefaultVersion() {
     return DEFAULT_ZEEBE_VERSION;
   }
 

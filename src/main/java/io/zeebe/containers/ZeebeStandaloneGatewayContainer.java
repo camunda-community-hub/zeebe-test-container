@@ -15,6 +15,7 @@
  */
 package io.zeebe.containers;
 
+import de.skuzzle.semantic.Version;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Objects;
@@ -36,17 +37,28 @@ public class ZeebeStandaloneGatewayContainer
 
   protected String internalHost;
   protected boolean monitoringEnabled;
+  private final Version version;
 
   public ZeebeStandaloneGatewayContainer() {
     this(ZeebeDefaults.getInstance().getDefaultVersion());
   }
 
-  public ZeebeStandaloneGatewayContainer(final String version) {
-    this(ZeebeDefaults.getInstance().getDefaultImage(), version);
+  public ZeebeStandaloneGatewayContainer(final Version version) {
+    this(ZeebeDefaults.getInstance().getDefaultImage(), version, null);
   }
 
-  public ZeebeStandaloneGatewayContainer(final String image, final String version) {
-    super(image + ":" + version);
+  /**
+   * Constructs a ZeebeStandaloneGatewayContainer
+   *
+   * @param image docker image name (without tag)
+   * @param version reference version of the container image
+   * @param customTag custom tag for the docker image may be {@code null}, in which case {@code
+   *     version} is used as image tag
+   */
+  public ZeebeStandaloneGatewayContainer(
+      final String image, final Version version, String customTag) {
+    super(image + ":" + (customTag != null ? customTag : version.toString()));
+    this.version = version;
     applyDefaultConfiguration();
   }
 

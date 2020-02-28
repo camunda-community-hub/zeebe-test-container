@@ -62,7 +62,8 @@ class ZeebeBrokerContainerTest {
     // given
     final int partitionsCount = 3;
     container =
-        new ZeebeBrokerContainer(version.version())
+        new ZeebeBrokerContainer(
+                ZeebeDefaults.getInstance().getDefaultImage(), version.version(), version.tagName())
             .withHost("zeebe-0")
             .withNodeId(0)
             .withEmbeddedGateway(true)

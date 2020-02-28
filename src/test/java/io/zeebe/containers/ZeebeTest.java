@@ -131,10 +131,12 @@ class ZeebeTest {
   }
 
   private ZeebeBrokerContainer newBroker(final SupportedVersion version) {
-    return new ZeebeBrokerContainer(version.version());
+    return new ZeebeBrokerContainer(
+        ZeebeDefaults.getInstance().getDefaultImage(), version.version(), version.tagName());
   }
 
   private ZeebeStandaloneGatewayContainer newGateway(final SupportedVersion version) {
-    return new ZeebeStandaloneGatewayContainer(version.version());
+    return new ZeebeStandaloneGatewayContainer(
+        ZeebeDefaults.getInstance().getDefaultImage(), version.version(), version.tagName());
   }
 }

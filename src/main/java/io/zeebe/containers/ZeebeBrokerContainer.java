@@ -15,6 +15,7 @@
  */
 package io.zeebe.containers;
 
+import de.skuzzle.semantic.Version;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -33,18 +34,26 @@ public class ZeebeBrokerContainer extends GenericContainer<ZeebeBrokerContainer>
   protected String host;
   protected int portOffset;
   protected boolean embedGateway;
-  protected String version;
+  protected Version version;
 
   public ZeebeBrokerContainer() {
     this(ZeebeDefaults.getInstance().getDefaultVersion());
   }
 
-  public ZeebeBrokerContainer(final String version) {
-    this(ZeebeDefaults.getInstance().getDefaultImage(), version);
+  public ZeebeBrokerContainer(final Version version) {
+    this(ZeebeDefaults.getInstance().getDefaultImage(), version, null);
   }
 
-  public ZeebeBrokerContainer(final String image, final String version) {
-    super(image + ":" + version);
+  /**
+   * Constructs a ZeebeBrokerContainer
+   *
+   * @param image docker image name (without tag)
+   * @param version reference version of the container image
+   * @param customTag custom tag for the docker image may be {@code null}, in which case {@code
+   *     version} is used as image tag
+   */
+  public ZeebeBrokerContainer(final String image, final Version version, String customTag) {
+    super(image + ":" + (customTag != null ? customTag : version.toString()));
     this.version = version;
     applyDefaultConfiguration();
   }

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <name>Zeebe Test Container</name>
@@ -15,7 +17,7 @@
     <artifactId>camunda-release-parent</artifactId>
     <version>3.7</version>
     <!-- do not remove empty tag - http://jira.codehaus.org/browse/MNG-4687 -->
-    <relativePath />
+    <relativePath/>
   </parent>
 
   <properties>
@@ -41,6 +43,7 @@
     <version.slf4j>1.7.30</version.slf4j>
     <version.testcontainers>1.13.0</version.testcontainers>
     <version.zeebe>0.22.1</version.zeebe>
+    <version.semanticverion>2.1.0</version.semanticverion>
 
     <!-- plugin version -->
     <plugin.version.checkstyle>3.1.1</plugin.version.checkstyle>
@@ -84,6 +87,12 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>${version.junit}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>de.skuzzle</groupId>
+      <artifactId>semantic-version</artifactId>
+      <version>${version.semanticverion}</version>
     </dependency>
 
     <!-- for now, only use junit-jupiter for testing -->
@@ -297,6 +306,16 @@
   </profiles>
 
   <repositories>
+    <repository>
+      <id>central</id>
+      <url>https://repo1.maven.org/maven2</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
     <repository>
       <id>zeebe</id>
       <name>Zeebe Repository</name>
