@@ -20,10 +20,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import io.zeebe.client.ZeebeClient;
 import io.zeebe.client.api.response.BrokerInfo;
 import io.zeebe.client.api.response.Topology;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -93,5 +95,24 @@ class ZeebeBrokerContainerTest {
     assertThat(brokerInfo.getAddress())
         .isEqualTo(container.getInternalAddress(ZeebePort.COMMAND_API));
     assertThat(brokerInfo.getPartitions()).hasSize(partitionsCount);
+  }
+
+  @Test
+  void shouldNotOverwritePort() {
+    // given
+    container =
+        new ZeebeBrokerContainer()
+            .withNetwork(network)
+            .withEmbeddedGateway(true)
+            .withExposedPorts(5701);
+
+    // when
+    container.start();
+
+    // then
+    assertThat(container.getMappedPort(5701)).isGreaterThan(0);
+    Arrays.stream(ZeebePort.values())
+        .map(ZeebePort::getPort)
+        .forEach(port -> assertThat(container.getMappedPort(port)).isGreaterThan(0));
   }
 }
