@@ -18,8 +18,7 @@ package io.zeebe.containers;
 public enum SupportedVersion {
   ZEEBE_0_20_1("0.20.1"),
   ZEEBE_0_21_1("0.21.1"),
-  ZEEBE_0_22_1("0.22.1"),
-  SNAPSHOT("SNAPSHOT");
+  ZEEBE_0_22_1("0.22.1");
 
   private final String version;
 
