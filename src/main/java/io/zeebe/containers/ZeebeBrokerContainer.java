@@ -63,7 +63,7 @@ public class ZeebeBrokerContainer extends GenericContainer<ZeebeBrokerContainer>
     }
 
     super.configure();
-    withExposedPorts(exposedPorts.stream().map(ZeebePort::getPort).toArray(Integer[]::new));
+    exposedPorts.stream().map(ZeebePort::getPort).forEach(this::addExposedPort);
     withNetworkAliases(getInternalHost());
     withCreateContainerCmdModifier(createContainerCmd -> createContainerCmd.withName(name));
   }
