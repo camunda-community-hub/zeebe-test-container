@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.zeebe.containers.api;
+package io.zeebe.containers.impl;
 
 import java.util.Objects;
 
@@ -28,7 +28,7 @@ public final class EnvVar {
     return name;
   }
 
-  String variable() {
+  public String variable() {
     return name().toUpperCase();
   }
 

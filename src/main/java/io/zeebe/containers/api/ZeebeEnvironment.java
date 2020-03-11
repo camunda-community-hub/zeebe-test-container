@@ -15,6 +15,8 @@
  */
 package io.zeebe.containers.api;
 
+import io.zeebe.containers.impl.EnvVar;
+
 public interface ZeebeEnvironment {
 
   EnvVar getZeebeLogLevel();

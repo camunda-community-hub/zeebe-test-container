@@ -15,8 +15,23 @@
  */
 package io.zeebe.containers.api;
 
+import io.zeebe.containers.impl.EnvVar;
+import java.io.File;
+import java.io.InputStream;
 import java.time.Duration;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import org.slf4j.event.Level;
+import org.testcontainers.containers.BindMode;
+import org.testcontainers.containers.Container;
 import org.testcontainers.containers.Network;
+import org.testcontainers.containers.SelinuxContext;
+import org.testcontainers.containers.startupcheck.StartupCheckStrategy;
+import org.testcontainers.containers.wait.strategy.WaitStrategy;
+import org.testcontainers.images.ImagePullPolicy;
+import org.testcontainers.utility.MountableFile;
 
 public interface ZeebeGatewayContainer<SELF extends ZeebeGatewayContainer<SELF>>
     extends ZeebeContainer<SELF> {
@@ -39,7 +54,97 @@ public interface ZeebeGatewayContainer<SELF extends ZeebeGatewayContainer<SELF>>
 
   SELF withGatewayManagementThreadCount(final int managementThreadCount);
 
-  SELF withNetwork(Network network);
+  /**
+   * Below are copies of methods in superinterfaces. These copies are necessary, because otherwise
+   * the type system will complain when this interface is used in a fluent way. Basically, the type
+   * system recognizes only the SELF type of the interface where the method was defined.
+   *
+   * <p>Maybe there is a cleverer way to do this, but for now this is the only workaround we were
+   * able to find.
+   */
+
+  // copied from ZeebeContainer
+  SELF withLogLevel(final Level logLevel);
+
+  SELF withAtomixLogLevel(final Level logLevel);
 
   SELF withClusterName(final String clusterName);
+
+  SELF withConfigurationResource(final String configurationResource);
+
+  SELF withConfigurationFile(final File configurationFile);
+
+  SELF withConfiguration(final InputStream configuration);
+
+  SELF withAdvertisedHost(final String advertisedHost);
+
+  SELF withEnv(final EnvVar envVar, final String value);
+
+  SELF withEnv(final EnvVar envVar, final boolean value);
+
+  SELF withEnv(final EnvVar envVar, final int value);
+
+  SELF withEnv(final EnvVar envVar, final Duration value);
+
+  SELF withEnv(final EnvVar envVar, final Collection<String> value);
+
+  // copied from Container
+  SELF waitingFor(WaitStrategy var1);
+
+  default SELF withFileSystemBind(String hostPath, String containerPath) {
+    return this.withFileSystemBind(hostPath, containerPath, BindMode.READ_WRITE);
+  }
+
+  SELF withFileSystemBind(String var1, String var2, BindMode var3);
+
+  SELF withVolumesFrom(Container var1, BindMode var2);
+
+  SELF withExposedPorts(Integer... var1);
+
+  SELF withCopyFileToContainer(MountableFile var1, String var2);
+
+  SELF withEnv(String var1, String var2);
+
+  default SELF withEnv(String key, Function<Optional<String>, String> mapper) {
+    final Optional<String> oldValue = Optional.ofNullable(this.getEnvMap().get(key));
+    return this.withEnv(key, (String) mapper.apply(oldValue));
+  }
+
+  SELF withEnv(Map<String, String> var1);
+
+  SELF withLabel(String var1, String var2);
+
+  SELF withLabels(Map<String, String> var1);
+
+  SELF withCommand(String var1);
+
+  SELF withCommand(String... var1);
+
+  SELF withExtraHost(String var1, String var2);
+
+  SELF withNetworkMode(String var1);
+
+  SELF withNetwork(Network var1);
+
+  SELF withNetworkAliases(String... var1);
+
+  SELF withImagePullPolicy(ImagePullPolicy var1);
+
+  default SELF withClasspathResourceMapping(
+      String resourcePath, String containerPath, BindMode mode) {
+    this.withClasspathResourceMapping(resourcePath, containerPath, mode, SelinuxContext.NONE);
+    return this.self();
+  }
+
+  SELF withClasspathResourceMapping(String var1, String var2, BindMode var3, SelinuxContext var4);
+
+  SELF withStartupTimeout(Duration var1);
+
+  SELF withPrivilegedMode(boolean var1);
+
+  SELF withMinimumRunningDuration(Duration var1);
+
+  SELF withStartupCheckStrategy(StartupCheckStrategy var1);
+
+  SELF withWorkingDirectory(String var1);
 }

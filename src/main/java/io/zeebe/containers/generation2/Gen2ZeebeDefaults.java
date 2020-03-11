@@ -16,7 +16,7 @@
 package io.zeebe.containers.generation2;
 
 import de.skuzzle.semantic.Version;
-import io.zeebe.containers.api.EnvVar;
+import io.zeebe.containers.impl.EnvVar;
 
 @SuppressWarnings({"squid:S1075", "WeakerAccess"})
 public final class Gen2ZeebeDefaults {

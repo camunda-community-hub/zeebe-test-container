@@ -15,6 +15,7 @@
  */
 package io.zeebe.containers.api;
 
+import io.zeebe.containers.impl.EnvVar;
 import java.io.File;
 import java.io.InputStream;
 import java.time.Duration;

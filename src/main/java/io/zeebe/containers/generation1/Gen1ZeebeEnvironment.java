@@ -15,8 +15,8 @@
  */
 package io.zeebe.containers.generation1;
 
-import io.zeebe.containers.api.EnvVar;
 import io.zeebe.containers.api.ZeebeEnvironment;
+import io.zeebe.containers.impl.EnvVar;
 
 public class Gen1ZeebeEnvironment implements ZeebeEnvironment {
 

@@ -15,8 +15,8 @@
  */
 package io.zeebe.containers.generation2;
 
-import io.zeebe.containers.api.EnvVar;
 import io.zeebe.containers.api.ZeebeBrokerEnvironment;
+import io.zeebe.containers.impl.EnvVar;
 
 public class Gen2ZeebeBrokerEnvironment extends Gen2ZeebeEnvironment
     implements ZeebeBrokerEnvironment {

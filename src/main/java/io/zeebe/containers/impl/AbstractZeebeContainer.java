@@ -27,6 +27,8 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.Duration;
+import java.util.Collection;
 import org.slf4j.event.Level;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.MountableFile;
@@ -85,5 +87,25 @@ public abstract class AbstractZeebeContainer<SELF extends AbstractZeebeContainer
     } catch (final IOException e) {
       throw new UncheckedIOException(e);
     }
+  }
+
+  public SELF withEnv(final EnvVar envVar, final String value) {
+    return withEnv(envVar.variable(), value);
+  }
+
+  public SELF withEnv(final EnvVar envVar, final boolean value) {
+    return withEnv(envVar, String.valueOf(value));
+  }
+
+  public SELF withEnv(final EnvVar envVar, final int value) {
+    return withEnv(envVar, String.valueOf(value));
+  }
+
+  public SELF withEnv(final EnvVar envVar, final Duration value) {
+    return withEnv(envVar, value.toString());
+  }
+
+  public SELF withEnv(final EnvVar envVar, final Collection<String> value) {
+    return withEnv(envVar, String.join(",", value));
   }
 }
