@@ -36,7 +36,7 @@
     <!-- project dependencies -->
     <version.assertj>3.15.0</version.assertj>
     <version.junit>4.13</version.junit>
-    <version.junit-jupiter>5.6.0</version.junit-jupiter>
+    <version.junit-jupiter>5.6.1</version.junit-jupiter>
     <version.log4j>2.13.1</version.log4j>
     <version.slf4j>1.7.30</version.slf4j>
     <version.testcontainers>1.13.0</version.testcontainers>
