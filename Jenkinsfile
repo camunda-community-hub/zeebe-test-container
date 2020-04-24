@@ -1,14 +1,15 @@
-// vim: set filetype=groovy:
+#!/usr/bin/env groovy
 
-def buildName = "${env.JOB_BASE_NAME.replaceAll("%2F", "-").replaceAll("\\.", "-").take(20)}-${env.BUILD_ID}"
+@Library(["camunda-ci", "zeebe-jenkins-shared-library"]) _
 
 pipeline {
+
   agent {
     kubernetes {
       cloud 'zeebe-ci'
-      label "zeebe-ci-build_${buildName}"
+      label "${utils.envPrefix()}ci-zeebe-build_${env.JOB_BASE_NAME.take(20)}-${env.BUILD_ID}"
       defaultContainer 'jnlp'
-      yamlFile '.ci/specs/default.yml'
+      yaml libraryResource("zeebe/podspecs/${utils.isProdJenkins() ? 'mavenDindSmallAgent.yml' : 'mavenDindSmallAgentStage.yml'}")
     }
   }
 
