@@ -6,8 +6,8 @@ pipeline {
 
   agent {
     kubernetes {
-      cloud 'zeebe-ci'
-      label "${utils.envPrefix()}ci-zeebe-build_${env.JOB_BASE_NAME.take(20)}-${env.BUILD_ID}"
+      cloud zeebeKube.getCloud()
+      label zeebeKube.getLabel(env.JOB_BASE_NAME, env.BUILD_ID)
       defaultContainer 'jnlp'
       yaml libraryResource("zeebe/podspecs/${utils.isProdJenkins() ? 'mavenDindSmallAgent.yml' : 'mavenDindSmallAgentStage.yml'}")
     }
@@ -115,14 +115,10 @@ pipeline {
       always {
           // Retrigger the build if the node disconnected
           script {
-              if (nodeDisconnected()) {
+              if (wasNodeDisconnected()) {
                   build job: currentBuild.projectName, propagate: false, quietPeriod: 60, wait: false
               }
           }
       }
   }
-}
-
-boolean nodeDisconnected() {
-  return currentBuild.rawBuild.getLog(500).join('') ==~ /.*(ChannelClosedException|KubernetesClientException|ClosedChannelException).*/
 }
