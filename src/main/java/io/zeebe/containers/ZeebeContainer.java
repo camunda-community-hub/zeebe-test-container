@@ -15,91 +15,78 @@
  */
 package io.zeebe.containers;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.time.Duration;
-import java.util.Collection;
-import org.slf4j.event.Level;
-import org.testcontainers.containers.Container;
-import org.testcontainers.utility.MountableFile;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.Network;
+import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
+import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
+import org.testcontainers.containers.wait.strategy.WaitAllStrategy.Mode;
 
-public interface ZeebeContainer<SELF extends ZeebeContainer<SELF>> extends Container<SELF> {
+/**
+ * Represents a standalone Zeebe broker, that is, a broker with an embedded gateway. By default, all
+ * {@link ZeebePort} ports are exposed, and the container is considered ready if:
+ *
+ * <ul>
+ *   <li>its ports are ready (see {@link HostPortWaitStrategy}
+ *   <li>the broker check is successful (see {@link
+ *       ZeebeBrokerContainer#newDefaultBrokerReadyCheck()}
+ *   <li>the topology check is successful (see {@link
+ *       ZeebeGatewayContainer#newDefaultTopologyCheck()}
+ * </ul>
+ *
+ * <p>Once started, you can build a new client for it e.g.:
+ *
+ * <p><code>
+ *   ZeebeClient.newClientBuilder()
+ *     .brokerContainerPoint(container.getExternalGatewayAddress())
+ *     .usePlaintext()
+ *     .build();
+ * </code>
+ */
+public final class ZeebeContainer extends GenericContainer<ZeebeContainer>
+    implements ZeebeGatewayNode<ZeebeContainer>, ZeebeBrokerNode<ZeebeContainer> {
 
-  default SELF withEnv(final Environment envVar, final String value) {
-    return withEnv(envVar.variable(), value);
-  }
-
-  default SELF withEnv(final Environment envVar, final boolean value) {
-    return withEnv(envVar, String.valueOf(value));
-  }
-
-  default SELF withEnv(final Environment envVar, final int value) {
-    return withEnv(envVar, String.valueOf(value));
-  }
-
-  default SELF withEnv(final Environment envVar, final Collection<String> value) {
-    return withEnv(envVar, String.join(",", value));
-  }
-
-  default SELF withLogLevel(final Level logLevel) {
-    return withEnv(ZeebeEnvironment.ZEEBE_LOG_LEVEL, logLevel.toString());
-  }
-
-  default SELF withAtomixLogLevel(final Level logLevel) {
-    return withEnv(ZeebeEnvironment.ATOMIX_LOG_LEVEL, logLevel.toString());
-  }
-
-  default SELF withCopyFileToContainer(final MountableFile file) {
-    return withCopyFileToContainer(file, ZeebeDefaults.getInstance().getDefaultConfigurationPath());
-  }
-
-  default SELF withConfigurationResource(final String configurationResource) {
-    return withCopyFileToContainer(MountableFile.forClasspathResource(configurationResource));
-  }
-
-  default SELF withConfigurationFile(final File configurationFile) {
-    return withCopyFileToContainer(MountableFile.forHostPath(configurationFile.getAbsolutePath()));
-  }
-
-  default SELF withConfiguration(final InputStream configuration) {
-    try {
-      final Path tempFile = Files.createTempFile(getClass().getPackage().getName(), ".tmp");
-      long bytesRead;
-      long offset = 0;
-      try (ReadableByteChannel input = Channels.newChannel(configuration);
-          FileChannel output = FileChannel.open(tempFile, StandardOpenOption.WRITE)) {
-        while ((bytesRead = output.transferFrom(input, offset, 4096L)) > 0) {
-          offset += bytesRead;
-        }
-      }
-
-      return withConfigurationFile(tempFile.toFile());
-    } catch (final IOException e) {
-      throw new UncheckedIOException(e);
-    }
-  }
-
-  default SELF withAdvertisedHost(final String advertisedHost) {
-    return withEnv(ZeebeEnvironment.ZEEBE_ADVERTISED_HOST, advertisedHost);
-  }
+  private static final Duration DEFAULT_STARTUP_TIMEOUT = Duration.ofMinutes(1);
 
   /**
-   * Attempts to stop the container gracefully. If it times out, the container is abruptly killed.
+   * Creates a new container with the default Zeebe image and version.
    *
-   * @param timeout must be greater than 1 second
+   * @see ZeebeDefaults#getDefaultImage()
+   * @see ZeebeDefaults#getDefaultVersion()
    */
-  default void shutdownGracefully(Duration timeout) {
-    getDockerClient()
-        .stopContainerCmd(getContainerId())
-        .withTimeout((int) timeout.getSeconds())
-        .exec();
+  public ZeebeContainer() {
+    this(
+        ZeebeDefaults.getInstance().getDefaultImage()
+            + ":"
+            + ZeebeDefaults.getInstance().getDefaultVersion());
+  }
+
+  /** @param dockerImageName the full docker image name to use */
+  public ZeebeContainer(final String dockerImageName) {
+    super(dockerImageName);
+    applyDefaultConfiguration();
+  }
+
+  @Override
+  public ZeebeContainer withTopologyCheck(final ZeebeTopologyWaitStrategy topologyCheck) {
+    return waitingFor(
+            new WaitAllStrategy(Mode.WITH_OUTER_TIMEOUT)
+                .withStrategy(new HostPortWaitStrategy())
+                .withStrategy(ZeebeBrokerContainer.newDefaultBrokerReadyCheck())
+                .withStrategy(topologyCheck))
+        .withStartupTimeout(DEFAULT_STARTUP_TIMEOUT);
+  }
+
+  private void applyDefaultConfiguration() {
+    withNetwork(Network.SHARED)
+        .withTopologyCheck(ZeebeGatewayContainer.newDefaultTopologyCheck())
+        .withEnv("ZEEBE_BROKER_GATEWAY_ENABLE", "true")
+        .withEnv("ZEEBE_BROKER_NETWORK_HOST", "0.0.0.0")
+        .withEnv("ZEEBE_BROKER_NETWORK_ADVERTISEDHOST", getInternalHost())
+        .addExposedPorts(
+            ZeebePort.GATEWAY.getPort(),
+            ZeebePort.COMMAND.getPort(),
+            ZeebePort.INTERNAL.getPort(),
+            ZeebePort.MONITORING.getPort());
   }
 }

@@ -3,40 +3,19 @@ Zeebe Test Container
 
 Easily test your application against a containerized, configurable Zeebe instance.
 
-> **NOTE**: the module was, up to now, where matching Zeebe's versions; this however makes us less flexible in
-offering extra features. So from 0.30.x on, we will be using our own release cycle.
-
 Please refer to [testcontainers.org](https://testcontainers.org) for general documentation on how to
 use containers for your tests.
-
-Features
-========
-
-- [x] Start a Zeebe broker container with configurable environment
-- [x] Start a Zeebe gateway container with configurable environment
-
-Planned
-=======
-
-Current plans are to add more tests and QoL features:
-
-- [ ] Gateway tests
-- [ ] Verification API
-- [ ] Client builder
-- [ ] Cluster rule
 
 Supported Zeebe versions
 ========================
 
-> Supported versions are those we actively test against; in general the library should be
-compatible with most Zeebe versions `>= 0.20.x`.
+> **NOTE**: version 1.0 is incompatible with Zeebe versions pre 0.22.x
 
-- 0.20.1
-- 0.21.1
 - 0.22.1
+- 0.23.3
+- 0.24.0
 
-Quickstart
-==========
+# Quickstart
 
 Add the project to your dependencies:
 
@@ -44,118 +23,262 @@ Add the project to your dependencies:
 <dependency>
   <groupId>io.zeebe</groupId>
   <artifactId>zeebe-test-container</artifactId>
-  <version>0.31.1</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 
-You can then use `ZeebeBrokerContainer` and `ZeebeGatewayContainer` as you would any `GenericContainer`.
+## junit4
 
-Example usage
-=============
+If you're using junit4, you can add the container as a rule: it will be started and closed around
+each test execution. You can read more about Testcontainers and junit4 [here](https://www.testcontainers.org/test_framework_integration/junit_4/).
 
-Import `zeebe-test-container` to your project, and you can use the containers in your
-tests as:
-
-### Simple broker with embedded gateway
 ```java
-class MyFeatureTest {
-  @Rule
-  public ZeebeBrokerContainer zeebe = new ZeebeBrokerContainer();
+package com.acme.zeebe;
+
+import io.zeebe.client.ZeebeClient;
+import io.zeebe.client.api.response.DeploymentEvent;
+import io.zeebe.client.api.response.WorkflowInstanceResult;
+import io.zeebe.containers.ZeebeContainer;
+import io.zeebe.model.bpmn.Bpmn;
+import io.zeebe.model.bpmn.BpmnModelInstance;
+import org.assertj.core.api.Assertions;
+import org.junit.Rule;
+import org.junit.Test;
+
+public class MyFeatureTest {
+  @Rule public ZeebeContainer zeebeContainer = new ZeebeContainer();
 
   @Test
-  public void shouldTestMyFeature() {
-    // create a client to connect to the gateway
+  public void shouldConnectToZeebe() {
+    // given
     final ZeebeClient client =
         ZeebeClient.newClientBuilder()
-            .brokerContactPoint(broker.getExternalAddress(ZeebePort.GATEWAY))
+            .brokerContactPoint(zeebeContainer.getExternalGatewayAddress())
+            .usePlaintext()
             .build();
+    final BpmnModelInstance process =
+        Bpmn.createExecutableProcess("process").startEvent().endEvent().done();
 
-    // test stuff
-    // ...
+    // when
+    // do something (e.g. deploy a workflow)
+    final DeploymentEvent deploymentEvent =
+        client.newDeployCommand().addWorkflowModel(process, "process.bpmn").send().join();
+
+    // then
+    // verify (e.g. we can create an instance of the deployed workflow)
+    final WorkflowInstanceResult workflowInstanceResult =
+        client
+            .newCreateInstanceCommand()
+            .bpmnProcessId("process")
+            .latestVersion()
+            .withResult()
+            .send()
+            .join();
+    Assertions.assertThat(workflowInstanceResult.getWorkflowKey())
+        .isEqualTo(deploymentEvent.getWorkflows().get(0).getWorkflowKey());
   }
 }
 ```
 
-### Configured broker with embedded gateway
+## junit5
+
+If you're using junit5, you can use the `Testcontainers` extension. It will manage the container
+lifecycle for you. You can read more about the extension [here](https://www.testcontainers.org/test_framework_integration/junit_5/).
+
 ```java
-class MyFeatureTest {
-  @Rule
-  public ZeebeBrokerContainer zeebe = new ZeebeBrokerContainer()
-    .withPartitionCount(3)
-    .withReplicationFactor(1);
+package com.acme.zeebe;
+
+import io.zeebe.client.ZeebeClient;
+import io.zeebe.client.api.response.DeploymentEvent;
+import io.zeebe.client.api.response.WorkflowInstanceResult;
+import io.zeebe.containers.ZeebeContainer;
+import io.zeebe.model.bpmn.Bpmn;
+import io.zeebe.model.bpmn.BpmnModelInstance;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+@Testcontainers
+public class MyFeatureTest {
+  @Container private final ZeebeContainer zeebeContainer = new ZeebeContainer();
 
   @Test
-  public void shouldTestMyFeature() {
-    // create a client to connect to the gateway
+  void shouldConnectToZeebe() {
+    // given
     final ZeebeClient client =
         ZeebeClient.newClientBuilder()
-            .brokerContactPoint(broker.getExternalAddress(ZeebePort.GATEWAY))
+            .brokerContactPoint(zeebeContainer.getExternalGatewayAddress())
+            .usePlaintext()
             .build();
+    final BpmnModelInstance process =
+        Bpmn.createExecutableProcess("process").startEvent().endEvent().done();
 
-    // test stuff
-    // ...
+    // when
+    // do something (e.g. deploy a workflow)
+    final DeploymentEvent deploymentEvent =
+        client.newDeployCommand().addWorkflowModel(process, "process.bpmn").send().join();
+
+    // then
+    // verify (e.g. we can create an instance of the deployed workflow)
+    final WorkflowInstanceResult workflowInstanceResult =
+        client
+            .newCreateInstanceCommand()
+            .bpmnProcessId("process")
+            .latestVersion()
+            .withResult()
+            .send()
+            .join();
+    Assertions.assertThat(workflowInstanceResult.getWorkflowKey())
+        .isEqualTo(deploymentEvent.getWorkflows().get(0).getWorkflowKey());
   }
 }
 ```
 
-### Standalone Gateway
+# Usage
+
+`zeebe-test-container` provides three different containers:
+
+- `ZeebeContainer`: a Zeebe broker with an embedded gateway
+- `ZeebeBrokerContainer`: a Zeebe broker without an embedded gateway
+- `ZeebeGatewayContainer`: a standalone Zeebe gateway
+
+> If you're unsure which one you should use, then you probably want to use `ZeebeContainer`, as it is
+the quickest way to test your application against Zeebe.
+
+## ZeebeContainer
+
+`ZeebeContainer` will start a new Zeebe broker with embedded gateway. For most tests, this is what
+you will want to use. It provides all the functionality of a Zeebe single node deployment, which for
+testing purposes should be enough.
+
+The container is considered started if and only if:
+
+1. The monitoring, command, cluster, and gateway ports are open and accepting connections (read more about the ports [here](https://docs.zeebe.io/operations/network-ports.html)).
+1. The broker ready check returns a 204 (see more about this check [here](https://docs.zeebe.io/operations/health.html#ready-check)).
+1. The gateway topology is considered complete.
+
+> A topology is considered complete if there is a leader for all partitions.
+
+Once started, the container is ready to accept commands, and a client can connect to it by setting
+its `brokerContactPoint` to `ZeebeContainer#getExternalGatewayAddress()`.
+
+## ZeebeBrokerContainer
+
+`ZeebeBrokerContainer` will start a new Zeebe broker with no embedded gateway. As it contains no
+gateway, the use case for this container is to test Zeebe in clustered mode. As such, it will
+typically be combined with a `ZeebeGatewayContainer` or a `ZeebeContainer`.
+
+The container is considered started if and only if:
+
+1. The monitoring, command, and cluster ports are open and accepting connections (read more about the ports [here](https://docs.zeebe.io/operations/network-ports.html)).
+1. The broker ready check returns a 204 (see more about this check [here](https://docs.zeebe.io/operations/health.html#ready-check)).
+
+Once started, the container is ready to accept commands via the command port; you should therefore
+link a gateway to it if you wish to use it.
+
+## ZeebeGatewayContainer
+
+`ZeebeGatewayContainer` will start a new Zeebe standalone gateway. As it is only a gateway, it
+should be linked to at least one broker - a `ZeebeContainer` or `ZeebeBrokerContainer`. By default,
+it will not expose the monitoring port, as monitoring is not enabled in the gateway by default. If
+you enable monitoring, remember to expose the port as well via
+`GenericContainer#addExposedPort(int)`.
+
+The container is considered started if and only if:
+
+1. The cluster and gateway ports are open and accepting connections (read more about the ports [here](https://docs.zeebe.io/operations/network-ports.html)).
+1. The gateway topology is considered complete.
+
+> A topology is considered complete if there is a leader for all partitions.
+
+Once started, the container is ready to accept commands, and a client can connect to it by setting
+its `brokerContactPoint` to `ZeebeContainer#getExternalGatewayAddress()`.
+
+## Configuring your container
+
+Configuring your Zeebe container of choice is done exactly as you normally would - via environment
+variables or via configuration file. You can find out more about it on the
+[Zeebe documentation website](https://docs.zeebe.io/operations/configuration.html).
+
+> Zeebe 0.23.x and upwards use Spring Boot for configuration - refer to their documentation on how
+> environment variables are mapped to configuration settings. You can read more about this
+> [here](https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-external-config)
+
+> Testcontainers provide mechanisms through which
+> [environment variables can be injected](https://www.javadoc.io/doc/org.testcontainers/testcontainers/1.14.3/org/testcontainers/containers/GenericContainer.html#withEnv-java.lang.String-java.lang.String-),
+> or [configuration files mounted](https://www.testcontainers.org/features/files/). Refer to their
+> documentation for more.
+
+# Examples
+
+A series of examples are included as part of the tests, see
+[test/java/io/zeebe/containers/examples](test/java/io/zeebe/containers/examples).
+
+> Note that these are written for junit5.
+
+# Continuous Integration
+
+If you wish to use this with your continous integration pipeline (e.g. Jenkins, CircleCI), the
+[Testcontainers](https://www.testcontainers.org/supported_docker_environment/) has a section
+explaining how to use it, how volumes can be shared, etc.
+
+# Tips
+
+## LogConsumer
+
+As containers are somewhat opaque by nature (though Testcontainers already does a great job of
+making this more seamless), it's very useful to add a `LogConsumer` to a container. This will
+consume your container logs and pipe them out to your consumer. If you're using SLF4J, you can use
+the `Slf4jLogConsumer` and give it a logger, which makes it much easier to debug if anything goes
+wrong. Here's an example of how this would look like:
+
 ```java
-class MyFeatureTest {
+package com.acme.zeebe;
+
+import io.zeebe.containers.ZeebeContainer;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+@Testcontainers
+public class MyFeatureTest {
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger("com.acme.zeebe.MyFeatureTest.zeebeContainer");
+
+  @Container
+  private final ZeebeContainer zeebeContainer =
+      new ZeebeContainer().withLogConsumer(new Slf4jLogConsumer(LOGGER));
+
   @Test
-  public void shouldTestMyFeature() {
-    // create a broker and a standalone gateway
-    final ZeebeBrokerContainer broker = new ZeebeBrokerContainer();
-    final ZeebeGatewayContainer gateway =
-        new ZeebeGatewayContainer()
-            .withNetwork(broker.getNetwork()); // make sure they are on the same network
-
-    // configure broker so it doesn't start an embedded gateway
-    broker.withEmbeddedGateway(false).withHost("zeebe-0");
-    gateway.withContactPoint(broker.getInternalAddress(ZeebePort.INTERNAL_API));
-
-    // start both containers
-    Stream.of(gateway, broker).parallel().forEach(Startable::start);
-
-    // create a client to connect to the gateway
-    final ZeebeClient client =
-        ZeebeClient.newClientBuilder()
-            .brokerContactPoint(gateway.getExternalAddress(ZeebePort.GATEWAY))
-            .build();
-
-    // test stuff
-    // ...
-
-    Stream.of(gateway, broker).parallel().forEach(Startable::stop);
+  void shouldTestProperty() {
+    // test...
   }
 }
 ```
 
-### Cluster of 3 brokers
-```java
-class MyClusteredTest {
-  @Test
-  public void shouldTestWithCluster() {
-    final Network network = Network.newNetwork();
-    final ZeebeBrokerContainer zeebe0 = new ZeebeBrokerContainer().withNetwork(network).withNodeId(0).withHost("zeebe-0");
-    final ZeebeBrokerContainer zeebe1 = new ZeebeBrokerContainer().withNetwork(network).withNodeId(1).withHost("zeebe-1");
-    final ZeebeBrokerContainer zeebe2 = new ZeebeBrokerContainer().withNetwork(network).withNodeId(2).withHost("zeebe-2");
-    final Collection<String> contactPoints =
-        Stream.of(zeebe0, zeebe1, zeebe2)
-            .map(ZeebeBrokerContainer::getContactPoint)
-            .collect(Collectors.toList());
+## DockerClient
 
-    // set contact points for all
-    Stream.of(zeebe0, zeebe1, zeebe2).forEach(node -> node.withContactPoints(contactPoints));
+Remember that you have access to the raw docker client via `GenericContainer#getDockerClient()`.
+This lets you do all kinds of things at runtime, such as fiddling with volumes, networks, etc.,
+which is a great way to test failure injection.
 
-    // start all brokers
-    // it's important to start the brokers in parallel as they will not be ready until a Raft is formed
-    Stream.of(zeebe0, zeebe1, zeebe2).parallel().forEach(Startable::start);
+### Restarting a container
 
-    // Run your tests
-    // ...
+`Testcontainers` itself does not provide a convenience method to stop or pause a container. Using
+`GenericContainer#stop()` will actually kill and remove the container. To do these things, you can
+use the `DockerClient` directly, and send standard docker commands (e.g. stop, pause, etc.).
 
-    // stop all brokers
-    Stream.of(zeebe0, zeebe1, zeebe2).parallel().forEach(Startable::stop);
-  }
-}
-```
+Alternatively, we provide a convenience method as `ZeebeNode#shutdownGracefully()`
+(e.g. `ZeebeContainer#shutdownGracefully()`, `ZeebeBrokerContainer#shutdownGracefully()`). This will
+only stop the container with a grace period, after which it will kill the container if not stopped.
+However, the container is not removed, and can be restarted later.
+
+## Limiting resources
+
+When starting many containers, you can use `GenericContainer#withCreateContainerCmdModifier()` on creation to
+limit the resources available to them. This can be useful when testing locally on a
+development machine and having to start multiple containers.
