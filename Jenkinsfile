@@ -9,7 +9,7 @@ pipeline {
       cloud getZeebeK8sCloud()
       label getZeebeK8sLabel()
       defaultContainer 'jnlp'
-      yaml libraryResource("zeebe/podspecs/${utils.isProdJenkins() ? 'mavenDindSmallAgent.yml' : 'mavenDindSmallAgentStage.yml'}")
+      yaml libraryResource("zeebe/podspecs/${utils.isProdJenkins() ? 'mavenDindMediumAgent.yml' : 'mavenDindMediumAgentStage.yml'}")
     }
   }
 
