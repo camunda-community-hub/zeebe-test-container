@@ -46,6 +46,7 @@
     <plugin.version.checkstyle>3.1.1</plugin.version.checkstyle>
     <plugin.version.enforcer>3.0.0-M2</plugin.version.enforcer>
     <plugin.version.fmt>2.9</plugin.version.fmt>
+    <plugin.version.javadoc>3.1.0</plugin.version.javadoc>
     <plugin.version.license>3.0</plugin.version.license>
     <plugin.version.sonar>3.7.0.1746</plugin.version.sonar>
     <plugin.version.surefire>2.22.2</plugin.version.surefire>
@@ -140,6 +141,16 @@
 
   <build>
     <plugins>
+      <!-- fix javadoc plugin version to 3.1.0 to fix module error -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${plugin.version.javadoc}</version>
+        <configuration>
+          <source>${version.java}</source>
+        </configuration>
+      </plugin>
+
       <!-- LICENSE PLUGIN -->
       <plugin>
         <groupId>com.mycila</groupId>
