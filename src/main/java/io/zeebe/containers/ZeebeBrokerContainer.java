@@ -101,7 +101,6 @@ public class ZeebeBrokerContainer extends GenericContainer<ZeebeBrokerContainer>
         .withPartitionCount(1)
         .withReplicationFactor(1)
         .withEmbeddedGateway(true)
-        .withDebug(false)
         .withClusterName(ZeebeDefaults.getInstance().getDefaultClusterName())
         .withClusterSize(1)
         .withContactPoints(Collections.emptyList())
