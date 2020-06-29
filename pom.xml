@@ -37,7 +37,7 @@
     <version.assertj>3.15.0</version.assertj>
     <version.junit>4.13</version.junit>
     <version.junit-jupiter>5.6.2</version.junit-jupiter>
-    <version.log4j>2.13.1</version.log4j>
+    <version.log4j>2.13.3</version.log4j>
     <version.slf4j>1.7.30</version.slf4j>
     <version.testcontainers>1.14.1</version.testcontainers>
     <version.zeebe>0.22.1</version.zeebe>
