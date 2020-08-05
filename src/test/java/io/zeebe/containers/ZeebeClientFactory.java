@@ -15,21 +15,15 @@
  */
 package io.zeebe.containers;
 
-public enum ZeebeStandaloneGatewayEnvironment implements Environment {
-  STANDALONE("ZEEBE_STANDALONE_GATEWAY"),
-  CLUSTER_NAME("ZEEBE_GATEWAY_CLUSTER_NAME"),
-  CLUSTER_MEMBER_ID("ZEEBE_GATEWAY_CLUSTER_MEMBER_ID"),
-  CLUSTER_HOST("ZEEBE_GATEWAY_CLUSTER_HOST"),
-  CLUSTER_PORT("ZEEBE_GATEWAY_CLUSTER_PORT");
+import io.zeebe.client.ZeebeClient;
 
-  private final String variable;
+final class ZeebeClientFactory {
+  private ZeebeClientFactory() {}
 
-  ZeebeStandaloneGatewayEnvironment(String variable) {
-    this.variable = variable;
-  }
-
-  @Override
-  public String variable() {
-    return variable;
+  static ZeebeClient newZeebeClient(final ZeebeGatewayNode<?> gateway) {
+    return ZeebeClient.newClientBuilder()
+        .usePlaintext()
+        .brokerContactPoint(gateway.getExternalGatewayAddress())
+        .build();
   }
 }

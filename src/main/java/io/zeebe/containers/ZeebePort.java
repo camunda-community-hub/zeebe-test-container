@@ -15,18 +15,20 @@
  */
 package io.zeebe.containers;
 
+/** Represents the list of known port in a Zeebe cluster, all node types included. */
 public enum ZeebePort {
+  COMMAND(26501),
   GATEWAY(26500),
-  COMMAND_API(26501),
-  INTERNAL_API(26502),
-  MONITORING_API(9600);
+  INTERNAL(26502),
+  MONITORING(9600);
 
-  private final int port;
+  private int port;
 
   ZeebePort(final int port) {
     this.port = port;
   }
 
+  /** @return returns the default port number for this port */
   public int getPort() {
     return port;
   }

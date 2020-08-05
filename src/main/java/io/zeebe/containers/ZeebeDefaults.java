@@ -17,20 +17,24 @@ package io.zeebe.containers;
 
 import org.testcontainers.utility.TestcontainersConfiguration;
 
+/**
+ * Represents a set of static defaults regarding the Zeebe docker image, accessible via a singleton
+ * instance, {@link #getInstance()}.
+ */
 @SuppressWarnings({"squid:S1075", "WeakerAccess"})
 public final class ZeebeDefaults {
-  private static final String DEFAULT_CLUSTER_NAME = "zeebe";
   private static final String ZEEBE_CONTAINER_IMAGE_PROPERTY = "zeebe.container.image";
   private static final String DEFAULT_ZEEBE_CONTAINER_IMAGE = "camunda/zeebe";
-  private static final String DEFAULT_ZEEBE_VERSION = "0.21.0-alpha2";
-  private static final String DEFAULT_CONFIGURATION_PATH = "/usr/local/zeebe/conf/zeebe.cfg.toml";
+  private static final String DEFAULT_ZEEBE_VERSION = "0.24.1";
 
   private ZeebeDefaults() {}
 
+  /** @return the singleton instance */
   public static ZeebeDefaults getInstance() {
     return Singleton.INSTANCE;
   }
 
+  /** @return the default Zeebe docker image, without a tag */
   public String getDefaultImage() {
     return TestcontainersConfiguration.getInstance()
         .getProperties()
@@ -38,16 +42,9 @@ public final class ZeebeDefaults {
         .toString();
   }
 
+  /** @return the default Zeebe docker image tag/version */
   public String getDefaultVersion() {
     return DEFAULT_ZEEBE_VERSION;
-  }
-
-  public String getDefaultClusterName() {
-    return DEFAULT_CLUSTER_NAME;
-  }
-
-  public String getDefaultConfigurationPath() {
-    return DEFAULT_CONFIGURATION_PATH;
   }
 
   private static final class Singleton {

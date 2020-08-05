@@ -15,73 +15,98 @@
  */
 package io.zeebe.containers;
 
-public interface ZeebeGatewayContainer<SELF extends ZeebeGatewayContainer<SELF>>
-    extends ZeebeContainer<SELF> {
-  default SELF withHost(final String host) {
-    return withEnv(ZeebeGatewayEnvironment.HOST, host);
+import java.time.Duration;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.Network;
+import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
+import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
+import org.testcontainers.containers.wait.strategy.WaitAllStrategy.Mode;
+
+/**
+ * Represents a Zeebe standalone gateway. By default, all {@link ZeebePort} ports except {@link
+ * ZeebePort#COMMAND} and {@link ZeebePort#MONITORING} are exposed. The monitoring port is not
+ * exposed as by default, monitoring is not enabled on a standalone gateway. If you enable it, then
+ * you can consider exposing the port - otherwise the ready check will fail.
+ *
+ * <p>The container is considered ready if:
+ *
+ * <ul>
+ *   <li>its ports are ready (see {@link HostPortWaitStrategy}
+ *   <li>the topology check is successful (see {@link #newDefaultTopologyCheck()}
+ * </ul>
+ *
+ * <h3>Connecting to brokers</h3>
+ *
+ * <p>If you want to connect this gateway to other nodes, the recommended way is to create a new
+ * network (e.g. {@link Network#newNetwork()}) and set it as the network of each container you wish
+ * to connect together via {@link GenericContainer#setNetwork(Network)}. Furthermore, you have to
+ * make sure that all nodes share the same cluster name (see Zeebe documentation on how to configure
+ * that).
+ *
+ * <p>Once done, you can connect this container to a broker by setting this gateway's {@code
+ * contactPoint} to the broker's address; if it is a {@link ZeebeNode} you can use {@link
+ * ZeebeNode#getInternalClusterAddress()}.
+ *
+ * <h3>Accessing the gateway</h3>
+ *
+ * <p>Once started, you can build a new client for it e.g.:
+ *
+ * <p><code>
+ *   ZeebeClient.newClientBuilder()
+ *     .brokerContainerPoint(container.getExternalGatewayAddress())
+ *     .usePlaintext()
+ *     .build();
+ * </code>
+ *
+ * <p>Note that if your client is also a container within the same network, you can and should use
+ * the {@link #getInternalGatewayAddress()}.
+ */
+@SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
+public final class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContainer>
+    implements ZeebeGatewayNode<ZeebeGatewayContainer> {
+
+  private static final Duration DEFAULT_STARTUP_TIMEOUT = Duration.ofMinutes(1);
+
+  /**
+   * Creates new container using the default Zeebe image and version.
+   *
+   * @see ZeebeDefaults#getDefaultImage()
+   * @see ZeebeDefaults#getDefaultVersion()
+   */
+  public ZeebeGatewayContainer() {
+    this(
+        ZeebeDefaults.getInstance().getDefaultImage()
+            + ":"
+            + ZeebeDefaults.getInstance().getDefaultVersion());
   }
 
-  default SELF withPort(final int port) {
-    return withEnv(ZeebeGatewayEnvironment.PORT, port);
+  /** @param dockerImageName the full name of the docker image to use */
+  public ZeebeGatewayContainer(final String dockerImageName) {
+    super(dockerImageName);
+    applyDefaultConfiguration();
   }
 
-  default SELF withContactPoint(final String contactPoint) {
-    return withEnv(ZeebeGatewayEnvironment.CONTACT_POINT, contactPoint);
+  @Override
+  public ZeebeGatewayContainer withTopologyCheck(final ZeebeTopologyWaitStrategy topologyCheck) {
+    return waitingFor(
+            new WaitAllStrategy(Mode.WITH_OUTER_TIMEOUT)
+                .withStrategy(new HostPortWaitStrategy())
+                .withStrategy(topologyCheck))
+        .withStartupTimeout(DEFAULT_STARTUP_TIMEOUT);
   }
 
-  default SELF withTransportBuffer(final int transportBuffer) {
-    return withEnv(ZeebeGatewayEnvironment.TRANSPORT_BUFFER, transportBuffer);
+  private void applyDefaultConfiguration() {
+    withNetwork(Network.SHARED)
+        .withTopologyCheck(newDefaultTopologyCheck())
+        .withEnv("ZEEBE_GATEWAY_NETWORK_HOST", "0.0.0.0")
+        .withEnv("ZEEBE_GATEWAY_CLUSTER_MEMBERID", getInternalHost())
+        .withEnv("ZEEBE_GATEWAY_CLUSTER_HOST", getInternalHost())
+        .withEnv("ZEEBE_STANDALONE_GATEWAY", "true")
+        .addExposedPorts(ZeebePort.GATEWAY.getPort(), ZeebePort.INTERNAL.getPort());
   }
 
-  default SELF withRequestTimeout(final String requestTimeout) {
-    return withEnv(ZeebeGatewayEnvironment.REQUEST_TIMEOUT, requestTimeout);
-  }
-
-  default SELF withRequestTimeout(final int requestTimeoutMs) {
-    return withEnv(ZeebeGatewayEnvironment.REQUEST_TIMEOUT, requestTimeoutMs);
-  }
-
-  default SELF withManagementThreadCount(final int managementThreadCount) {
-    return withEnv(ZeebeGatewayEnvironment.MANAGEMENT_THREAD_COUNT, managementThreadCount);
-  }
-
-  default SELF withSecurityEnabled(final boolean securityEnabled) {
-    return withEnv(ZeebeGatewayEnvironment.SECURITY_ENABLED, securityEnabled);
-  }
-
-  default SELF withCertificatePath(final String certificatePath) {
-    return withEnv(ZeebeGatewayEnvironment.CERTIFICATE_PATH, certificatePath);
-  }
-
-  default SELF withPrivateKeyPath(final String privateKeyPath) {
-    return withEnv(ZeebeGatewayEnvironment.PRIVATE_KEY_PATH, privateKeyPath);
-  }
-
-  default SELF withMonitoringEnabled(final boolean monitoringEnabled) {
-    return withEnv(ZeebeGatewayEnvironment.MONITORING_ENABLED, monitoringEnabled);
-  }
-
-  default SELF withMonitoringHost(final String monitoringHost) {
-    return withEnv(ZeebeGatewayEnvironment.MONITORING_HOST, monitoringHost);
-  }
-
-  default SELF withMonitoringPort(final int monitoringPort) {
-    return withEnv(ZeebeGatewayEnvironment.MONITORING_PORT, monitoringPort);
-  }
-
-  default SELF withKeepAliveInterval(final String keepAliveInterval) {
-    return withEnv(ZeebeGatewayEnvironment.KEEP_ALIVE_INTERVAL, keepAliveInterval);
-  }
-
-  default SELF withKeepAliveInterval(final int keepAliveIntervalMs) {
-    return withEnv(ZeebeGatewayEnvironment.KEEP_ALIVE_INTERVAL, keepAliveIntervalMs);
-  }
-
-  default SELF withMaxMessageCount(final int maxMessageCount) {
-    return withEnv(ZeebeGatewayEnvironment.MAX_MESSAGE_COUNT, maxMessageCount);
-  }
-
-  default SELF withMaxMessageSize(final int maxMessageSize) {
-    return withEnv(ZeebeGatewayEnvironment.MAX_MESSAGE_SIZE, maxMessageSize);
+  /** @return the default topology check, available for overwriting */
+  public static ZeebeTopologyWaitStrategy newDefaultTopologyCheck() {
+    return new ZeebeTopologyWaitStrategy().forBrokersCount(1);
   }
 }

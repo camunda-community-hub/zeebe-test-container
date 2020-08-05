@@ -15,145 +15,92 @@
  */
 package io.zeebe.containers;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Objects;
-import java.util.Set;
+import java.time.Duration;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
-import org.testcontainers.utility.Base58;
+import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
+import org.testcontainers.containers.wait.strategy.HttpWaitStrategy;
+import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
+import org.testcontainers.containers.wait.strategy.WaitAllStrategy.Mode;
 
+/**
+ * Represents a Zeebe broker docker instance - that is, without an embedded gateway. By default it
+ * will expose all {@link ZeebePort} ports except the gateway port.
+ *
+ * <p>It is considered ready if:
+ *
+ * <ul>
+ *   <li>its ports are ready (see {@link HostPortWaitStrategy})
+ *   <li>the ready check is successful (see {@link #newDefaultBrokerReadyCheck()})
+ * </ul>
+ *
+ * <h3>Connecting to other nodes</h3>
+ *
+ * <p>If you want to connect this broker to other nodes, the recommended way is to create a new
+ * network (e.g. {@link Network#newNetwork()}) and set it as the network of each container you wish
+ * to connect together via {@link GenericContainer#setNetwork(Network)}. Furthermore, you have to
+ * make sure that all nodes share the same cluster name (see Zeebe documentation on how to configure
+ * that).
+ *
+ * <p>You can connect other brokers to it by adding this container's {@link
+ * #getInternalClusterAddress()} to their {@code initialContactPoints} list. Note that this has to
+ * be done before starting the containers.
+ *
+ * <p>You can connect a standalone gateway by setting its {@code contactPoint} to this container's
+ * {@link #getInternalClusterAddress()}.
+ */
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
-public class ZeebeBrokerContainer extends GenericContainer<ZeebeBrokerContainer>
-    implements ZeebeContainer<ZeebeBrokerContainer>,
-        ZeebeGatewayContainer<ZeebeBrokerContainer>,
-        ZeebeNetworkable {
+public final class ZeebeBrokerContainer extends GenericContainer<ZeebeBrokerContainer>
+    implements ZeebeBrokerNode<ZeebeBrokerContainer> {
 
-  protected String host;
-  protected int portOffset;
-  protected boolean embedGateway;
-  protected String version;
+  private static final Duration DEFAULT_STARTUP_TIMEOUT = Duration.ofMinutes(1);
 
+  /**
+   * Creates a new container with the default Zeebe image and version.
+   *
+   * @see ZeebeDefaults#getDefaultImage()
+   * @see ZeebeDefaults#getDefaultVersion()
+   */
   public ZeebeBrokerContainer() {
-    this(ZeebeDefaults.getInstance().getDefaultVersion());
+    this(
+        ZeebeDefaults.getInstance().getDefaultImage()
+            + ":"
+            + ZeebeDefaults.getInstance().getDefaultVersion());
   }
 
-  public ZeebeBrokerContainer(final String version) {
-    this(ZeebeDefaults.getInstance().getDefaultImage(), version);
-  }
-
-  public ZeebeBrokerContainer(final String image, final String version) {
-    super(image + ":" + version);
-    this.version = version;
+  /** @param dockerImageName the full docker image name */
+  public ZeebeBrokerContainer(final String dockerImageName) {
+    super(dockerImageName);
     applyDefaultConfiguration();
   }
 
-  @Override
-  public String getInternalHost() {
-    return host;
+  private void applyDefaultConfiguration() {
+    withNetwork(Network.SHARED)
+        .waitingFor(
+            new WaitAllStrategy(Mode.WITH_OUTER_TIMEOUT)
+                .withStrategy(new HostPortWaitStrategy())
+                .withStrategy(newDefaultBrokerReadyCheck()))
+        .withStartupTimeout(DEFAULT_STARTUP_TIMEOUT)
+        .withEnv("ZEEBE_BROKER_GATEWAY_ENABLE", "false")
+        .withEnv("ZEEBE_BROKER_NETWORK_HOST", "0.0.0.0")
+        .withEnv("ZEEBE_BROKER_NETWORK_ADVERTISEDHOST", getInternalHost())
+        .addExposedPorts(
+            ZeebePort.COMMAND.getPort(),
+            ZeebePort.INTERNAL.getPort(),
+            ZeebePort.MONITORING.getPort());
   }
 
-  @Override
-  protected void configure() {
-    final String name = getInternalHost() + "-" + Base58.randomString(6);
-    final Set<ZeebePort> exposedPorts = EnumSet.allOf(ZeebePort.class);
-    if (!embedGateway) {
-      exposedPorts.remove(ZeebePort.GATEWAY);
-    }
-
-    super.configure();
-    exposedPorts.stream().map(ZeebePort::getPort).forEach(this::addExposedPort);
-    withNetworkAliases(getInternalHost());
-    withCreateContainerCmdModifier(createContainerCmd -> createContainerCmd.withName(name));
-  }
-
-  @Override
-  public boolean equals(final Object o) {
-    if (this == o) {
-      return true;
-    }
-
-    if (o == null || this.getClass() != o.getClass()) {
-      return false;
-    }
-
-    if (!super.equals(o)) {
-      return false;
-    }
-
-    final ZeebeBrokerContainer that = (ZeebeBrokerContainer) o;
-    return portOffset == that.portOffset
-        && embedGateway == that.embedGateway
-        && Objects.equals(host, that.host);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(super.hashCode(), host, portOffset, embedGateway);
-  }
-
-  public void applyDefaultConfiguration() {
-    final String defaultHost = "zeebe-broker-" + Base58.randomString(6);
-    setWaitStrategy(new BrokerWaitStrategy());
-
-    withHost(defaultHost)
-        .withPartitionCount(1)
-        .withReplicationFactor(1)
-        .withEmbeddedGateway(true)
-        .withClusterName(ZeebeDefaults.getInstance().getDefaultClusterName())
-        .withClusterSize(1)
-        .withContactPoints(Collections.emptyList())
-        .withNodeId(0);
-
-    withNetwork(Network.newNetwork());
-  }
-
-  public String getContactPoint() {
-    return getInternalAddress(ZeebePort.INTERNAL_API);
-  }
-
-  @Override
-  public ZeebeBrokerContainer withHost(final String host) {
-    this.host = host;
-    return withEnv(ZeebeBrokerEnvironment.HOST, host);
-  }
-
-  public ZeebeBrokerContainer withNodeId(final int nodeId) {
-    return withEnv(ZeebeBrokerEnvironment.NODE_ID, nodeId);
-  }
-
-  public ZeebeBrokerContainer withPortOffset(final int portOffset) {
-    this.portOffset = portOffset;
-    return withEnv(ZeebeBrokerEnvironment.PORT_OFFSET, portOffset);
-  }
-
-  public ZeebeBrokerContainer withReplicationFactor(final int replicationFactor) {
-    return withEnv(ZeebeBrokerEnvironment.REPLICATION_FACTOR, replicationFactor);
-  }
-
-  public ZeebeBrokerContainer withPartitionCount(final int partitionCount) {
-    return withEnv(ZeebeBrokerEnvironment.PARTITION_COUNT, partitionCount);
-  }
-
-  public ZeebeBrokerContainer withClusterSize(final int clusterSize) {
-    return withEnv(ZeebeBrokerEnvironment.CLUSTER_SIZE, clusterSize);
-  }
-
-  public ZeebeBrokerContainer withClusterName(final String clusterName) {
-    return withEnv(ZeebeBrokerEnvironment.CLUSTER_NAME, clusterName);
-  }
-
-  public ZeebeBrokerContainer withContactPoints(final Collection<String> contactPoints) {
-    return withEnv(ZeebeBrokerEnvironment.CONTACT_POINTS, contactPoints);
-  }
-
-  public ZeebeBrokerContainer withDebug(final boolean debug) {
-    return withEnv(ZeebeBrokerEnvironment.DEBUG, debug);
-  }
-
-  public ZeebeBrokerContainer withEmbeddedGateway(final boolean embedGateway) {
-    this.embedGateway = embedGateway;
-    return withEnv(ZeebeBrokerEnvironment.EMBED_GATEWAY, embedGateway);
+  /**
+   * Creates a new {@link HttpWaitStrategy} configured for the default broker ready check. Available
+   * publicly to be modified as desired.
+   *
+   * @return the default broker ready check
+   */
+  public static HttpWaitStrategy newDefaultBrokerReadyCheck() {
+    return new HttpWaitStrategy()
+        .forPath("/ready")
+        .forPort(ZeebePort.MONITORING.getPort())
+        .forStatusCode(204)
+        .withReadTimeout(Duration.ofSeconds(10));
   }
 }
