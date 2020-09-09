@@ -11,8 +11,8 @@ Supported Zeebe versions
 
 > **NOTE**: version 1.0 is incompatible with Zeebe versions pre 0.23.x
 
-- 0.23.3
-- 0.24.0
+- 0.23.x
+- 0.24.x
 
 # Quickstart
 
