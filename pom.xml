@@ -39,7 +39,7 @@
     <version.junit-jupiter>5.7.0</version.junit-jupiter>
     <version.mockito>3.6.0</version.mockito>
     <version.slf4j>1.7.30</version.slf4j>
-    <version.testcontainers>1.14.3</version.testcontainers>
+    <version.testcontainers>1.15.0</version.testcontainers>
     <version.zeebe>0.24.3</version.zeebe>
 
     <!-- plugin version -->
