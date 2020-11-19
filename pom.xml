@@ -6,7 +6,7 @@
   <artifactId>zeebe-test-container</artifactId>
   <packaging>jar</packaging>
   <groupId>io.zeebe</groupId>
-  <version>1.0.1</version>
+  <version>1.0.2-SNAPSHOT</version>
   <inceptionYear>2019</inceptionYear>
   <url>https://github.com/zeebe-io/zeebe-test-container</url>
 
@@ -375,6 +375,6 @@
     <connection>scm:git:git@github.com:zeebe-io/zeebe-test-container.git</connection>
     <developerConnection>scm:git:git@github.com:zeebe-io/zeebe-test-container.git
     </developerConnection>
-    <tag>1.0.1</tag>
+    <tag>HEAD</tag>
   </scm>
 </project>
