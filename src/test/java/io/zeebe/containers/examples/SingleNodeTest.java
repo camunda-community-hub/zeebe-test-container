@@ -90,7 +90,7 @@ class SingleNodeTest {
 
   private ZeebeClient newZeebeClient(final ZeebeContainer node) {
     return ZeebeClient.newClientBuilder()
-        .brokerContactPoint(node.getExternalGatewayAddress())
+        .gatewayAddress(node.getExternalGatewayAddress())
         .usePlaintext()
         .build();
   }

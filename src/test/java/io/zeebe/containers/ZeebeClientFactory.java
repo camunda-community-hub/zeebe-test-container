@@ -23,7 +23,7 @@ final class ZeebeClientFactory {
   static ZeebeClient newZeebeClient(final ZeebeGatewayNode<?> gateway) {
     return ZeebeClient.newClientBuilder()
         .usePlaintext()
-        .brokerContactPoint(gateway.getExternalGatewayAddress())
+        .gatewayAddress(gateway.getExternalGatewayAddress())
         .build();
   }
 }

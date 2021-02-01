@@ -56,7 +56,7 @@ public interface ZeebeGatewayNode<T extends GenericContainer<T>> extends ZeebeNo
    *
    * <p>You can build your client like this: <code>
    *   ZeebeClient.newClientBuilder()
-   *   .withBrokerContactPoint(container.getExternalGatewayAddress())
+   *   .gatewayAddress(container.getExternalGatewayAddress())
    *   .usePlaintext()
    *   .build();
    * </code>
@@ -72,7 +72,7 @@ public interface ZeebeGatewayNode<T extends GenericContainer<T>> extends ZeebeNo
    *
    * <p>You can build your client like this: <code>
    *   ZeebeClient.newClientBuilder()
-   *   .withBrokerContactPoint(container.getInternalGatewayAddress())
+   *   .gatewayAddress(container.getInternalGatewayAddress())
    *   .usePlaintext()
    *   .build();
    * </code>

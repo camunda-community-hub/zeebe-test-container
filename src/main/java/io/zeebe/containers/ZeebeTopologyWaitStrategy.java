@@ -233,7 +233,7 @@ public final class ZeebeTopologyWaitStrategy extends AbstractWaitStrategy {
     final int exposedGatewayPort = waitStrategyTarget.getMappedPort(gatewayPort);
     return clientBuilderProvider
         .get()
-        .brokerContactPoint(gatewayHost + ":" + exposedGatewayPort)
+        .gatewayAddress(gatewayHost + ":" + exposedGatewayPort)
         .build();
   }
 

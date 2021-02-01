@@ -25,7 +25,7 @@ import org.testcontainers.utility.TestcontainersConfiguration;
 public final class ZeebeDefaults {
   private static final String ZEEBE_CONTAINER_IMAGE_PROPERTY = "zeebe.container.image";
   private static final String DEFAULT_ZEEBE_CONTAINER_IMAGE = "camunda/zeebe";
-  private static final String DEFAULT_ZEEBE_VERSION = "0.24.1";
+  private static final String DEFAULT_ZEEBE_VERSION = "0.26.0";
 
   private ZeebeDefaults() {}
 
@@ -37,9 +37,7 @@ public final class ZeebeDefaults {
   /** @return the default Zeebe docker image, without a tag */
   public String getDefaultImage() {
     return TestcontainersConfiguration.getInstance()
-        .getProperties()
-        .getOrDefault(ZEEBE_CONTAINER_IMAGE_PROPERTY, DEFAULT_ZEEBE_CONTAINER_IMAGE)
-        .toString();
+        .getEnvVarOrUserProperty(ZEEBE_CONTAINER_IMAGE_PROPERTY, DEFAULT_ZEEBE_CONTAINER_IMAGE);
   }
 
   /** @return the default Zeebe docker image tag/version */

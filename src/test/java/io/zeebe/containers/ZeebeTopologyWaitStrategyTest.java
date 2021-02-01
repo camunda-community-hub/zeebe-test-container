@@ -73,7 +73,7 @@ final class ZeebeTopologyWaitStrategyTest {
 
   @BeforeEach
   void setup() {
-    Mockito.when(builder.brokerContactPoint(Mockito.anyString())).thenReturn(builder);
+    Mockito.when(builder.gatewayAddress(Mockito.anyString())).thenReturn(builder);
     Mockito.when(builder.build()).thenReturn(client);
     Mockito.when(client.newTopologyRequest()).thenReturn(topologyRequest);
   }
@@ -134,7 +134,7 @@ final class ZeebeTopologyWaitStrategyTest {
 
     // then
     Mockito.verify(builder, Mockito.timeout(5000).atLeastOnce())
-        .brokerContactPoint(target.getContainerIpAddress() + ":" + target.mappedPort);
+        .gatewayAddress(target.getContainerIpAddress() + ":" + target.mappedPort);
   }
 
   @ParameterizedTest(name = "should timeout on incomplete topology when {0}")

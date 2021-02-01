@@ -12,7 +12,7 @@ Supported Zeebe versions
 > **NOTE**: version 1.0 is incompatible with Zeebe versions pre 0.23.x
 
 - 0.23.x
-- 0.24.x
+- 0.26.x
 
 # Quickstart
 
@@ -52,7 +52,7 @@ public class MyFeatureTest {
     // given
     final ZeebeClient client =
         ZeebeClient.newClientBuilder()
-            .brokerContactPoint(zeebeContainer.getExternalGatewayAddress())
+            .gatewayAddress(zeebeContainer.getExternalGatewayAddress())
             .usePlaintext()
             .build();
     final BpmnModelInstance process =
@@ -107,7 +107,7 @@ public class MyFeatureTest {
     // given
     final ZeebeClient client =
         ZeebeClient.newClientBuilder()
-            .brokerContactPoint(zeebeContainer.getExternalGatewayAddress())
+            .gatewayAddress(zeebeContainer.getExternalGatewayAddress())
             .usePlaintext()
             .build();
     final BpmnModelInstance process =
@@ -160,7 +160,7 @@ The container is considered started if and only if:
 > A topology is considered complete if there is a leader for all partitions.
 
 Once started, the container is ready to accept commands, and a client can connect to it by setting
-its `brokerContactPoint` to `ZeebeContainer#getExternalGatewayAddress()`.
+its `gatewayAddress` to `ZeebeContainer#getExternalGatewayAddress()`.
 
 ## ZeebeBrokerContainer
 
@@ -192,7 +192,7 @@ The container is considered started if and only if:
 > A topology is considered complete if there is a leader for all partitions.
 
 Once started, the container is ready to accept commands, and a client can connect to it by setting
-its `brokerContactPoint` to `ZeebeContainer#getExternalGatewayAddress()`.
+its `gatewayAddress` to `ZeebeContainer#getExternalGatewayAddress()`.
 
 ## Configuring your container
 
