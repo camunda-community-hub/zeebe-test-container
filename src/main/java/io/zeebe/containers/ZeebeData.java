@@ -15,15 +15,12 @@
  */
 package io.zeebe.containers;
 
-import io.zeebe.client.ZeebeClient;
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
+import org.testcontainers.containers.GenericContainer;
 
-final class ZeebeClientFactory {
-  private ZeebeClientFactory() {}
-
-  static ZeebeClient newZeebeClient(final ZeebeGatewayNode<?> gateway) {
-    return ZeebeClient.newClientBuilder()
-        .usePlaintext()
-        .gatewayAddress(gateway.getExternalGatewayAddress())
-        .build();
-  }
+@API(status = Status.EXPERIMENTAL)
+@FunctionalInterface
+public interface ZeebeData {
+  <T extends GenericContainer<T> & ZeebeBrokerNode<T>> void attach(final T container);
 }

@@ -16,11 +16,14 @@
 package io.zeebe.containers;
 
 import java.time.Duration;
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
 import org.testcontainers.containers.wait.strategy.WaitAllStrategy.Mode;
+import org.testcontainers.utility.DockerImageName;
 
 /**
  * Represents a standalone Zeebe broker, that is, a broker with an embedded gateway. By default, all
@@ -36,14 +39,19 @@ import org.testcontainers.containers.wait.strategy.WaitAllStrategy.Mode;
  *
  * <p>Once started, you can build a new client for it e.g.:
  *
- * <p><code>
+ * <pre>{@code
  *   ZeebeClient.newClientBuilder()
  *     .brokerContainerPoint(container.getExternalGatewayAddress())
  *     .usePlaintext()
  *     .build();
- * </code>
+ * }
+ *
+ * <p>If you want to reuse the same data across restarts, you can specify it using
+ * {@link ZeebeBrokerNode#withZeebeData(ZeebeData)}.
  */
-public final class ZeebeContainer extends GenericContainer<ZeebeContainer>
+@API(status = Status.STABLE)
+@SuppressWarnings("java:S2160")
+public class ZeebeContainer extends GenericContainer<ZeebeContainer>
     implements ZeebeGatewayNode<ZeebeContainer>, ZeebeBrokerNode<ZeebeContainer> {
 
   private static final Duration DEFAULT_STARTUP_TIMEOUT = Duration.ofMinutes(1);
@@ -55,26 +63,29 @@ public final class ZeebeContainer extends GenericContainer<ZeebeContainer>
    * @see ZeebeDefaults#getDefaultVersion()
    */
   public ZeebeContainer() {
-    this(
-        ZeebeDefaults.getInstance().getDefaultImage()
-            + ":"
-            + ZeebeDefaults.getInstance().getDefaultVersion());
+    this(ZeebeDefaults.getInstance().getDefaultDockerImage());
   }
 
   /** @param dockerImageName the full docker image name to use */
-  public ZeebeContainer(final String dockerImageName) {
+  public ZeebeContainer(final DockerImageName dockerImageName) {
     super(dockerImageName);
     applyDefaultConfiguration();
   }
 
   @Override
   public ZeebeContainer withTopologyCheck(final ZeebeTopologyWaitStrategy topologyCheck) {
-    return waitingFor(
-            new WaitAllStrategy(Mode.WITH_OUTER_TIMEOUT)
-                .withStrategy(new HostPortWaitStrategy())
-                .withStrategy(ZeebeBrokerContainer.newDefaultBrokerReadyCheck())
-                .withStrategy(topologyCheck))
-        .withStartupTimeout(DEFAULT_STARTUP_TIMEOUT);
+    return waitingFor(newDefaultWaitStrategy().withStrategy(topologyCheck));
+  }
+
+  @Override
+  public ZeebeContainer withoutTopologyCheck() {
+    return waitingFor(newDefaultWaitStrategy());
+  }
+
+  protected WaitAllStrategy newDefaultWaitStrategy() {
+    return new WaitAllStrategy(Mode.WITH_OUTER_TIMEOUT)
+        .withStrategy(new HostPortWaitStrategy())
+        .withStrategy(ZeebeBrokerContainer.newDefaultBrokerReadyCheck());
   }
 
   private void applyDefaultConfiguration() {
@@ -83,6 +94,7 @@ public final class ZeebeContainer extends GenericContainer<ZeebeContainer>
         .withEnv("ZEEBE_BROKER_GATEWAY_ENABLE", "true")
         .withEnv("ZEEBE_BROKER_NETWORK_HOST", "0.0.0.0")
         .withEnv("ZEEBE_BROKER_NETWORK_ADVERTISEDHOST", getInternalHost())
+        .withStartupTimeout(DEFAULT_STARTUP_TIMEOUT)
         .addExposedPorts(
             ZeebePort.GATEWAY.getPort(),
             ZeebePort.COMMAND.getPort(),

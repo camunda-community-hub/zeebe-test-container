@@ -16,12 +16,15 @@
 package io.zeebe.containers;
 
 import java.time.Duration;
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.containers.wait.strategy.HttpWaitStrategy;
 import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
 import org.testcontainers.containers.wait.strategy.WaitAllStrategy.Mode;
+import org.testcontainers.utility.DockerImageName;
 
 /**
  * Represents a Zeebe broker docker instance - that is, without an embedded gateway. By default it
@@ -48,9 +51,13 @@ import org.testcontainers.containers.wait.strategy.WaitAllStrategy.Mode;
  *
  * <p>You can connect a standalone gateway by setting its {@code contactPoint} to this container's
  * {@link #getInternalClusterAddress()}.
+ *
+ * <p>If you want to reuse the same data across restarts, you can specify it using {@link
+ * ZeebeBrokerNode#withZeebeData(ZeebeData)}.
  */
-@SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
-public final class ZeebeBrokerContainer extends GenericContainer<ZeebeBrokerContainer>
+@API(status = Status.STABLE)
+@SuppressWarnings({"WeakerAccess", "UnusedReturnValue", "java:S2160"})
+public class ZeebeBrokerContainer extends GenericContainer<ZeebeBrokerContainer>
     implements ZeebeBrokerNode<ZeebeBrokerContainer> {
 
   private static final Duration DEFAULT_STARTUP_TIMEOUT = Duration.ofMinutes(1);
@@ -62,14 +69,11 @@ public final class ZeebeBrokerContainer extends GenericContainer<ZeebeBrokerCont
    * @see ZeebeDefaults#getDefaultVersion()
    */
   public ZeebeBrokerContainer() {
-    this(
-        ZeebeDefaults.getInstance().getDefaultImage()
-            + ":"
-            + ZeebeDefaults.getInstance().getDefaultVersion());
+    this(ZeebeDefaults.getInstance().getDefaultDockerImage());
   }
 
   /** @param dockerImageName the full docker image name */
-  public ZeebeBrokerContainer(final String dockerImageName) {
+  public ZeebeBrokerContainer(final DockerImageName dockerImageName) {
     super(dockerImageName);
     applyDefaultConfiguration();
   }

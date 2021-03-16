@@ -16,11 +16,14 @@
 package io.zeebe.containers;
 
 import java.time.Duration;
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
 import org.testcontainers.containers.wait.strategy.WaitAllStrategy.Mode;
+import org.testcontainers.utility.DockerImageName;
 
 /**
  * Represents a Zeebe standalone gateway. By default, all {@link ZeebePort} ports except {@link
@@ -51,18 +54,19 @@ import org.testcontainers.containers.wait.strategy.WaitAllStrategy.Mode;
  *
  * <p>Once started, you can build a new client for it e.g.:
  *
- * <p><code>
+ * <pre>{@code
  *   ZeebeClient.newClientBuilder()
  *     .brokerContainerPoint(container.getExternalGatewayAddress())
  *     .usePlaintext()
  *     .build();
- * </code>
+ * }
  *
  * <p>Note that if your client is also a container within the same network, you can and should use
  * the {@link #getInternalGatewayAddress()}.
  */
+@API(status = Status.STABLE)
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
-public final class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContainer>
+public class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContainer>
     implements ZeebeGatewayNode<ZeebeGatewayContainer> {
 
   private static final Duration DEFAULT_STARTUP_TIMEOUT = Duration.ofMinutes(1);
@@ -74,14 +78,10 @@ public final class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayCo
    * @see ZeebeDefaults#getDefaultVersion()
    */
   public ZeebeGatewayContainer() {
-    this(
-        ZeebeDefaults.getInstance().getDefaultImage()
-            + ":"
-            + ZeebeDefaults.getInstance().getDefaultVersion());
+    this(ZeebeDefaults.getInstance().getDefaultDockerImage());
   }
 
-  /** @param dockerImageName the full name of the docker image to use */
-  public ZeebeGatewayContainer(final String dockerImageName) {
+  public ZeebeGatewayContainer(final DockerImageName dockerImageName) {
     super(dockerImageName);
     applyDefaultConfiguration();
   }
@@ -89,10 +89,14 @@ public final class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayCo
   @Override
   public ZeebeGatewayContainer withTopologyCheck(final ZeebeTopologyWaitStrategy topologyCheck) {
     return waitingFor(
-            new WaitAllStrategy(Mode.WITH_OUTER_TIMEOUT)
-                .withStrategy(new HostPortWaitStrategy())
-                .withStrategy(topologyCheck))
-        .withStartupTimeout(DEFAULT_STARTUP_TIMEOUT);
+        new WaitAllStrategy(Mode.WITH_OUTER_TIMEOUT)
+            .withStrategy(new HostPortWaitStrategy())
+            .withStrategy(topologyCheck));
+  }
+
+  @Override
+  public ZeebeGatewayContainer withoutTopologyCheck() {
+    return waitingFor(new HostPortWaitStrategy());
   }
 
   private void applyDefaultConfiguration() {
@@ -102,6 +106,7 @@ public final class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayCo
         .withEnv("ZEEBE_GATEWAY_CLUSTER_MEMBERID", getInternalHost())
         .withEnv("ZEEBE_GATEWAY_CLUSTER_HOST", getInternalHost())
         .withEnv("ZEEBE_STANDALONE_GATEWAY", "true")
+        .withStartupTimeout(DEFAULT_STARTUP_TIMEOUT)
         .addExposedPorts(ZeebePort.GATEWAY.getPort(), ZeebePort.INTERNAL.getPort());
   }
 
