@@ -1,9 +1,46 @@
 # Zeebe Test Container
 
+[![](https://img.shields.io/badge/Community%20Extension-An%20open%20source%20community%20maintained%20project-FF4700)](https://github.com/camunda-community-hub/community)
+[![](https://img.shields.io/badge/Lifecycle-Incubating-blue)](https://github.com/Camunda-Community-Hub/community/blob/main/extension-lifecycle.md#incubating-)
+
 Easily test your application against a containerized, configurable Zeebe instance.
 
 Please refer to [testcontainers.org](https://testcontainers.org) for general documentation on how to
-use containers for your tests.
+use containers for your tests, as well as general prerequisites.
+
+- [Zeebe Test Container](#zeebe-test-container)
+  - [Supported Zeebe versions](#supported-zeebe-versions)
+  - [Installation](#installation)
+    - [Requirements](#requirements)
+  - [Compatibility guarantees](#compatibility-guarantees)
+  - [Quickstart](#quickstart)
+  - [Using with junit4](#using-with-junit4)
+  - [Using with junit5](#using-with-junit5)
+- [Usage](#usage)
+  - [Broker with embedded gateway](#broker-with-embedded-gateway)
+  - [Standalone broker without gateway](#standalone-broker-without-gateway)
+  - [Standalone gateway](#standalone-gateway)
+  - [Cluster](#cluster)
+    - [Usage](#usage-1)
+    - [Example](#example)
+  - [Configuring your container](#configuring-your-container)
+  - [Examples](#examples)
+  - [Continuous Integration](#continuous-integration)
+- [Tips](#tips)
+  - [Tailing your container's logs during development](#tailing-your-containers-logs-during-development)
+  - [Configuring GenericContainer specific properties with a Zeebe*Node interface](#configuring-genericcontainer-specific-properties-with-a-zeebenode-interface)
+  - [Advanced Docker usage via the DockerClient](#advanced-docker-usage-via-the-dockerclient)
+    - [Gracefully restarting a container](#gracefully-restarting-a-container)
+  - [Limiting container resources](#limiting-container-resources)
+- [Contributing](#contributing)
+  - [Build from source](#build-from-source)
+    - [Prerequisites](#prerequisites)
+    - [Building](#building)
+  - [Backwards compatibility](#backwards-compatibility)
+  - [Report issues or contact developers](#report-issues-or-contact-developers)
+  - [Create a Pull Request](#create-a-pull-request)
+  - [Commit Message Guidelines](#commit-message-guidelines)
+  - [Contributor License Agreement](#contributor-license-agreement)
 
 ## Supported Zeebe versions
 
@@ -30,6 +67,13 @@ Add the project to your dependencies:
 ```groovy
 testImplementation 'io.zeebe:zeebe-test-container:1.0.1'
 ```
+
+### Requirements
+
+Zeebe Test Container is built for Java 8+, and will probably not work on lower Java versions.
+
+Additionally, you will need to comply to all of the Testcontainers requirements, as defined
+[here](https://www.testcontainers.org/#prerequisites).
 
 ## Compatibility guarantees
 
@@ -70,7 +114,7 @@ may change at any time, at least until it is marked as stable or dropped.
 
 ## Quickstart
 
-## junit4
+## Using with junit4
 
 If you're using junit4, you can add the container as a rule: it will be started and closed around
 each test execution. You can read more about Testcontainers and
@@ -126,7 +170,7 @@ public class MyFeatureTest {
 }
 ```
 
-## junit5
+## Using with junit5
 
 If you're using junit5, you can use the `Testcontainers` extension. It will manage the container
 lifecycle for you. You can read more about the
@@ -197,7 +241,7 @@ public class MyFeatureTest {
 > If you're unsure which one you should use, then you probably want to use `ZeebeContainer`, as it
 > is the quickest way to test your application against Zeebe.
 
-## ZeebeContainer
+## Broker with embedded gateway
 
 `ZeebeContainer` will start a new Zeebe broker with embedded gateway. For most tests, this is what
 you will want to use. It provides all the functionality of a Zeebe single node deployment, which for
@@ -214,7 +258,7 @@ The container is considered started if and only if:
 Once started, the container is ready to accept commands, and a client can connect to it by setting
 its `gatewayAddress` to `ZeebeContainer#getExternalGatewayAddress()`.
 
-## ZeebeBrokerContainer
+## Standalone broker without gateway
 
 `ZeebeBrokerContainer` will start a new Zeebe broker with no embedded gateway. As it contains no
 gateway, the use case for this container is to test Zeebe in clustered mode. As such, it will
@@ -228,7 +272,7 @@ The container is considered started if and only if:
 Once started, the container is ready to accept commands via the command port; you should therefore
 link a gateway to it if you wish to use it.
 
-## ZeebeGatewayContainer
+## Standalone gateway
 
 `ZeebeGatewayContainer` will start a new Zeebe standalone gateway. As it is only a gateway, it
 should be linked to at least one broker - a `ZeebeContainer` or `ZeebeBrokerContainer`. By default,
@@ -417,7 +461,7 @@ explaining how to use it, how volumes can be shared, etc.
 
 # Tips
 
-## LogConsumer
+## Tailing your container's logs during development
 
 As containers are somewhat opaque by nature (though Testcontainers already does a great job of
 making this more seamless), it's very useful to add a `LogConsumer` to a container. This will
@@ -452,7 +496,7 @@ public class MyFeatureTest {
 }
 ```
 
-## Container#self()
+## Configuring GenericContainer specific properties with a Zeebe*Node interface
 
 There are three container types in this module: `ZeebeContainer`, `ZeebeBrokerContainer`,
 `ZeebeGatewayContainer`. `ZeebeContainer` is a special case which can be both a gateway and a
@@ -497,13 +541,13 @@ class ZeebeHugeClusterTest {
 }
 ```
 
-## DockerClient
+## Advanced Docker usage via the DockerClient
 
 Remember that you have access to the raw docker client via `GenericContainer#getDockerClient()`.
 This lets you do all kinds of things at runtime, such as fiddling with volumes, networks, etc.,
 which is a great way to test failure injection.
 
-### Restarting a container
+### Gracefully restarting a container
 
 > NOTE: this is an advanced feature which is experimental and may still cause issues, so use at your
 > own risk.
@@ -520,8 +564,102 @@ However, the container is not removed, and can be restarted later.
 Keep in mind that to restart it you need to use a `DockerClient#startContainerCmd(String)`, as just
 calling `GenericContainer#start()` will not start your container again.
 
-## Limiting resources
+## Limiting container resources
 
 When starting many containers, you can use `GenericContainer#withCreateContainerCmdModifier()` on creation to
 limit the resources available to them. This can be useful when testing locally on a
 development machine and having to start multiple containers.
+
+# Contributing
+
+Contributions are more than welcome! Please make sure to read and adhere to the
+[Code of Conduct](CODE_OF_CONDUCT.md). Additionally, in order to have your contributions accepted,
+you will need to sign the [Contributor License Agreement](https://cla-assistant.io/camunda/).
+
+## Build from source
+
+### Prerequisites
+
+In order to build from source, you will need to install maven 3.6+. You can find more about it on
+the [maven homepage](https://maven.apache.org/users/index.html).
+
+You will also need a JDK targeting Java 8+. We recommend installing any flavour of OpenJDK such as
+[AdoptOpenJDK](https://adoptopenjdk.net/).
+
+Finally, you will need to [install Docker](https://docs.docker.com/get-docker/) on your local machine.
+
+### Building
+
+With all requirements ready, you can now simply [clone the repository](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository),
+and from its root, run the following command:
+
+```shell
+mvn clean install
+```
+
+This will build the project and run all tests locally.
+
+Should you wish to only build without running the tests, you can run:
+
+```shell
+mvn clean package
+```
+
+## Backwards compatibility
+
+Zeebe Test Container uses a [Semantic Versioning](https://semver.org/) scheme for its versions, and
+[revapi](https://revapi.org/) to enforce backwards compatibility according to its specification.
+
+Additionally, we also use [apiguardian](https://github.com/apiguardian-team/apiguardian) to specify
+backwards compatibility guarantees on a more granular level. As such, only APIs marked as `STABLE`
+are considered when enforcing backwards compatibility.
+
+If you wish to incubate a new feature, or if you're unsure about a new API type/method, please use
+the `EXPERIMENTAL` status for it. This will give us flexibility to test out new features and change
+them easily if we realize they need to be adapted.
+
+## Report issues or contact developers
+
+Work on Zeebe Test Container is done entirely through the Github repository. If you want to report
+a bug or request a new feature feel free to open a new issue on [GitHub][issues].
+
+## Create a Pull Request
+
+To work on an issue, follow the following steps:
+
+1. Check that a [GitHub issue][issues] exists for the task you want to work on. If one does not,
+   create one.
+1. Checkout the `master` branch and pull the latest changes.
+   ```
+   git checkout develop
+   git pull
+   ```
+1. Create a new branch with the naming scheme `issueId-description`.
+   ```
+   git checkout -b 123-my-new-feature
+   ```
+1. Follow the [Google Java Format](https://github.com/google/google-java-format#intellij-android-studio-and-other-jetbrains-ides)
+   and [Zeebe Code Style](https://github.com/zeebe-io/zeebe/wiki/Code-Style) while coding.
+1. Implement the required changes on your branch, and make sure to build and test your changes locally
+   before opening a pull requests for review.
+1. If you want to make use of the CI facilities before your feature is ready for review, feel free
+   to open a draft PR.
+1. If you think you finished the issue please prepare the branch for reviewing.
+   In general the commits should be squashed into meaningful commits with a
+   helpful message. This means cleanup/fix etc commits should be squashed into
+   the related commit.
+1. Finally, be sure to check on the CI results and fix any reported errors.
+
+## Commit Message Guidelines
+
+Commit messages use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary)
+format.
+
+## Contributor License Agreement
+
+You will be asked to sign our Contributor License Agreement when you open a Pull Request. We are not
+asking you to assign copyright to us, but to give us the right to distribute your code without
+restriction. We ask this of all contributors in order to assure our users of the origin and
+continuing existence of the code. You only need to sign the CLA once.
+
+Note that this is a general requirement of any Camunda Community Hub project.
