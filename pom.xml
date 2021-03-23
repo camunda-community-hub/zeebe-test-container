@@ -48,7 +48,7 @@
     <version.zeebe>0.26.1</version.zeebe>
 
     <!-- plugin version -->
-    <plugin.version.checkstyle>3.1.1</plugin.version.checkstyle>
+    <plugin.version.checkstyle>3.1.2</plugin.version.checkstyle>
     <plugin.version.enforcer>3.0.0-M2</plugin.version.enforcer>
     <plugin.version.fmt>2.10</plugin.version.fmt>
     <plugin.version.javadoc>3.2.0</plugin.version.javadoc>
