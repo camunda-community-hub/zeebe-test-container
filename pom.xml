@@ -55,7 +55,7 @@
     <plugin.version.license>3.0</plugin.version.license>
     <plugin.version.owasp>6.1.2</plugin.version.owasp>
     <plugin.version.revapi>0.13.6</plugin.version.revapi>
-    <plugin.version.sonar>3.7.0.1746</plugin.version.sonar>
+    <plugin.version.sonar>3.8.0.2131</plugin.version.sonar>
     <plugin.version.surefire>3.0.0-M5</plugin.version.surefire>
 
     <!-- maven extensions -->
