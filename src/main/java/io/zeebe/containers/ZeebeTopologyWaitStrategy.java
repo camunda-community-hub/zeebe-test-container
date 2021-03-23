@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
 import org.rnorth.ducttape.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,8 +54,9 @@ import org.testcontainers.containers.wait.strategy.WaitStrategyTarget;
  *   <li>For each partition, there are at least 2 brokers which are FOLLOWERs
  * </ul>
  */
+@API(status = Status.STABLE)
 @SuppressWarnings("UnusedReturnValue")
-public final class ZeebeTopologyWaitStrategy extends AbstractWaitStrategy {
+public class ZeebeTopologyWaitStrategy extends AbstractWaitStrategy {
   private static final Logger LOGGER = LoggerFactory.getLogger(ZeebeTopologyWaitStrategy.class);
 
   private int brokersCount;
@@ -233,7 +236,7 @@ public final class ZeebeTopologyWaitStrategy extends AbstractWaitStrategy {
     final int exposedGatewayPort = waitStrategyTarget.getMappedPort(gatewayPort);
     return clientBuilderProvider
         .get()
-        .brokerContactPoint(gatewayHost + ":" + exposedGatewayPort)
+        .gatewayAddress(gatewayHost + ":" + exposedGatewayPort)
         .build();
   }
 

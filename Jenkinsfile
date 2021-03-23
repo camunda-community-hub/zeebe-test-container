@@ -46,25 +46,18 @@ pipeline {
       steps {
         container('maven') {
           configFileProvider([configFile(fileId: 'maven-nexus-settings-zeebe', variable: 'MAVEN_SETTINGS_XML')]) {
-            sh 'mvn install -B -s $MAVEN_SETTINGS_XML'
+            sh 'mvn -B -s $MAVEN_SETTINGS_XML -Pparallel-tests install'
           }
         }
       }
 
       post {
+        failure {
+          zip zipFile: 'test-reports.zip', archive: true, glob: "**/*/surefire-reports/**"
+        }
+
         always {
             junit testResults: "**/*/TEST-*.xml", keepLongStdio: true
-        }
-      }
-    }
-
-    stage('Analyse') {
-      when { not { expression { params.RELEASE } } }
-      steps {
-        container('maven') {
-          configFileProvider([configFile(fileId: 'maven-nexus-settings-zeebe', variable: 'MAVEN_SETTINGS_XML')]) {
-             sh '.ci/scripts/analyse.sh'
-          }
         }
       }
     }

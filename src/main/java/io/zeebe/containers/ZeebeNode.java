@@ -17,8 +17,12 @@ package io.zeebe.containers;
 
 import java.time.Duration;
 import java.util.List;
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
 import org.testcontainers.containers.Container;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.WaitStrategyTarget;
+import org.testcontainers.lifecycle.Startable;
 
 /**
  * Represents common properties of all Zeebe nodes in a cluster, e.g. the monitoring address, the
@@ -26,7 +30,8 @@ import org.testcontainers.containers.GenericContainer;
  *
  * @param <T> the concrete type of the underlying container
  */
-public interface ZeebeNode<T extends GenericContainer<T>> extends Container<T> {
+public interface ZeebeNode<T extends GenericContainer<T> & ZeebeNode<T>>
+    extends Container<T>, WaitStrategyTarget, Startable {
 
   /**
    * Returns an address accessible from within the container's network for the given port.
@@ -96,12 +101,13 @@ public interface ZeebeNode<T extends GenericContainer<T>> extends Container<T> {
 
   /**
    * Returns a hostname which is accessible from a host that is within the same docker network as
-   * this node. It will attempt to return the first network alias it finds, and if there is none,
-   * will return the container name. The network alias is preferable as it typically conveys more
-   * meaning than container name, which is often randomly generated.
+   * this node. It will attempt to return the last added network alias it finds, and if there is
+   * none, will return the container name. The network alias is preferable as it typically conveys
+   * more meaning than container name, which is often randomly generated.
    *
    * @return the hostname of this node as visible from a host within the same docker network
    */
+  @API(status = Status.EXPERIMENTAL)
   default String getInternalHost() {
     final GenericContainer<?> container = self();
     final List<String> aliases = container.getNetworkAliases();
@@ -109,7 +115,7 @@ public interface ZeebeNode<T extends GenericContainer<T>> extends Container<T> {
       return container.getContainerInfo().getName();
     }
 
-    return aliases.get(0);
+    return aliases.get(aliases.size() - 1);
   }
 
   /**
@@ -127,10 +133,42 @@ public interface ZeebeNode<T extends GenericContainer<T>> extends Container<T> {
    *
    * @param timeout must be greater than 1 second
    */
+  @API(status = Status.EXPERIMENTAL)
   default void shutdownGracefully(final Duration timeout) {
-    getDockerClient()
-        .stopContainerCmd(getContainerId())
-        .withTimeout((int) timeout.getSeconds())
-        .exec();
+    final String containerId = getContainerId();
+    if (containerId == null) {
+      return;
+    }
+
+    getDockerClient().stopContainerCmd(containerId).withTimeout((int) timeout.getSeconds()).exec();
+  }
+
+  /** @return true if the container is already started, false otherwise */
+  @API(status = Status.EXPERIMENTAL)
+  default boolean isStarted() {
+    return getContainerId() != null;
+  }
+
+  /**
+   * A convenience method to allow adding exposed ports in a chainable way.
+   *
+   * <p>Currently, you can define exposed ports in two ways:
+   *
+   * <ul>
+   *   <li>{@link GenericContainer#withExposedPorts(Integer...)}
+   *   <li>{@link GenericContainer#addExposedPorts(int...)}
+   * </ul>
+   *
+   * Unfortunately, the first option will overwrite any previously exposed port, which leaves us
+   * only with the second option. However, this one does not return the container for chaining, thus
+   * breaking the fluent builder API.
+   *
+   * @param port the port to expose
+   * @return itself for chaining
+   */
+  @API(status = Status.EXPERIMENTAL)
+  default T withAdditionalExposedPort(final int port) {
+    self().addExposedPorts(port);
+    return self();
   }
 }

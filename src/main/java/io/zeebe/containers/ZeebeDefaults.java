@@ -15,17 +15,23 @@
  */
 package io.zeebe.containers;
 
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
+import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.TestcontainersConfiguration;
 
 /**
  * Represents a set of static defaults regarding the Zeebe docker image, accessible via a singleton
  * instance, {@link #getInstance()}.
  */
+@API(status = Status.STABLE)
 @SuppressWarnings({"squid:S1075", "WeakerAccess"})
 public final class ZeebeDefaults {
   private static final String ZEEBE_CONTAINER_IMAGE_PROPERTY = "zeebe.container.image";
   private static final String DEFAULT_ZEEBE_CONTAINER_IMAGE = "camunda/zeebe";
-  private static final String DEFAULT_ZEEBE_VERSION = "0.24.1";
+  private static final String ZEEBE_CONTAINER_VERSION_PROPERTY = "zeebe.container.version";
+  private static final String DEFAULT_ZEEBE_VERSION = "0.26.1";
+  private static final String DEFAULT_ZEEBE_DATA_PATH = "/usr/local/zeebe/data";
 
   private ZeebeDefaults() {}
 
@@ -37,17 +43,26 @@ public final class ZeebeDefaults {
   /** @return the default Zeebe docker image, without a tag */
   public String getDefaultImage() {
     return TestcontainersConfiguration.getInstance()
-        .getProperties()
-        .getOrDefault(ZEEBE_CONTAINER_IMAGE_PROPERTY, DEFAULT_ZEEBE_CONTAINER_IMAGE)
-        .toString();
+        .getEnvVarOrProperty(ZEEBE_CONTAINER_IMAGE_PROPERTY, DEFAULT_ZEEBE_CONTAINER_IMAGE);
   }
 
   /** @return the default Zeebe docker image tag/version */
   public String getDefaultVersion() {
-    return DEFAULT_ZEEBE_VERSION;
+    return TestcontainersConfiguration.getInstance()
+        .getEnvVarOrProperty(ZEEBE_CONTAINER_VERSION_PROPERTY, DEFAULT_ZEEBE_VERSION);
+  }
+
+  /** @return the default Zeebe docker image */
+  public DockerImageName getDefaultDockerImage() {
+    return DockerImageName.parse(getDefaultImage()).withTag(getDefaultVersion());
+  }
+
+  public String getDefaultDataPath() {
+    return DEFAULT_ZEEBE_DATA_PATH;
   }
 
   private static final class Singleton {
+
     private static final ZeebeDefaults INSTANCE = new ZeebeDefaults();
   }
 }

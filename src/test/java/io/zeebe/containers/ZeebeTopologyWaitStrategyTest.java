@@ -37,8 +37,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -58,7 +56,6 @@ import org.testcontainers.containers.wait.strategy.WaitStrategyTarget;
  */
 @ExtendWith(MockitoExtension.class)
 @Timeout(value = 5, unit = TimeUnit.MINUTES)
-@Execution(ExecutionMode.CONCURRENT)
 final class ZeebeTopologyWaitStrategyTest {
   private static final BiFunction<Integer, Integer, PartitionBrokerRole> DEFAULT_PARTITIONER =
       (brokerId, partitionId) ->
@@ -73,7 +70,7 @@ final class ZeebeTopologyWaitStrategyTest {
 
   @BeforeEach
   void setup() {
-    Mockito.when(builder.brokerContactPoint(Mockito.anyString())).thenReturn(builder);
+    Mockito.when(builder.gatewayAddress(Mockito.anyString())).thenReturn(builder);
     Mockito.when(builder.build()).thenReturn(client);
     Mockito.when(client.newTopologyRequest()).thenReturn(topologyRequest);
   }
@@ -134,7 +131,7 @@ final class ZeebeTopologyWaitStrategyTest {
 
     // then
     Mockito.verify(builder, Mockito.timeout(5000).atLeastOnce())
-        .brokerContactPoint(target.getContainerIpAddress() + ":" + target.mappedPort);
+        .gatewayAddress(target.getContainerIpAddress() + ":" + target.mappedPort);
   }
 
   @ParameterizedTest(name = "should timeout on incomplete topology when {0}")

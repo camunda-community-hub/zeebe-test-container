@@ -118,7 +118,7 @@ class ClusterWithGatewayExampleTest {
 
   private ZeebeClient newZeebeClient(final ZeebeGatewayContainer node) {
     return ZeebeClient.newClientBuilder()
-        .brokerContactPoint(node.getExternalGatewayAddress())
+        .gatewayAddress(node.getExternalGatewayAddress())
         .usePlaintext()
         .build();
   }

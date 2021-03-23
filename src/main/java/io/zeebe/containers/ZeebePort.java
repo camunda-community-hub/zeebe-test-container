@@ -15,14 +15,18 @@
  */
 package io.zeebe.containers;
 
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
+
 /** Represents the list of known port in a Zeebe cluster, all node types included. */
+@API(status = Status.STABLE)
 public enum ZeebePort {
   COMMAND(26501),
   GATEWAY(26500),
   INTERNAL(26502),
   MONITORING(9600);
 
-  private int port;
+  private final int port;
 
   ZeebePort(final int port) {
     this.port = port;

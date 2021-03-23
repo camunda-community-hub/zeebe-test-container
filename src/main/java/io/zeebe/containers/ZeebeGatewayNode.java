@@ -15,6 +15,8 @@
  */
 package io.zeebe.containers;
 
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
 import org.testcontainers.containers.GenericContainer;
 
 /**
@@ -29,17 +31,20 @@ import org.testcontainers.containers.GenericContainer;
  *
  * @param <T> the concrete type of the underlying container
  */
+@API(status = Status.STABLE)
 @SuppressWarnings("UnusedReturnValue")
-public interface ZeebeGatewayNode<T extends GenericContainer<T>> extends ZeebeNode<T> {
+public interface ZeebeGatewayNode<T extends GenericContainer<T> & ZeebeGatewayNode<T>>
+    extends ZeebeNode<T> {
 
   /**
    * Override the default topology check to change the number of expected partitions or the gateway
-   * port if necessary.
+   * port if necessary. Overwrites previously set wait strategies with the container's default wait
+   * strategy and the given topology check.
    *
    * <p>For example, to change the number of expected partitions for a complete topology, you can
-   * do: <code>
+   * do: <pre>{@code
    *   gateway.withTopologyCheck(new TopologyWaitStrategy().forExpectedPartitionsCount(3));
-   * </code>
+   * }
    *
    * <p>NOTE: this may mutate the underlying wait strategy, so if you are configured a specific
    * startup timeout, it will need to be applied again after a call to this method.
@@ -50,16 +55,24 @@ public interface ZeebeGatewayNode<T extends GenericContainer<T>> extends ZeebeNo
   T withTopologyCheck(final ZeebeTopologyWaitStrategy topologyCheck);
 
   /**
+   * Convenience method to disable the topology check. Overwrites previously set wait strategies
+   * with the container's default wait strategy, without the topology check.
+   *
+   * @return this container, for chaining
+   */
+  T withoutTopologyCheck();
+
+  /**
    * Returns address a client which is not part of the container's network should use. If you're
    * unsure whether you need to use the external or internal address, then you most likely want the
    * external address.
    *
-   * <p>You can build your client like this: <code>
+   * <p>You can build your client like this: <pre>@{code
    *   ZeebeClient.newClientBuilder()
-   *   .withBrokerContactPoint(container.getExternalGatewayAddress())
-   *   .usePlaintext()
-   *   .build();
-   * </code>
+   *     .withBrokerContactPoint(container.getExternalGatewayAddress())
+   *     .usePlaintext()
+   *     .build();
+   * }
    *
    * @return the gateway address visible from outside the docker network
    */
@@ -70,12 +83,12 @@ public interface ZeebeGatewayNode<T extends GenericContainer<T>> extends ZeebeNo
   /**
    * Returns an address a client which is part of the container's network can use.
    *
-   * <p>You can build your client like this: <code>
+   * <p>You can build your client like this: <pre>@{code
    *   ZeebeClient.newClientBuilder()
-   *   .withBrokerContactPoint(container.getInternalGatewayAddress())
-   *   .usePlaintext()
-   *   .build();
-   * </code>
+   *     .withBrokerContactPoint(container.getInternalGatewayAddress())
+   *     .usePlaintext()
+   *     .build();
+   * }
    *
    * @return the gateway address visible from within the docker network
    */

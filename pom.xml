@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <name>Zeebe Test Container</name>
   <artifactId>zeebe-test-container</artifactId>
   <packaging>jar</packaging>
   <groupId>io.zeebe</groupId>
-  <version>1.0.2-SNAPSHOT</version>
+  <version>2.0.0-SNAPSHOT</version>
   <inceptionYear>2019</inceptionYear>
   <url>https://github.com/zeebe-io/zeebe-test-container</url>
 
@@ -15,7 +17,7 @@
     <artifactId>camunda-release-parent</artifactId>
     <version>3.7</version>
     <!-- do not remove empty tag - http://jira.codehaus.org/browse/MNG-4687 -->
-    <relativePath />
+    <relativePath/>
   </parent>
 
   <properties>
@@ -34,13 +36,16 @@
     <license.header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</license.header>
 
     <!-- project dependencies -->
+    <version.apiguardian>1.1.1</version.apiguardian>
     <version.assertj>3.18.1</version.assertj>
-    <version.junit>4.13.1</version.junit>
+    <version.awaitility>4.0.3</version.awaitility>
     <version.junit-jupiter>5.7.0</version.junit-jupiter>
+    <version.junit-surefire-provider>1.3.2</version.junit-surefire-provider>
     <version.mockito>3.6.0</version.mockito>
+    <version.revapi>0.23.0</version.revapi>
     <version.slf4j>1.7.30</version.slf4j>
-    <version.testcontainers>1.15.0</version.testcontainers>
-    <version.zeebe>0.25.1</version.zeebe>
+    <version.testcontainers>1.15.2</version.testcontainers>
+    <version.zeebe>0.26.1</version.zeebe>
 
     <!-- plugin version -->
     <plugin.version.checkstyle>3.1.1</plugin.version.checkstyle>
@@ -48,8 +53,10 @@
     <plugin.version.fmt>2.10</plugin.version.fmt>
     <plugin.version.javadoc>3.2.0</plugin.version.javadoc>
     <plugin.version.license>3.0</plugin.version.license>
+    <plugin.version.owasp>6.1.2</plugin.version.owasp>
+    <plugin.version.revapi>0.13.2</plugin.version.revapi>
     <plugin.version.sonar>3.7.0.1746</plugin.version.sonar>
-    <plugin.version.surefire>2.22.2</plugin.version.surefire>
+    <plugin.version.surefire>3.0.0-M5</plugin.version.surefire>
 
     <!-- maven extensions -->
     <extension.version.os-maven-plugin>1.6.1</extension.version.os-maven-plugin>
@@ -87,9 +94,16 @@
     </dependency>
 
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${version.junit}</version>
+      <groupId>org.apiguardian</groupId>
+      <artifactId>apiguardian-api</artifactId>
+      <version>${version.apiguardian}</version>
+    </dependency>
+
+    <!-- exporter dependencies -->
+    <dependency>
+      <groupId>io.zeebe</groupId>
+      <artifactId>zeebe-exporter-api</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <!-- mocking -->
@@ -111,13 +125,6 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <version>${version.junit-jupiter}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
       <version>${version.junit-jupiter}</version>
       <scope>test</scope>
     </dependency>
@@ -150,6 +157,19 @@
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
       <version>${version.assertj}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.zeebe</groupId>
+      <artifactId>zeebe-test-util</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <version>${version.awaitility}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -241,6 +261,13 @@
           <trimStackTrace>false</trimStackTrace>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
         </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${version.junit-jupiter}</version>
+          </dependency>
+        </dependencies>
       </plugin>
 
       <!-- Google code format plugin -->
@@ -252,6 +279,63 @@
           <execution>
             <goals>
               <goal>format</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- compatibility checks/guard -->
+      <plugin>
+        <groupId>org.revapi</groupId>
+        <artifactId>revapi-maven-plugin</artifactId>
+        <version>${plugin.version.revapi}</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.revapi</groupId>
+            <artifactId>revapi-java</artifactId>
+            <version>${version.revapi}</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <phase>verify</phase>
+            <id>check</id>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <checkDependencies>true</checkDependencies>
+          <analysisConfigurationFiles>
+            <configurationFile>
+              <path>${project.basedir}/revapi.json</path>
+            </configurationFile>
+            <configurationFile>
+              <path>${project.basedir}/ignored-changes.json</path>
+            </configurationFile>
+          </analysisConfigurationFiles>
+        </configuration>
+      </plugin>
+
+      <!-- vulnerability scanning -->
+      <plugin>
+        <groupId>org.owasp</groupId>
+        <artifactId>dependency-check-maven</artifactId>
+        <version>${plugin.version.owasp}</version>
+        <configuration>
+          <skipProvidedScope>true</skipProvidedScope>
+          <skipRuntimeScope>true</skipRuntimeScope>
+          <failBuildOnCVSS>7</failBuildOnCVSS>
+          <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
+          <format>JSON</format>
+          <prettyPrint>true</prettyPrint>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
             </goals>
           </execution>
         </executions>
@@ -338,6 +422,25 @@
                 <phase>none</phase>
               </execution>
             </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>parallel-tests</id>
+      <properties>
+        <forkCount>0.5C</forkCount>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <forkCount>${forkCount}</forkCount>
+              <reuseForks>true</reuseForks>
+            </configuration>
           </plugin>
         </plugins>
       </build>
