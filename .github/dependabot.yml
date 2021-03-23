@@ -1,0 +1,16 @@
+version: 2
+updates:
+  # Enable version updates for master
+  - package-ecosystem: "maven"
+    # Look for the root pom
+    directory: "/"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "deps: "
+    labels:
+      - "dependencies"
+    reviewers:
+      - "npepinpe"
+    target-branch: "master"
+    open-pull-requests-limit: 10
