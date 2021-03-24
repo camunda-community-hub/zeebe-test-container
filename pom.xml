@@ -81,11 +81,6 @@
     </dependency>
 
     <dependency>
-      <groupId>io.zeebe</groupId>
-      <artifactId>zeebe-client-java</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>${version.slf4j}</version>
@@ -97,10 +92,9 @@
       <version>${version.apiguardian}</version>
     </dependency>
 
-    <!-- exporter dependencies -->
     <dependency>
       <groupId>io.zeebe</groupId>
-      <artifactId>zeebe-exporter-api</artifactId>
+      <artifactId>zeebe-client-java</artifactId>
       <scope>provided</scope>
     </dependency>
 
