@@ -15,9 +15,9 @@
  */
 package io.zeebe.containers.examples.cluster;
 
-import io.zeebe.client.ZeebeClient;
-import io.zeebe.client.api.response.BrokerInfo;
-import io.zeebe.client.api.response.Topology;
+import io.camunda.zeebe.client.ZeebeClient;
+import io.camunda.zeebe.client.api.response.BrokerInfo;
+import io.camunda.zeebe.client.api.response.Topology;
 import io.zeebe.containers.cluster.ZeebeCluster;
 import java.util.List;
 import java.util.concurrent.TimeUnit;

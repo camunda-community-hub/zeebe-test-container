@@ -17,10 +17,10 @@ package io.zeebe.containers.cluster;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.zeebe.client.ZeebeClient;
-import io.zeebe.client.api.response.Topology;
+import io.camunda.zeebe.client.ZeebeClient;
+import io.camunda.zeebe.client.api.response.Topology;
 import io.zeebe.containers.ZeebeGatewayNode;
-import io.zeebe.test.util.asserts.TopologyAssert;
+import io.camunda.zeebe.test.util.asserts.TopologyAssert;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;

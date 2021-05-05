@@ -16,16 +16,16 @@
 package io.zeebe.containers;
 
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import io.zeebe.client.ZeebeClient;
-import io.zeebe.client.ZeebeClientBuilder;
-import io.zeebe.client.api.command.TopologyRequestStep1;
-import io.zeebe.client.api.response.Topology;
-import io.zeebe.client.impl.ZeebeClientFutureImpl;
-import io.zeebe.client.impl.response.TopologyImpl;
-import io.zeebe.gateway.protocol.GatewayOuterClass.BrokerInfo;
-import io.zeebe.gateway.protocol.GatewayOuterClass.Partition;
-import io.zeebe.gateway.protocol.GatewayOuterClass.Partition.PartitionBrokerRole;
-import io.zeebe.gateway.protocol.GatewayOuterClass.TopologyResponse;
+import io.camunda.zeebe.client.ZeebeClient;
+import io.camunda.zeebe.client.ZeebeClientBuilder;
+import io.camunda.zeebe.client.api.command.TopologyRequestStep1;
+import io.camunda.zeebe.client.api.response.Topology;
+import io.camunda.zeebe.client.impl.ZeebeClientFutureImpl;
+import io.camunda.zeebe.client.impl.response.TopologyImpl;
+import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.BrokerInfo;
+import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.Partition;
+import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.Partition.PartitionBrokerRole;
+import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.TopologyResponse;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
@@ -240,7 +240,7 @@ final class ZeebeTopologyWaitStrategyTest {
 
   private static final class ReachableTarget implements WaitStrategyTarget {
     private final InspectContainerResponse containerInfo;
-    private int mappedPort;
+    private final int mappedPort;
     private int originalPort;
 
     private ReachableTarget(final int mappedPort) {

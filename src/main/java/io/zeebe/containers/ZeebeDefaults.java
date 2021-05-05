@@ -30,7 +30,7 @@ public final class ZeebeDefaults {
   private static final String ZEEBE_CONTAINER_IMAGE_PROPERTY = "zeebe.container.image";
   private static final String DEFAULT_ZEEBE_CONTAINER_IMAGE = "camunda/zeebe";
   private static final String ZEEBE_CONTAINER_VERSION_PROPERTY = "zeebe.container.version";
-  private static final String DEFAULT_ZEEBE_VERSION = "0.26.1";
+  private static final String DEFAULT_ZEEBE_VERSION = "1.0.0";
   private static final String DEFAULT_ZEEBE_DATA_PATH = "/usr/local/zeebe/data";
 
   private ZeebeDefaults() {}

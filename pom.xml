@@ -43,7 +43,7 @@
     <version.revapi>0.24.1</version.revapi>
     <version.slf4j>1.7.30</version.slf4j>
     <version.testcontainers>1.15.3</version.testcontainers>
-    <version.zeebe>0.26.2</version.zeebe>
+    <version.zeebe>1.0.0</version.zeebe>
 
     <!-- plugin version -->
     <plugin.version.checkstyle>3.1.2</plugin.version.checkstyle>
@@ -63,7 +63,7 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>io.zeebe</groupId>
+        <groupId>io.camunda</groupId>
         <artifactId>zeebe-bom</artifactId>
         <version>${version.zeebe}</version>
         <scope>import</scope>
@@ -93,7 +93,7 @@
     </dependency>
 
     <dependency>
-      <groupId>io.zeebe</groupId>
+      <groupId>io.camunda</groupId>
       <artifactId>zeebe-client-java</artifactId>
       <scope>provided</scope>
     </dependency>
@@ -153,7 +153,7 @@
     </dependency>
 
     <dependency>
-      <groupId>io.zeebe</groupId>
+      <groupId>io.camunda</groupId>
       <artifactId>zeebe-test-util</artifactId>
       <scope>test</scope>
     </dependency>
@@ -215,7 +215,7 @@
         <!-- dependency on build tool to reference the checkstyle cfg -->
         <dependencies>
           <dependency>
-            <groupId>io.zeebe</groupId>
+            <groupId>io.camunda</groupId>
             <artifactId>zeebe-build-tools</artifactId>
             <version>${version.zeebe}</version>
           </dependency>

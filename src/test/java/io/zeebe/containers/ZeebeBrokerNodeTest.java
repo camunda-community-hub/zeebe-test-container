@@ -18,12 +18,12 @@ package io.zeebe.containers;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.condition.OS.LINUX;
 
-import io.zeebe.client.ZeebeClient;
-import io.zeebe.client.api.response.DeploymentEvent;
-import io.zeebe.client.api.response.WorkflowInstanceEvent;
-import io.zeebe.model.bpmn.Bpmn;
-import io.zeebe.model.bpmn.BpmnModelInstance;
-import io.zeebe.test.util.asserts.TopologyAssert;
+import io.camunda.zeebe.client.ZeebeClient;
+import io.camunda.zeebe.client.api.response.DeploymentEvent;
+import io.camunda.zeebe.client.api.response.ProcessInstanceEvent;
+import io.camunda.zeebe.model.bpmn.Bpmn;
+import io.camunda.zeebe.model.bpmn.BpmnModelInstance;
+import io.camunda.zeebe.test.util.asserts.TopologyAssert;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -117,13 +117,13 @@ class ZeebeBrokerNodeTest {
       // on restart we need to wait until the gateway is aware of the new leader
       broker.start();
       awaitUntilTopologyIsComplete(client);
-      final WorkflowInstanceEvent processInstance = createSampleProcessInstance(client);
+      final ProcessInstanceEvent processInstance = createSampleProcessInstance(client);
 
       // then
       assertThat(processInstance)
           .isNotNull()
-          .extracting(WorkflowInstanceEvent::getWorkflowKey)
-          .isEqualTo(deployment.getWorkflows().get(0).getWorkflowKey());
+          .extracting(ProcessInstanceEvent::getProcessDefinitionKey)
+          .isEqualTo(deployment.getProcesses().get(0).getProcessDefinitionKey());
     } finally {
       CloseHelper.quietCloseAll(gateway, broker);
     }
@@ -144,14 +144,14 @@ class ZeebeBrokerNodeTest {
     return broker;
   }
 
-  private WorkflowInstanceEvent createSampleProcessInstance(final ZeebeClient client) {
+  private ProcessInstanceEvent createSampleProcessInstance(final ZeebeClient client) {
     return client.newCreateInstanceCommand().bpmnProcessId("process").latestVersion().send().join();
   }
 
   private DeploymentEvent deploySampleProcess(final ZeebeClient client) {
     final BpmnModelInstance sampleProcess =
         Bpmn.createExecutableProcess("process").startEvent().endEvent().done();
-    return client.newDeployCommand().addWorkflowModel(sampleProcess, "process.bpmn").send().join();
+    return client.newDeployCommand().addProcessModel(sampleProcess, "process.bpmn").send().join();
   }
 
   private void awaitUntilTopologyIsComplete(final ZeebeClient client) {
