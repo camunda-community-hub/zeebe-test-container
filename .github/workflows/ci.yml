@@ -33,12 +33,6 @@ jobs:
           name: test-results
           path: target/surefire-reports/
           retention-days: 7
-      - name: Publish Unit Test Results
-        id: publish
-        uses: EnricoMi/publish-unit-test-result-action@v1
-        if: failure()
-        with:
-          files: target/surefire-reports/*.xml
 
   sonar:
     name: SonarCloud Scan
