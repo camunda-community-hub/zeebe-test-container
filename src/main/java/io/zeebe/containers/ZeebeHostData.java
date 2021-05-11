@@ -27,12 +27,14 @@ import org.testcontainers.containers.GenericContainer;
  * <p>NOTE: keep in mind that files will be written using the container's user. This means, if you
  * run it as root, it may create files that your use cannot delete afterwards.
  *
- * To work around this, on Linux, make sure to start your container with your user ID and group ID.
- * e.g.: <pre>{@code
- *  new ZeebeContainer()
- *    .withZeebeData(new ZeebeHostData("/tmp/data"))
- *    .withCreateCmdModifier(cmd -> cmd.withUser("1000:1000"))
- *    .start();
+ * <p>To work around this, on Linux, make sure to start your container with your user ID and group
+ * ID. e.g.:
+ *
+ * <pre>{@code
+ * new ZeebeContainer()
+ *   .withZeebeData(new ZeebeHostData("/tmp/data"))
+ *   .withCreateCmdModifier(cmd -> cmd.withUser("1000:1000"))
+ *   .start();
  * }</pre>
  *
  * Another option is to run a command on the container, before deleting everything, to change

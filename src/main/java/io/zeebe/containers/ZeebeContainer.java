@@ -40,14 +40,14 @@ import org.testcontainers.utility.DockerImageName;
  * <p>Once started, you can build a new client for it e.g.:
  *
  * <pre>{@code
- *   ZeebeClient.newClientBuilder()
- *     .brokerContainerPoint(container.getExternalGatewayAddress())
- *     .usePlaintext()
- *     .build();
+ * ZeebeClient.newClientBuilder()
+ *   .brokerContainerPoint(container.getExternalGatewayAddress())
+ *   .usePlaintext()
+ *   .build();
  * }</pre>
  *
- * <p>If you want to reuse the same data across restarts, you can specify it using
- * {@link ZeebeBrokerNode#withZeebeData(ZeebeData)}.
+ * <p>If you want to reuse the same data across restarts, you can specify it using {@link
+ * ZeebeBrokerNode#withZeebeData(ZeebeData)}.
  */
 @API(status = Status.STABLE)
 @SuppressWarnings("java:S2160")

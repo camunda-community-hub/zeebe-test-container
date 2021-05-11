@@ -50,39 +50,42 @@ import org.testcontainers.containers.Network;
  * embedded gateways:
  *
  * <pre>{@code
- *   final ZeebeCluster cluster = ZeebeCluster.builder()
- *      .withEmbeddedGateway(true)
- *      .withGatewaysCount(0)
- *      .withBrokersCount(3)
- *      .withReplicationFactor(3)
- *      .withPartitionsCount(3)
- *      .build();
- *  }</pre>
+ * final ZeebeCluster cluster = ZeebeCluster.builder()
+ *    .withEmbeddedGateway(true)
+ *    .withGatewaysCount(0)
+ *    .withBrokersCount(3)
+ *    .withReplicationFactor(3)
+ *    .withPartitionsCount(3)
+ *    .build();
+ *
+ * }</pre>
  *
  * <p>Example for the same as the above, but this time with one standalone gateway instead of
  * embedded gateways:
  *
  * <pre>{@code
- *   final ZeebeCluster cluster = ZeebeCluster.builder()
- *      .withEmbeddedGateway(false)
- *      .withGatewaysCount(1)
- *      .withBrokersCount(3)
- *      .withReplicationFactor(3)
- *      .withPartitionsCount(3)
- *      .build();
- *  }</pre>
+ * final ZeebeCluster cluster = ZeebeCluster.builder()
+ *    .withEmbeddedGateway(false)
+ *    .withGatewaysCount(1)
+ *    .withBrokersCount(3)
+ *    .withReplicationFactor(3)
+ *    .withPartitionsCount(3)
+ *    .build();
+ *
+ * }</pre>
  *
  * <p>Example for the same as the above, but with a mix of gateways:
  *
  * <pre>{@code
- *   final ZeebeCluster cluster = ZeebeCluster.builder()
- *      .withEmbeddedGateway(true)
- *      .withGatewaysCount(2)
- *      .withBrokersCount(3)
- *      .withReplicationFactor(3)
- *      .withPartitionsCount(3)
- *      .build();
- *  }</pre>
+ * final ZeebeCluster cluster = ZeebeCluster.builder()
+ *    .withEmbeddedGateway(true)
+ *    .withGatewaysCount(2)
+ *    .withBrokersCount(3)
+ *    .withReplicationFactor(3)
+ *    .withPartitionsCount(3)
+ *    .build();
+ *
+ * }</pre>
  */
 @SuppressWarnings({"unused", "UnusedReturnValue"})
 @API(status = Status.EXPERIMENTAL)

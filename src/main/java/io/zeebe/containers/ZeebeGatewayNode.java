@@ -42,8 +42,10 @@ public interface ZeebeGatewayNode<T extends GenericContainer<T> & ZeebeGatewayNo
    * strategy and the given topology check.
    *
    * <p>For example, to change the number of expected partitions for a complete topology, you can
-   * do: <pre>{@code
-   *   gateway.withTopologyCheck(new TopologyWaitStrategy().forExpectedPartitionsCount(3));
+   * do:
+   *
+   * <pre>{@code
+   * gateway.withTopologyCheck(new TopologyWaitStrategy().forExpectedPartitionsCount(3));
    * }</pre>
    *
    * <p>NOTE: this may mutate the underlying wait strategy, so if you are configured a specific
@@ -67,7 +69,9 @@ public interface ZeebeGatewayNode<T extends GenericContainer<T> & ZeebeGatewayNo
    * unsure whether you need to use the external or internal address, then you most likely want the
    * external address.
    *
-   * <p>You can build your client like this: <pre>@{code
+   * <p>You can build your client like this:
+   *
+   * <pre>@{code
    *   ZeebeClient.newClientBuilder()
    *     .withBrokerContactPoint(container.getExternalGatewayAddress())
    *     .usePlaintext()
@@ -83,7 +87,9 @@ public interface ZeebeGatewayNode<T extends GenericContainer<T> & ZeebeGatewayNo
   /**
    * Returns an address a client which is part of the container's network can use.
    *
-   * <p>You can build your client like this: <pre>@{code
+   * <p>You can build your client like this:
+   *
+   * <pre>@{code
    *   ZeebeClient.newClientBuilder()
    *     .withBrokerContactPoint(container.getInternalGatewayAddress())
    *     .usePlaintext()

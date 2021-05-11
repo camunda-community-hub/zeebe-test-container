@@ -55,10 +55,10 @@ import org.testcontainers.utility.DockerImageName;
  * <p>Once started, you can build a new client for it e.g.:
  *
  * <pre>{@code
- *   ZeebeClient.newClientBuilder()
- *     .brokerContainerPoint(container.getExternalGatewayAddress())
- *     .usePlaintext()
- *     .build();
+ * ZeebeClient.newClientBuilder()
+ *   .brokerContainerPoint(container.getExternalGatewayAddress())
+ *   .usePlaintext()
+ *   .build();
  * }</pre>
  *
  * <p>Note that if your client is also a container within the same network, you can and should use

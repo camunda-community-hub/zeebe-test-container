@@ -49,43 +49,43 @@ import org.testcontainers.lifecycle.Startables;
  * <p>Example usage:
  *
  * <pre>{@code
- *   final class MyClusteredTest {
- *     private ZeebeCluster cluster;
- *     private Network network;
+ * final class MyClusteredTest {
+ *   private ZeebeCluster cluster;
+ *   private Network network;
  *
- *     &#64;BeforeEach
- *     void beforeEach() {
- *       network = Network.newNetwork();
- *       cluster = ZeebeCluster.builder()
- *           .withBrokersCount(3)
- *           .withReplicationFactor(3)
- *           .withPartitionsCount(1)
- *           .useEmbeddedGateway(true)
- *           .withNetwork(network)
- *           .build();
- *     }
- *
- *     &#64;AfterEach
- *     void afterEach() {
- *       cluster.stop();
- *       network.close();
- *     }
- *
- *     &#64;Test
- *     void shouldConnectToCluster() {
- *       // given
- *       cluster.start();
- *
- *       // when
- *       final Topology topology;
- *       try (final ZeebeClient client = cluster.newClientBuilder().build()) {
- *         topology = c.newTopologyRequest().send().join();
- *       }
- *
- *       // then
- *       assertThat(topology.getClusterSize()).isEqualTo(3);
- *     }
+ *   &#64;BeforeEach
+ *   void beforeEach() {
+ *     network = Network.newNetwork();
+ *     cluster = ZeebeCluster.builder()
+ *         .withBrokersCount(3)
+ *         .withReplicationFactor(3)
+ *         .withPartitionsCount(1)
+ *         .useEmbeddedGateway(true)
+ *         .withNetwork(network)
+ *         .build();
  *   }
+ *
+ *   &#64;AfterEach
+ *   void afterEach() {
+ *     cluster.stop();
+ *     network.close();
+ *   }
+ *
+ *   &#64;Test
+ *   void shouldConnectToCluster() {
+ *     // given
+ *     cluster.start();
+ *
+ *     // when
+ *     final Topology topology;
+ *     try (final ZeebeClient client = cluster.newClientBuilder().build()) {
+ *       topology = c.newTopologyRequest().send().join();
+ *     }
+ *
+ *     // then
+ *     assertThat(topology.getClusterSize()).isEqualTo(3);
+ *   }
+ * }
  * }</pre>
  */
 @API(status = Status.EXPERIMENTAL)

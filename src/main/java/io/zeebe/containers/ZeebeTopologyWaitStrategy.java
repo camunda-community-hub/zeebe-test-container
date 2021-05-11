@@ -191,6 +191,7 @@ public class ZeebeTopologyWaitStrategy extends AbstractWaitStrategy {
    * @param clientBuilderProvider the new client builder provider
    * @return this strategy, for chaining
    */
+  @API(status = Status.EXPERIMENTAL)
   public ZeebeTopologyWaitStrategy forBuilder(
       final Supplier<ZeebeClientBuilder> clientBuilderProvider) {
     this.clientBuilderProvider = clientBuilderProvider;

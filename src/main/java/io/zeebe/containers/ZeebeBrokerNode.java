@@ -53,25 +53,28 @@ public interface ZeebeBrokerNode<T extends GenericContainer<T> & ZeebeBrokerNode
    * implementation of {@link ZeebeData}, e.g. a Docker volume (see {@link ZeebeVolume} or a path on
    * the host node (see {@link ZeebeHostData}).
    *
-   * NOTE: the container itself does not manage the given resource, so you should keep track of it
-   * and close it if need be. In the case of {@link ZeebeVolume}, the implementation is aware of the
-   * Testcontainers resource reaper, such that if your JVM crashes, the volume will eventually be
-   * reaped anyway.
+   * <p>NOTE: the container itself does not manage the given resource, so you should keep track of
+   * it and close it if need be. In the case of {@link ZeebeVolume}, the implementation is aware of
+   * the Testcontainers resource reaper, such that if your JVM crashes, the volume will eventually
+   * be reaped anyway.
    *
-   * For example, if you want to test updating a broker, you could do the following: <pre>{@code
-   *     final DockerImageName oldImage = DockerImageName.parse("camunda/zeebe:1.0.0");
-   *     final DockerImageName newImage = DockerImageName.parse("camunda/zeebe:1.1.0");
-   *     final ZeebeVolume volume = new ZeebeVolume();
-   *     final ZeebeBrokerContainer broker = new ZeebeBrokerContainer(oldImage)
-   *        .withZeebeData(volume);
+   * <p>For example, if you want to test updating a broker, you could do the following:
    *
-   *     // do stuff on the broker, then stop it
-   *     broker.stop();
-   *     broker.setDockerImage(newImage);
-   *     broker.start();
+   * <pre>{@code
+   * final DockerImageName oldImage = DockerImageName.parse("camunda/zeebe:1.0.0");
+   * final DockerImageName newImage = DockerImageName.parse("camunda/zeebe:1.1.0");
+   * final ZeebeVolume volume = new ZeebeVolume();
+   * final ZeebeBrokerContainer broker = new ZeebeBrokerContainer(oldImage)
+   *    .withZeebeData(volume);
    *
-   *     // verify state is correct after update
-   *  }</pre>
+   * // do stuff on the broker, then stop it
+   * broker.stop();
+   * broker.setDockerImage(newImage);
+   * broker.start();
+   *
+   * // verify state is correct after update
+   *
+   * }</pre>
    *
    * @param data the data implementation to use
    * @return this container for chaining
