@@ -91,8 +91,9 @@ supported.
 `zeebe-test-container` uses [API guardian](https://github.com/apiguardian-team/apiguardian) to
 declare the stability and guarantees of its API.
 
-Every class/interface/etc. is annotated with an `@API` annotation describing its status. Additionally,
-at times, inner members of a class/interface/etc. may be annotated with an overriding `@API`
+Every class/interface/etc. is annotated with an `@API` annotation describing its status.
+Additionally, at times, inner members of a class/interface/etc. may be annotated with an
+overriding `@API`
 annotation. In that case, it would take precedence over its parent annotation. For example, if you
 have the following:
 
@@ -102,6 +103,7 @@ import org.apiguardian.api.API.Status;
 
 @API(status = Status.STABLE)
 public class MyClass {
+
   @API(status = Status.EXPERIMENTAL)
   public void myExperimentalMethod() {
 
@@ -257,8 +259,10 @@ testing purposes should be enough.
 
 The container is considered started if and only if:
 
-1. The monitoring, command, cluster, and gateway ports are open and accepting connections (read more about the ports [here](https://docs.zeebe.io/operations/network-ports.html)).
-1. The broker ready check returns a 204 (see more about this check [here](https://docs.zeebe.io/operations/health.html#ready-check)).
+1. The monitoring, command, cluster, and gateway ports are open and accepting connections (read more
+   about the ports [here](https://docs.zeebe.io/operations/network-ports.html)).
+1. The broker ready check returns a 204 (see more about this
+   check [here](https://docs.zeebe.io/operations/health.html#ready-check)).
 1. The gateway topology is considered complete.
 
 > A topology is considered complete if there is a leader for all partitions.
@@ -274,8 +278,10 @@ typically be combined with a `ZeebeGatewayContainer` or a `ZeebeContainer`.
 
 The container is considered started if and only if:
 
-1. The monitoring, command, and cluster ports are open and accepting connections (read more about the ports [here](https://docs.zeebe.io/operations/network-ports.html)).
-1. The broker ready check returns a 204 (see more about this check [here](https://docs.zeebe.io/operations/health.html#ready-check)).
+1. The monitoring, command, and cluster ports are open and accepting connections (read more about
+   the ports [here](https://docs.zeebe.io/operations/network-ports.html)).
+1. The broker ready check returns a 204 (see more about this
+   check [here](https://docs.zeebe.io/operations/health.html#ready-check)).
 
 Once started, the container is ready to accept commands via the command port; you should therefore
 link a gateway to it if you wish to use it.
@@ -290,7 +296,8 @@ you enable monitoring, remember to expose the port as well via
 
 The container is considered started if and only if:
 
-1. The cluster and gateway ports are open and accepting connections (read more about the ports [here](https://docs.zeebe.io/operations/network-ports.html)).
+1. The cluster and gateway ports are open and accepting connections (read more about the
+   ports [here](https://docs.zeebe.io/operations/network-ports.html)).
 1. The gateway topology is considered complete.
 
 > A topology is considered complete if there is a leader for all partitions.
@@ -346,14 +353,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 class ZeebeHugeClusterTest {
+
   private final ZeebeCluster cluster =
-      ZeebeCluster.builder()
-          .withEmbeddedGateway(false)
-          .withGatewaysCount(3)
-          .withBrokersCount(6)
-          .withPartitionsCount(6)
-          .withReplicationFactor(3)
-          .build();
+    ZeebeCluster.builder()
+      .withEmbeddedGateway(false)
+      .withGatewaysCount(3)
+      .withBrokersCount(6)
+      .withPartitionsCount(6)
+      .withReplicationFactor(3)
+      .build();
 
   @AfterEach
   void tearDown() {
@@ -365,8 +373,10 @@ class ZeebeHugeClusterTest {
   void shouldStartCluster() {
     // given
     // configure each container to have a high start up time as they get started in parallel
-    cluster.getBrokers().values().forEach(broker -> broker.self().withStartupTimeout(Duration.ofMinutes(5)));
-    cluster.getGateways().values().forEach(gateway -> gateway.self().withStartupTimeout(Duration.ofMinutes(5)));
+    cluster.getBrokers().values()
+      .forEach(broker -> broker.self().withStartupTimeout(Duration.ofMinutes(5)));
+    cluster.getGateways().values()
+      .forEach(gateway -> gateway.self().withStartupTimeout(Duration.ofMinutes(5)));
     cluster.start();
 
     // test more things
@@ -396,14 +406,15 @@ import org.junit.jupiter.api.Timeout;
  * different nodes together.
  */
 class ZeebeClusterWithGatewayExampleTest {
+
   private final ZeebeCluster cluster =
-      ZeebeCluster.builder()
-          .withEmbeddedGateway(false)
-          .withGatewaysCount(1)
-          .withBrokersCount(2)
-          .withPartitionsCount(2)
-          .withReplicationFactor(1)
-          .build();
+    ZeebeCluster.builder()
+      .withEmbeddedGateway(false)
+      .withGatewaysCount(1)
+      .withBrokersCount(2)
+      .withPartitionsCount(2)
+      .withReplicationFactor(1)
+      .build();
 
   @AfterEach
   void tearDown() {
@@ -426,17 +437,17 @@ class ZeebeClusterWithGatewayExampleTest {
     final List<BrokerInfo> brokers = topology.getBrokers();
     Assertions.assertThat(topology.getClusterSize()).isEqualTo(3);
     Assertions.assertThat(brokers)
-        .hasSize(2)
-        .extracting(BrokerInfo::getAddress)
-        .containsExactlyInAnyOrder(
-            cluster.getBrokers().get(0).getInternalCommandAddress(),
-            cluster.getBrokers().get(1).getInternalCommandAddress());
+      .hasSize(2)
+      .extracting(BrokerInfo::getAddress)
+      .containsExactlyInAnyOrder(
+        cluster.getBrokers().get(0).getInternalCommandAddress(),
+        cluster.getBrokers().get(1).getInternalCommandAddress());
   }
 }
 ```
 
 You can find more examples by looking at the
-[test/java/io/zeebe/containers/examples/cluster](test/java/io/zeebe/containers/examples/cluster)
+[test/java/io/zeebe/containers/examples/cluster](/src/test/java/io/zeebe/containers/examples/cluster)
 package.
 
 ## Configuring your container
@@ -457,7 +468,7 @@ variables or via configuration file. You can find out more about it on the
 ## Examples
 
 A series of examples are included as part of the tests, see
-[test/java/io/zeebe/containers/examples](test/java/io/zeebe/containers/examples).
+[test/java/io/zeebe/containers/examples](/src/test/java/io/zeebe/containers/examples).
 
 > Note that these are written for junit5.
 
@@ -490,6 +501,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
 public class MyFeatureTest {
+
   private static final Logger LOGGER =
     LoggerFactory.getLogger("com.acme.zeebe.MyFeatureTest.zeebeContainer");
 
@@ -526,10 +538,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 class ZeebeHugeClusterTest {
+
   private final ZeebeCluster cluster =
-      ZeebeCluster.builder()
-          .withBrokersCount(1)
-          .build();
+    ZeebeCluster.builder()
+      .withBrokersCount(1)
+      .build();
 
   @AfterEach
   void tearDown() {
@@ -574,8 +587,8 @@ calling `GenericContainer#start()` will not start your container again.
 
 ## Limiting container resources
 
-When starting many containers, you can use `GenericContainer#withCreateContainerCmdModifier()` on creation to
-limit the resources available to them. This can be useful when testing locally on a
+When starting many containers, you can use `GenericContainer#withCreateContainerCmdModifier()` on
+creation to limit the resources available to them. This can be useful when testing locally on a
 development machine and having to start multiple containers.
 
 # Contributing
@@ -594,12 +607,14 @@ the [maven homepage](https://maven.apache.org/users/index.html).
 You will also need a JDK targeting Java 8+. We recommend installing any flavour of OpenJDK such as
 [AdoptOpenJDK](https://adoptopenjdk.net/).
 
-Finally, you will need to [install Docker](https://docs.docker.com/get-docker/) on your local machine.
+Finally, you will need to [install Docker](https://docs.docker.com/get-docker/) on your local
+machine.
 
 ### Building
 
-With all requirements ready, you can now simply [clone the repository](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository),
-and from its root, run the following command:
+With all requirements ready, you can now
+simply [clone the repository](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository)
+, and from its root, run the following command:
 
 ```shell
 mvn clean install
@@ -628,8 +643,8 @@ them easily if we realize they need to be adapted.
 
 ## Report issues or contact developers
 
-Work on Zeebe Test Container is done entirely through the Github repository. If you want to report
-a bug or request a new feature feel free to open a new issue on [GitHub][issues].
+Work on Zeebe Test Container is done entirely through the Github repository. If you want to report a
+bug or request a new feature feel free to open a new issue on [GitHub][issues].
 
 ## Create a Pull Request
 
@@ -646,22 +661,23 @@ To work on an issue, follow the following steps:
    ```
    git checkout -b 123-my-new-feature
    ```
-1. Follow the [Google Java Format](https://github.com/google/google-java-format#intellij-android-studio-and-other-jetbrains-ides)
+1. Follow
+   the [Google Java Format](https://github.com/google/google-java-format#intellij-android-studio-and-other-jetbrains-ides)
    and [Zeebe Code Style](https://github.com/zeebe-io/zeebe/wiki/Code-Style) while coding.
-1. Implement the required changes on your branch, and make sure to build and test your changes locally
-   before opening a pull requests for review.
+1. Implement the required changes on your branch, and make sure to build and test your changes
+   locally before opening a pull requests for review.
 1. If you want to make use of the CI facilities before your feature is ready for review, feel free
    to open a draft PR.
-1. If you think you finished the issue please prepare the branch for reviewing.
-   In general the commits should be squashed into meaningful commits with a
-   helpful message. This means cleanup/fix etc commits should be squashed into
-   the related commit.
+1. If you think you finished the issue please prepare the branch for reviewing. In general the
+   commits should be squashed into meaningful commits with a helpful message. This means cleanup/fix
+   etc commits should be squashed into the related commit.
 1. Finally, be sure to check on the CI results and fix any reported errors.
 
 ## Commit Message Guidelines
 
 Commit messages use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary)
-format.
+format, with a slight twist. See the
+[Zeebe commit guidelines for more](https://github.com/camunda-cloud/zeebe/blob/develop/CONTRIBUTING.md#commit-message-guidelines).
 
 ## Contributor License Agreement
 
