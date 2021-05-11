@@ -48,10 +48,16 @@ use containers for your tests, as well as general prerequisites.
 
 > **NOTE**: version 1.0 is incompatible with Zeebe versions pre 0.23.x
 
+Version 1.x and 2.x is compatible with the following Zeebe versions:
+
 - 0.23.x
 - 0.24.x
 - 0.25.x
 - 0.26.x
+
+Version 3.x is compatible with the following Zeebe versions:
+
+- 1.0
 
 ## Installation
 
@@ -62,12 +68,12 @@ Add the project to your dependencies:
 <dependency>
   <groupId>io.zeebe</groupId>
   <artifactId>zeebe-test-container</artifactId>
-  <version>1.0.1</version>
+  <version>3.0.0</version>
 </dependency>
 ```
 
 ```groovy
-testImplementation 'io.zeebe:zeebe-test-container:1.0.1'
+testImplementation 'io.zeebe:zeebe-test-container:3.0.0'
 ```
 
 ### Requirements
