@@ -57,7 +57,7 @@ import org.testcontainers.containers.Network;
  *      .withReplicationFactor(3)
  *      .withPartitionsCount(3)
  *      .build();
- *  }
+ *  }</pre>
  *
  * <p>Example for the same as the above, but this time with one standalone gateway instead of
  * embedded gateways:
@@ -70,7 +70,7 @@ import org.testcontainers.containers.Network;
  *      .withReplicationFactor(3)
  *      .withPartitionsCount(3)
  *      .build();
- *  }
+ *  }</pre>
  *
  * <p>Example for the same as the above, but with a mix of gateways:
  *
@@ -82,7 +82,7 @@ import org.testcontainers.containers.Network;
  *      .withReplicationFactor(3)
  *      .withPartitionsCount(3)
  *      .build();
- *  }
+ *  }</pre>
  */
 @SuppressWarnings({"unused", "UnusedReturnValue"})
 @API(status = Status.EXPERIMENTAL)

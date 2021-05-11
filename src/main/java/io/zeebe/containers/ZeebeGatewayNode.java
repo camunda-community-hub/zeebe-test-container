@@ -44,7 +44,7 @@ public interface ZeebeGatewayNode<T extends GenericContainer<T> & ZeebeGatewayNo
    * <p>For example, to change the number of expected partitions for a complete topology, you can
    * do: <pre>{@code
    *   gateway.withTopologyCheck(new TopologyWaitStrategy().forExpectedPartitionsCount(3));
-   * }
+   * }</pre>
    *
    * <p>NOTE: this may mutate the underlying wait strategy, so if you are configured a specific
    * startup timeout, it will need to be applied again after a call to this method.
@@ -72,7 +72,7 @@ public interface ZeebeGatewayNode<T extends GenericContainer<T> & ZeebeGatewayNo
    *     .withBrokerContactPoint(container.getExternalGatewayAddress())
    *     .usePlaintext()
    *     .build();
-   * }
+   * }</pre>
    *
    * @return the gateway address visible from outside the docker network
    */
@@ -88,7 +88,7 @@ public interface ZeebeGatewayNode<T extends GenericContainer<T> & ZeebeGatewayNo
    *     .withBrokerContactPoint(container.getInternalGatewayAddress())
    *     .usePlaintext()
    *     .build();
-   * }
+   * }</pre>
    *
    * @return the gateway address visible from within the docker network
    */

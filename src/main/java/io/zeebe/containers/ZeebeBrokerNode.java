@@ -71,7 +71,7 @@ public interface ZeebeBrokerNode<T extends GenericContainer<T> & ZeebeBrokerNode
    *     broker.start();
    *
    *     // verify state is correct after update
-   *  }
+   *  }</pre>
    *
    * @param data the data implementation to use
    * @return this container for chaining

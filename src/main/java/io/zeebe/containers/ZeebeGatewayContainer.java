@@ -59,7 +59,7 @@ import org.testcontainers.utility.DockerImageName;
  *     .brokerContainerPoint(container.getExternalGatewayAddress())
  *     .usePlaintext()
  *     .build();
- * }
+ * }</pre>
  *
  * <p>Note that if your client is also a container within the same network, you can and should use
  * the {@link #getInternalGatewayAddress()}.

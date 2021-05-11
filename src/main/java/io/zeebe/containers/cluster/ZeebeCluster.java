@@ -86,7 +86,7 @@ import org.testcontainers.lifecycle.Startables;
  *       assertThat(topology.getClusterSize()).isEqualTo(3);
  *     }
  *   }
- * }
+ * }</pre>
  */
 @API(status = Status.EXPERIMENTAL)
 @SuppressWarnings({"java:S1452", "unused"})

@@ -33,7 +33,7 @@ import org.testcontainers.containers.GenericContainer;
  *    .withZeebeData(new ZeebeHostData("/tmp/data"))
  *    .withCreateCmdModifier(cmd -> cmd.withUser("1000:1000"))
  *    .start();
- * }
+ * }</pre>
  *
  * Another option is to run a command on the container, before deleting everything, to change
  * permissions such that all files are writable by everyone.

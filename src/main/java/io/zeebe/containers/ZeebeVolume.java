@@ -63,13 +63,7 @@ public class ZeebeVolume implements AutoCloseable, ZeebeData {
   }
 
   /**
-   * Returns the volume as a bind which can be used when creating new containers. For example:
-   *
-   * <pre>@{code
-   *  new GenericContainer("containerImage")
-   *    .withCreateCmdModifier(cmd -> cmd.withHostConfig(
-   *      cmd.getHostConfig().withBinds(managedVolume.asBind("/path/to/mount"))));
-   * }
+   * Returns the volume as a bind which can be used when creating new containers.
    *
    * @param mountPath the path where to mount the volume in the container
    * @return a bind which can be used when creating a container

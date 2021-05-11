@@ -44,7 +44,7 @@ import org.testcontainers.utility.DockerImageName;
  *     .brokerContainerPoint(container.getExternalGatewayAddress())
  *     .usePlaintext()
  *     .build();
- * }
+ * }</pre>
  *
  * <p>If you want to reuse the same data across restarts, you can specify it using
  * {@link ZeebeBrokerNode#withZeebeData(ZeebeData)}.

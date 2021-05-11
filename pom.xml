@@ -50,6 +50,7 @@
     <plugin.version.checkstyle>3.1.2</plugin.version.checkstyle>
     <plugin.version.enforcer>3.0.0-M2</plugin.version.enforcer>
     <plugin.version.fmt>2.10</plugin.version.fmt>
+    <plugin.version.gpg>1.6</plugin.version.gpg>
     <plugin.version.javadoc>3.2.0</plugin.version.javadoc>
     <plugin.version.license>4.1</plugin.version.license>
     <plugin.version.owasp>6.1.6</plugin.version.owasp>
@@ -343,31 +344,31 @@
 
   <profiles>
     <profile>
-      <id>release</id>
-      <properties>
-        <plugin.version.gpg>1.6</plugin.version.gpg>
-        <gpg.passphrase>${env.GPG_PASS}</gpg.passphrase>
-        <resume>false</resume>
-        <tag>${env.RELEASE_VERSION}</tag>
-        <releaseVersion>${env.RELEASE_VERSION}</releaseVersion>
-        <developmentVersion>${env.DEVELOPMENT_VERSION}</developmentVersion>
-        <arguments>-DskipTests</arguments>
-      </properties>
+      <id>community-action-maven-release</id>
       <build>
-        <pluginManagement>
-          <plugins>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-gpg-plugin</artifactId>
-              <configuration>
-                <gpgArguments>
-                  <arg>--pinentry-mode</arg>
-                  <arg>loopback</arg>
-                </gpgArguments>
-              </configuration>
-            </plugin>
-          </plugins>
-        </pluginManagement>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>${plugin.version.gpg}</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <!-- Prevent gpg from using pinentry programs -->
+              <gpgArguments>
+                <arg>--pinentry-mode</arg>
+                <arg>loopback</arg>
+              </gpgArguments>
+            </configuration>
+          </plugin>
+        </plugins>
       </build>
     </profile>
 
