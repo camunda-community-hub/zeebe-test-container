@@ -12,6 +12,23 @@
     }
   },
   {
+    "extension": "revapi.differences",
+    "configuration": {
+      "justification": "Allow Testcontainers and Docker libraries to add new methods",
+      "ignore": true,
+      "differences": [
+        {
+          "code": "java.method.addedToInterface",
+          "newArchive": "org.testcontainers:testcontainers:jar"
+        },
+        {
+          "code": "java.method.addedToInterface",
+          "newArchive": "com.github.docker-java:docker-java-core:jar"
+        }
+      ]
+    }
+  },
+  {
     "extension": "revapi.filter",
     "configuration": {
       "elements": {
