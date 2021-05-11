@@ -17,12 +17,12 @@ package io.zeebe.containers.examples;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.zeebe.client.ZeebeClient;
-import io.zeebe.client.api.response.WorkflowInstanceEvent;
+import io.camunda.zeebe.client.ZeebeClient;
+import io.camunda.zeebe.client.api.response.ProcessInstanceEvent;
+import io.camunda.zeebe.model.bpmn.Bpmn;
+import io.camunda.zeebe.model.bpmn.BpmnModelInstance;
 import io.zeebe.containers.ZeebeContainer;
 import io.zeebe.containers.ZeebeVolume;
-import io.zeebe.model.bpmn.Bpmn;
-import io.zeebe.model.bpmn.BpmnModelInstance;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -53,7 +53,7 @@ final class ReusableVolumeExampleTest {
 
     // when
     try (final ZeebeClient client = newZeebeClient(zeebeContainer)) {
-      client.newDeployCommand().addWorkflowModel(process, "process.bpmn").send().join();
+      client.newDeployCommand().addProcessModel(process, "process.bpmn").send().join();
     }
 
     // restart
@@ -62,14 +62,14 @@ final class ReusableVolumeExampleTest {
 
     // create a process instance from the one we previously deployed - this would fail if we hadn't
     // previously deployed our process model
-    final WorkflowInstanceEvent processInstance;
+    final ProcessInstanceEvent processInstance;
     try (final ZeebeClient client = newZeebeClient(zeebeContainer)) {
       processInstance =
           client.newCreateInstanceCommand().bpmnProcessId("process").latestVersion().send().join();
     }
 
     // then
-    assertThat(processInstance.getWorkflowInstanceKey()).isPositive();
+    assertThat(processInstance.getProcessInstanceKey()).isPositive();
   }
 
   private ZeebeClient newZeebeClient(final ZeebeContainer node) {

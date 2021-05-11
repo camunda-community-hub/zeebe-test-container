@@ -125,12 +125,12 @@ junit4 [here](https://www.testcontainers.org/test_framework_integration/junit_4/
 ```java
 package com.acme.zeebe;
 
-import io.zeebe.client.ZeebeClient;
-import io.zeebe.client.api.response.DeploymentEvent;
-import io.zeebe.client.api.response.WorkflowInstanceResult;
+import io.camunda.zeebe.client.ZeebeClient;
+import io.camunda.zeebe.client.api.response.DeploymentEvent;
+import io.camunda.zeebe.client.api.response.ProcessInstanceResult;
 import io.zeebe.containers.ZeebeContainer;
-import io.zeebe.model.bpmn.Bpmn;
-import io.zeebe.model.bpmn.BpmnModelInstance;
+import io.camunda.zeebe.model.bpmn.Bpmn;
+import io.camunda.zeebe.model.bpmn.BpmnModelInstance;
 import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
@@ -152,13 +152,13 @@ public class MyFeatureTest {
       Bpmn.createExecutableProcess("process").startEvent().endEvent().done();
 
     // when
-    // do something (e.g. deploy a workflow)
+    // do something (e.g. deploy a process)
     final DeploymentEvent deploymentEvent =
-      client.newDeployCommand().addWorkflowModel(process, "process.bpmn").send().join();
+      client.newDeployCommand().addProcessModel(process, "process.bpmn").send().join();
 
     // then
-    // verify (e.g. we can create an instance of the deployed workflow)
-    final WorkflowInstanceResult workflowInstanceResult =
+    // verify (e.g. we can create an instance of the deployed process)
+    final ProcessInstanceResult processInstanceResult =
       client
         .newCreateInstanceCommand()
         .bpmnProcessId("process")
@@ -166,8 +166,8 @@ public class MyFeatureTest {
         .withResult()
         .send()
         .join();
-    Assertions.assertThat(workflowInstanceResult.getWorkflowKey())
-      .isEqualTo(deploymentEvent.getWorkflows().get(0).getWorkflowKey());
+    Assertions.assertThat(processInstanceResult.getProcessDefinitionKey())
+      .isEqualTo(deploymentEvent.getProcesses().get(0).getProcessDefinitionKey());
   }
 }
 ```
@@ -181,12 +181,12 @@ extension [here](https://www.testcontainers.org/test_framework_integration/junit
 ```java
 package com.acme.zeebe;
 
-import io.zeebe.client.ZeebeClient;
-import io.zeebe.client.api.response.DeploymentEvent;
-import io.zeebe.client.api.response.WorkflowInstanceResult;
+import io.camunda.zeebe.client.ZeebeClient;
+import io.camunda.zeebe.client.api.response.DeploymentEvent;
+import io.camunda.zeebe.client.api.response.ProcessInstanceResult;
 import io.zeebe.containers.ZeebeContainer;
-import io.zeebe.model.bpmn.Bpmn;
-import io.zeebe.model.bpmn.BpmnModelInstance;
+import io.camunda.zeebe.model.bpmn.Bpmn;
+import io.camunda.zeebe.model.bpmn.BpmnModelInstance;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.junit.jupiter.Container;
@@ -210,13 +210,13 @@ public class MyFeatureTest {
       Bpmn.createExecutableProcess("process").startEvent().endEvent().done();
 
     // when
-    // do something (e.g. deploy a workflow)
+    // do something (e.g. deploy a process)
     final DeploymentEvent deploymentEvent =
-      client.newDeployCommand().addWorkflowModel(process, "process.bpmn").send().join();
+      client.newDeployCommand().addProcessModel(process, "process.bpmn").send().join();
 
     // then
-    // verify (e.g. we can create an instance of the deployed workflow)
-    final WorkflowInstanceResult workflowInstanceResult =
+    // verify (e.g. we can create an instance of the deployed process)
+    final ProcessInstanceResult processInstanceResult =
       client
         .newCreateInstanceCommand()
         .bpmnProcessId("process")
@@ -224,8 +224,8 @@ public class MyFeatureTest {
         .withResult()
         .send()
         .join();
-    Assertions.assertThat(workflowInstanceResult.getWorkflowKey())
-      .isEqualTo(deploymentEvent.getWorkflows().get(0).getWorkflowKey());
+    Assertions.assertThat(processInstanceResult.getProcessDefinitionKey())
+      .isEqualTo(deploymentEvent.getProcesses().get(0).getProcessDefinitionKey());
   }
 }
 ```
@@ -373,9 +373,9 @@ class ZeebeHugeClusterTest {
 Here is a short example on how to set up a cluster for testing with junit5.
 
 ```java
-import io.zeebe.client.ZeebeClient;
-import io.zeebe.client.api.response.BrokerInfo;
-import io.zeebe.client.api.response.Topology;
+import io.camunda.zeebe.client.ZeebeClient;
+import io.camunda.zeebe.client.api.response.BrokerInfo;
+import io.camunda.zeebe.client.api.response.Topology;
 import io.zeebe.containers.cluster.ZeebeCluster;
 import java.util.List;
 import java.util.concurrent.TimeUnit;

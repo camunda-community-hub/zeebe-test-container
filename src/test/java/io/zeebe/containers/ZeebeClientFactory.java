@@ -15,7 +15,7 @@
  */
 package io.zeebe.containers;
 
-import io.zeebe.client.ZeebeClient;
+import io.camunda.zeebe.client.ZeebeClient;
 
 final class ZeebeClientFactory {
   private ZeebeClientFactory() {}

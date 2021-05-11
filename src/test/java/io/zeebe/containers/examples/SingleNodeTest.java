@@ -15,13 +15,13 @@
  */
 package io.zeebe.containers.examples;
 
-import io.zeebe.client.ZeebeClient;
-import io.zeebe.client.api.response.DeploymentEvent;
-import io.zeebe.client.api.response.WorkflowInstanceResult;
-import io.zeebe.client.api.worker.JobWorker;
+import io.camunda.zeebe.client.ZeebeClient;
+import io.camunda.zeebe.client.api.response.DeploymentEvent;
+import io.camunda.zeebe.client.api.response.ProcessInstanceResult;
+import io.camunda.zeebe.client.api.worker.JobWorker;
+import io.camunda.zeebe.model.bpmn.Bpmn;
+import io.camunda.zeebe.model.bpmn.BpmnModelInstance;
 import io.zeebe.containers.ZeebeContainer;
-import io.zeebe.model.bpmn.Bpmn;
-import io.zeebe.model.bpmn.BpmnModelInstance;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.assertj.core.api.Assertions;
@@ -33,7 +33,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
  * This example show cases how to create a simple test against a single node broker with embedded
- * gateway. A workflow is deployed, a new instance created, completed, and the result can then be
+ * gateway. A process is deployed, a new instance created, completed, and the result can then be
  * verified. In most cases, this is what you're looking for.
  */
 @Testcontainers
@@ -53,22 +53,13 @@ class SingleNodeTest {
             .done();
     final Map<String, Integer> variables = Maps.newHashMap("foo", 1);
     final DeploymentEvent deploymentEvent;
-    final WorkflowInstanceResult workflowInstanceResult;
+    final ProcessInstanceResult workflowInstanceResult;
 
     // when
     try (final ZeebeClient client = newZeebeClient(zeebeContainer)) {
-      final JobWorker worker =
-          client
-              .newWorker()
-              .jobType("task")
-              .handler(
-                  (jobClient, job) ->
-                      jobClient.newCompleteCommand(job.getKey()).variables(variables).send())
-              .open();
-
-      try {
+      try (final JobWorker ignored = createJobWorker(variables, client)) {
         deploymentEvent =
-            client.newDeployCommand().addWorkflowModel(process, "process.bpmn").send().join();
+            client.newDeployCommand().addProcessModel(process, "process.bpmn").send().join();
         workflowInstanceResult =
             client
                 .newCreateInstanceCommand()
@@ -77,15 +68,24 @@ class SingleNodeTest {
                 .withResult()
                 .send()
                 .join();
-      } finally {
-        worker.close();
       }
     }
 
     // then
-    Assertions.assertThat(deploymentEvent.getWorkflows()).hasSize(1);
+    Assertions.assertThat(deploymentEvent.getProcesses()).hasSize(1);
     Assertions.assertThat(workflowInstanceResult.getBpmnProcessId()).isEqualTo("process");
     Assertions.assertThat(workflowInstanceResult.getVariablesAsMap()).isEqualTo(variables);
+  }
+
+  private JobWorker createJobWorker(
+      final Map<String, Integer> variables, final ZeebeClient client) {
+    return client
+        .newWorker()
+        .jobType("task")
+        .handler(
+            (jobClient, job) ->
+                jobClient.newCompleteCommand(job.getKey()).variables(variables).send())
+        .open();
   }
 
   private ZeebeClient newZeebeClient(final ZeebeContainer node) {

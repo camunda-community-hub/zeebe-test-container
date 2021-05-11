@@ -17,11 +17,11 @@ package io.zeebe.containers;
 
 import static org.rnorth.ducttape.unreliables.Unreliables.retryUntilTrue;
 
-import io.zeebe.client.ZeebeClient;
-import io.zeebe.client.ZeebeClientBuilder;
-import io.zeebe.client.api.response.BrokerInfo;
-import io.zeebe.client.api.response.PartitionInfo;
-import io.zeebe.client.api.response.Topology;
+import io.camunda.zeebe.client.ZeebeClient;
+import io.camunda.zeebe.client.ZeebeClientBuilder;
+import io.camunda.zeebe.client.api.response.BrokerInfo;
+import io.camunda.zeebe.client.api.response.PartitionInfo;
+import io.camunda.zeebe.client.api.response.Topology;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
