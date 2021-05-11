@@ -40,7 +40,9 @@ final class ZeebeVolumeTest {
     final InspectVolumeResponse response = client.inspectVolumeCmd(volume.getName()).exec();
 
     // then
-    assertThat(response.getLabels()).containsExactlyInAnyOrderEntriesOf(expectedLabels);
+    assertThat(response.getLabels())
+        .as("the volume should contain the base Testcontainers labels to be reaped on shutdown")
+        .containsExactlyInAnyOrderEntriesOf(expectedLabels);
   }
 
   @Test
@@ -54,8 +56,11 @@ final class ZeebeVolumeTest {
     final InspectVolumeResponse response = client.inspectVolumeCmd(volume.getName()).exec();
 
     // then
-    assertThat(response).isNotNull();
-    assertThat(response.getName()).isEqualTo(name);
+    assertThat(response)
+        .as("the volume should exist and have the right name")
+        .isNotNull()
+        .extracting(InspectVolumeResponse::getName)
+        .isEqualTo(name);
   }
 
   @Test
@@ -100,9 +105,14 @@ final class ZeebeVolumeTest {
     assertThat(volumeBinds).hasSize(1);
 
     final Bind bind = volumeBinds[0];
-    assertThat(bind.getAccessMode()).isEqualTo(AccessMode.rw);
-    assertThat(bind.getPath()).isEqualTo(volume.getName());
+    assertThat(bind.getAccessMode())
+        .as("the volume should be mounted in read-write")
+        .isEqualTo(AccessMode.rw);
+    assertThat(bind.getPath())
+        .as("the bind's path should be the volume name")
+        .isEqualTo(volume.getName());
     assertThat(bind.getVolume().getPath())
+        .as("the volume path should be the default Zeebe data path")
         .isEqualTo(ZeebeDefaults.getInstance().getDefaultDataPath());
   }
 }

@@ -50,12 +50,17 @@ final class ZeebeHostDataTest {
     }
 
     // then
-    assertThat(response.getMounts()).hasSize(1);
+    assertThat(response.getMounts())
+        .as("there should be exactly one bind mount, the host data")
+        .hasSize(1);
 
     final Mount mount = Objects.requireNonNull(response.getMounts()).get(0);
-    assertThat(mount.getRW()).isTrue();
-    assertThat(mount.getSource()).isEqualTo(dataDir.toString());
+    assertThat(mount.getRW()).as("the host data should be mounted as read-write").isTrue();
+    assertThat(mount.getSource())
+        .as("the mount's source should be the host data directory")
+        .isEqualTo(dataDir.toString());
     assertThat(mount.getDestination())
+        .as("the mount's destination should be the default data path in the Zeebe container")
         .isNotNull()
         .extracting(Volume::getPath)
         .isEqualTo(ZeebeDefaults.getInstance().getDefaultDataPath());

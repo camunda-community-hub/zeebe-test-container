@@ -72,9 +72,12 @@ class SingleNodeTest {
     }
 
     // then
-    Assertions.assertThat(deploymentEvent.getProcesses()).hasSize(1);
-    Assertions.assertThat(workflowInstanceResult.getBpmnProcessId()).isEqualTo("process");
-    Assertions.assertThat(workflowInstanceResult.getVariablesAsMap()).isEqualTo(variables);
+    Assertions.assertThat(deploymentEvent.getProcesses())
+        .as("the process instance was deployed")
+        .hasSize(1);
+    Assertions.assertThat(workflowInstanceResult.getBpmnProcessId())
+        .as("a process instance for the deployed process was created and completed")
+        .isEqualTo("process");
   }
 
   private JobWorker createJobWorker(

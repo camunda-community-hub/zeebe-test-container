@@ -112,7 +112,9 @@ final class ZeebeTopologyWaitStrategyTest {
     strategy.waitUntilReady(target);
 
     // then
-    Assertions.assertThat(target.originalPort).isEqualTo(2);
+    Assertions.assertThat(target.originalPort)
+        .as("the original port (i.e. unmapped) should be the one given at configuration")
+        .isEqualTo(2);
   }
 
   @Test
@@ -150,6 +152,7 @@ final class ZeebeTopologyWaitStrategyTest {
 
     // when - then
     Assertions.assertThatThrownBy(() -> strategy.waitUntilReady(target))
+        .as("the strategy times out due to being incomplete because: " + testName)
         .isInstanceOf(ContainerLaunchException.class);
     Mockito.verify(topologyRequest, Mockito.atLeastOnce()).send();
   }

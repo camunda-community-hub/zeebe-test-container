@@ -69,7 +69,9 @@ final class ReusableVolumeExampleTest {
     }
 
     // then
-    assertThat(processInstance.getProcessInstanceKey()).isPositive();
+    assertThat(processInstance.getProcessInstanceKey())
+        .as("a process instance was successfully created")
+        .isPositive();
   }
 
   private ZeebeClient newZeebeClient(final ZeebeContainer node) {

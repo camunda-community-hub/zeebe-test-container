@@ -47,8 +47,9 @@ class ZeebeGatewayContainerTest {
 
     // then
     final List<BrokerInfo> brokers = topology.getBrokers();
-    Assertions.assertThat(brokers).hasSize(1);
+    Assertions.assertThat(brokers).as("the gateway should report one broker").hasSize(1);
     Assertions.assertThat(brokers.get(0).getAddress())
+        .as("the gateway should report the correct contact point")
         .isEqualTo(brokerContainer.getInternalCommandAddress());
   }
 }

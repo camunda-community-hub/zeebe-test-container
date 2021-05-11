@@ -43,6 +43,7 @@ class ZeebeContainerTest {
     // as we're not testing the client/gateway themselves, it's fine to simply assert we get a
     // successful response here  - the property we assert isn't too important
     Assertions.assertThat(topology.getGatewayVersion())
+        .as("the gateway is started")
         .isEqualTo(ZeebeDefaults.getInstance().getDefaultVersion());
   }
 }

@@ -70,7 +70,9 @@ class ZeebeBrokerNodeTest {
     }
 
     // then
-    assertThat(response.code()).isEqualTo(204);
+    assertThat(response.code())
+        .as("the broker ready check should return 204 when the container is started")
+        .isEqualTo(204);
   }
 
   @SuppressWarnings("unused")
@@ -86,7 +88,9 @@ class ZeebeBrokerNodeTest {
     expectedPorts.remove((Integer) ZeebePort.GATEWAY.getPort());
 
     // then
-    assertThat(exposedPorts).containsAll(expectedPorts);
+    assertThat(exposedPorts)
+        .as("the broker should expose all the ports but the gateway")
+        .containsAll(expectedPorts);
   }
 
   @SuppressWarnings("unused")
@@ -121,6 +125,7 @@ class ZeebeBrokerNodeTest {
 
       // then
       assertThat(processInstance)
+          .as("the process instance was successfully created")
           .isNotNull()
           .extracting(ProcessInstanceEvent::getProcessDefinitionKey)
           .isEqualTo(deployment.getProcesses().get(0).getProcessDefinitionKey());

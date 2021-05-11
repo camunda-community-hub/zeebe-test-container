@@ -53,8 +53,8 @@ class ZeebeClusterSingleNodeExampleTest {
 
     // then
     final List<BrokerInfo> brokers = topology.getBrokers();
-    Assertions.assertThat(topology.getClusterSize()).isEqualTo(1);
     Assertions.assertThat(brokers)
+        .as("the topology contains all the brokers, advertising the expected address")
         .hasSize(1)
         .extracting(BrokerInfo::getAddress)
         .containsExactlyInAnyOrder(cluster.getBrokers().get(0).getInternalCommandAddress());

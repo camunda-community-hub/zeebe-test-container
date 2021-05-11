@@ -68,8 +68,8 @@ class ClusterWithEmbeddedGatewaysExampleTest {
         // then
         final Topology topology = client.newTopologyRequest().send().join(5, TimeUnit.SECONDS);
         final List<BrokerInfo> brokers = topology.getBrokers();
-        Assertions.assertThat(topology.getClusterSize()).isEqualTo(3);
         Assertions.assertThat(brokers)
+            .as("the topology contains all the brokers, advertising the correct address")
             .hasSize(3)
             .extracting(BrokerInfo::getAddress)
             .containsExactlyInAnyOrder(

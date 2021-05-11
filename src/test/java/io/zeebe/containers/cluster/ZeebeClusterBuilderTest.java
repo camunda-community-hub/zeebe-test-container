@@ -37,7 +37,9 @@ final class ZeebeClusterBuilderTest {
     final ZeebeClusterBuilder builder = new ZeebeClusterBuilder();
 
     // then
-    assertThatCode(() -> builder.withBrokersCount(-1)).isInstanceOf(IllegalArgumentException.class);
+    assertThatCode(() -> builder.withBrokersCount(-1))
+        .as("the builder should not accept a negative number of brokers")
+        .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -47,8 +49,10 @@ final class ZeebeClusterBuilderTest {
 
     // then
     assertThatCode(() -> builder.withPartitionsCount(0))
+        .as("the builder should not accept no partitions")
         .isInstanceOf(IllegalArgumentException.class);
     assertThatCode(() -> builder.withPartitionsCount(-1))
+        .as("the builder should not accept a negative partitions count")
         .isInstanceOf(IllegalArgumentException.class);
   }
 
@@ -59,8 +63,10 @@ final class ZeebeClusterBuilderTest {
 
     // then
     assertThatCode(() -> builder.withReplicationFactor(0))
+        .as("the builder should not accept 0 as a replication factor")
         .isInstanceOf(IllegalArgumentException.class);
     assertThatCode(() -> builder.withReplicationFactor(-1))
+        .as("the builder should not accept a negative replication factor")
         .isInstanceOf(IllegalArgumentException.class);
   }
 
@@ -70,7 +76,9 @@ final class ZeebeClusterBuilderTest {
     final ZeebeClusterBuilder builder = new ZeebeClusterBuilder();
 
     // then
-    assertThatCode(() -> builder.withNetwork(null)).isInstanceOf(NullPointerException.class);
+    assertThatCode(() -> builder.withNetwork(null))
+        .as("the builder should not accept a null network")
+        .isInstanceOf(NullPointerException.class);
   }
 
   @Test
@@ -79,7 +87,9 @@ final class ZeebeClusterBuilderTest {
     final ZeebeClusterBuilder builder = new ZeebeClusterBuilder();
 
     // then
-    assertThatCode(() -> builder.withName(null)).isInstanceOf(IllegalArgumentException.class);
+    assertThatCode(() -> builder.withName(null))
+        .as("the builder should not accept a null cluster name")
+        .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -88,9 +98,15 @@ final class ZeebeClusterBuilderTest {
     final ZeebeClusterBuilder builder = new ZeebeClusterBuilder();
 
     // then
-    assertThatCode(() -> builder.withName("")).isInstanceOf(IllegalArgumentException.class);
-    assertThatCode(() -> builder.withName("a")).isInstanceOf(IllegalArgumentException.class);
-    assertThatCode(() -> builder.withName("aa")).isInstanceOf(IllegalArgumentException.class);
+    assertThatCode(() -> builder.withName(""))
+        .as("the builder should not accept an empty cluster name")
+        .isInstanceOf(IllegalArgumentException.class);
+    assertThatCode(() -> builder.withName("a"))
+        .as("the builder should not accept a name which is too short")
+        .isInstanceOf(IllegalArgumentException.class);
+    assertThatCode(() -> builder.withName("aa"))
+        .as("the builder should not accept a name which is too short")
+        .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -102,7 +118,10 @@ final class ZeebeClusterBuilderTest {
     builder.withBrokersCount(1).withReplicationFactor(2);
 
     // then
-    assertThatCode(builder::build).isInstanceOf(IllegalStateException.class);
+    assertThatCode(builder::build)
+        .as(
+            "the builder should not accept a replication factor which is greater than the number of brokers")
+        .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
@@ -117,12 +136,17 @@ final class ZeebeClusterBuilderTest {
     // then
     final Map<Integer, ZeebeBrokerNode<? extends GenericContainer<?>>> brokers =
         cluster.getBrokers();
-    assertThat(brokers).hasSize(2).containsKeys(0, 1);
+    assertThat(brokers)
+        .as("the builder created 2 brokers with the right IDs")
+        .hasSize(2)
+        .containsKeys(0, 1);
     assertThat(brokers.get(0).getEnvMap())
+        .as("the first broker has ID 0 and the right cluster size")
         .contains(
             entry("ZEEBE_BROKER_CLUSTER_NODEID", "0"),
             entry("ZEEBE_BROKER_CLUSTER_CLUSTERSIZE", "2"));
     assertThat(brokers.get(1).getEnvMap())
+        .as("the first broker has ID 1 and the right cluster size")
         .contains(
             entry("ZEEBE_BROKER_CLUSTER_NODEID", "1"),
             entry("ZEEBE_BROKER_CLUSTER_CLUSTERSIZE", "2"));
@@ -138,8 +162,12 @@ final class ZeebeClusterBuilderTest {
     final ZeebeCluster cluster = builder.build();
 
     // then
-    assertThat(cluster.getReplicationFactor()).isZero();
-    assertThat(cluster.getPartitionsCount()).isZero();
+    assertThat(cluster.getReplicationFactor())
+        .as("there are no replication factor if no brokers are defined")
+        .isZero();
+    assertThat(cluster.getPartitionsCount())
+        .as("there are no partitions if no brokers are defined")
+        .isZero();
   }
 
   @Test
@@ -152,8 +180,12 @@ final class ZeebeClusterBuilderTest {
     final ZeebeCluster cluster = builder.build();
 
     // then
-    assertThat(cluster.getReplicationFactor()).isEqualTo(1);
-    assertThat(cluster.getPartitionsCount()).isEqualTo(1);
+    assertThat(cluster.getReplicationFactor())
+        .as("there are is a default replication factor when the broker count is redefined")
+        .isEqualTo(1);
+    assertThat(cluster.getPartitionsCount())
+        .as("there are is a default partitions count when the broker count is redefined")
+        .isEqualTo(1);
   }
 
   @Test
@@ -166,8 +198,12 @@ final class ZeebeClusterBuilderTest {
     final ZeebeCluster cluster = builder.build();
 
     // then
-    assertThat(cluster.getReplicationFactor()).isEqualTo(1);
-    assertThat(cluster.getPartitionsCount()).isEqualTo(4);
+    assertThat(cluster.getReplicationFactor())
+        .as("the replication factor should be static even when the brokers count is changed after")
+        .isEqualTo(1);
+    assertThat(cluster.getPartitionsCount())
+        .as("the partitions should be static even when the brokers count is changed after")
+        .isEqualTo(4);
   }
 
   @Test
@@ -182,8 +218,11 @@ final class ZeebeClusterBuilderTest {
     // then
     final Map<Integer, ZeebeBrokerNode<? extends GenericContainer<?>>> brokers =
         cluster.getBrokers();
-    assertThat(cluster.getPartitionsCount()).isEqualTo(2);
+    assertThat(cluster.getPartitionsCount())
+        .as("the configure the partitions count correctly")
+        .isEqualTo(2);
     assertThat(brokers.get(0).getEnvMap())
+        .as("the broker should report the correct environment variable as config")
         .containsEntry("ZEEBE_BROKER_CLUSTER_PARTITIONSCOUNT", "2");
   }
 
@@ -199,10 +238,14 @@ final class ZeebeClusterBuilderTest {
     // then
     final Map<Integer, ZeebeBrokerNode<? extends GenericContainer<?>>> brokers =
         cluster.getBrokers();
-    assertThat(cluster.getReplicationFactor()).isEqualTo(2);
+    assertThat(cluster.getReplicationFactor())
+        .as("the broker should report the correct replication factor")
+        .isEqualTo(2);
     assertThat(brokers.get(0).getEnvMap())
+        .as("the first broker should report the correct environment variable as config")
         .containsEntry("ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR", "2");
     assertThat(brokers.get(1).getEnvMap())
+        .as("the second broker should report the correct environment variable as config")
         .containsEntry("ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR", "2");
   }
 
@@ -216,9 +259,6 @@ final class ZeebeClusterBuilderTest {
     final ZeebeCluster cluster = builder.build();
 
     // then
-    assertThat(cluster.getBrokers()).hasSize(2);
-    assertThat(cluster.getGateways()).hasSize(2);
-
     final Set<String> internalHosts = new HashSet<>();
     cluster.getBrokers().values().stream()
         .map(ZeebeNode::getInternalHost)
@@ -226,7 +266,10 @@ final class ZeebeClusterBuilderTest {
     cluster.getGateways().values().stream()
         .map(ZeebeNode::getInternalHost)
         .forEach(internalHosts::add);
-    assertThat(internalHosts).hasSize(4).doesNotContainNull();
+    assertThat(internalHosts)
+        .as("every node in the cluster has a unique internal host name")
+        .hasSize(4)
+        .doesNotContainNull();
   }
 
   @Test
@@ -239,9 +282,6 @@ final class ZeebeClusterBuilderTest {
     final ZeebeCluster cluster = builder.build();
 
     // then
-    assertThat(cluster.getBrokers()).hasSize(2);
-    assertThat(cluster.getGateways()).hasSize(2);
-
     final Set<String> advertisedHosts = new HashSet<>();
     cluster.getBrokers().values().stream()
         .map(Container::getEnvMap)
@@ -251,7 +291,10 @@ final class ZeebeClusterBuilderTest {
         .map(Container::getEnvMap)
         .map(env -> env.get("ZEEBE_GATEWAY_CLUSTER_HOST"))
         .forEach(advertisedHosts::add);
-    assertThat(advertisedHosts).hasSize(4).doesNotContainNull();
+    assertThat(advertisedHosts)
+        .as("every node in the cluster has a unique advertised host")
+        .hasSize(4)
+        .doesNotContainNull();
   }
 
   @Test
@@ -268,8 +311,6 @@ final class ZeebeClusterBuilderTest {
     final ZeebeCluster cluster = builder.build();
 
     // then
-    assertThat(cluster.getBrokers()).hasSize(2);
-    assertThat(cluster.getGateways()).hasSize(2);
 
     cluster
         .getBrokers()
@@ -277,6 +318,7 @@ final class ZeebeClusterBuilderTest {
         .forEach(
             b ->
                 assertThat(b.getEnvMap())
+                    .as("every broker is configured with the correct cluster name")
                     .containsEntry("ZEEBE_BROKER_CLUSTER_CLUSTERNAME", "test-cluster"));
     cluster
         .getGateways()
@@ -284,6 +326,7 @@ final class ZeebeClusterBuilderTest {
         .forEach(
             g ->
                 assertThat(g.getEnvMap())
+                    .as("every gateway is configured with the correct cluster name")
                     .containsEntry("ZEEBE_GATEWAY_CLUSTER_CLUSTERNAME", "test-cluster"));
   }
 
@@ -308,11 +351,19 @@ final class ZeebeClusterBuilderTest {
     cluster
         .getBrokers()
         .values()
-        .forEach(b -> assertThat(b.self().getNetwork()).isEqualTo(network));
+        .forEach(
+            b ->
+                assertThat(b.self().getNetwork())
+                    .as("every broker is configured with the correct network")
+                    .isEqualTo(network));
     cluster
         .getGateways()
         .values()
-        .forEach(g -> assertThat(g.self().getNetwork()).isEqualTo(network));
+        .forEach(
+            g ->
+                assertThat(g.self().getNetwork())
+                    .as("every gateway is configured with the correct network")
+                    .isEqualTo(network));
   }
 
   @Test
@@ -330,7 +381,9 @@ final class ZeebeClusterBuilderTest {
     for (final String memberId : memberIds) {
       final ZeebeGatewayNode<? extends GenericContainer<?>> gateway =
           cluster.getGateways().get(memberId);
-      assertThat(gateway.getEnvMap()).containsEntry("ZEEBE_GATEWAY_CLUSTER_MEMBERID", memberId);
+      assertThat(gateway.getEnvMap())
+          .as("every gateway has a unique member configured via environment variable")
+          .containsEntry("ZEEBE_GATEWAY_CLUSTER_MEMBERID", memberId);
     }
   }
 
@@ -350,6 +403,7 @@ final class ZeebeClusterBuilderTest {
       final ZeebeBrokerNode<? extends GenericContainer<?>> broker =
           cluster.getBrokers().get(nodeId);
       assertThat(broker.getEnvMap())
+          .as("every broker has a unique node ID configured via environment variable")
           .containsEntry("ZEEBE_BROKER_CLUSTER_NODEID", String.valueOf(nodeId));
     }
   }
@@ -372,6 +426,8 @@ final class ZeebeClusterBuilderTest {
         brokers.get(1).getEnvMap().get("ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS");
 
     assertThat(brokerZeroInitialContactPoints)
+        .as(
+            "both broker 0 and broker 1 report each other as initial contact points via environment variables")
         .isEqualTo(brokerOneInitialContactPoints)
         .containsOnlyOnce(brokers.get(0).getInternalClusterAddress())
         .containsOnlyOnce(brokers.get(1).getInternalClusterAddress());
@@ -392,6 +448,7 @@ final class ZeebeClusterBuilderTest {
         cluster.getGateways().values().iterator().next();
 
     assertThat(gateway.getEnvMap())
+        .as("the gateway has the correct broker contact point configured")
         .containsEntry("ZEEBE_GATEWAY_CLUSTER_CONTACTPOINT", broker.getInternalClusterAddress());
   }
 
@@ -408,7 +465,9 @@ final class ZeebeClusterBuilderTest {
     final ZeebeGatewayNode<? extends GenericContainer<?>> gateway =
         cluster.getGateways().values().iterator().next();
 
-    assertThat(gateway.getEnvMap()).doesNotContainKey("ZEEBE_GATEWAY_CLUSTER_CONTACTPOINT");
+    assertThat(gateway.getEnvMap())
+        .as("the gateway has no contact point configured since there are no brokers")
+        .doesNotContainKey("ZEEBE_GATEWAY_CLUSTER_CONTACTPOINT");
   }
 
   @Test
@@ -421,9 +480,14 @@ final class ZeebeClusterBuilderTest {
     final ZeebeCluster cluster = builder.build();
 
     // then
-    assertThat(cluster.getGateways()).hasSize(1);
-    assertThat(cluster.getGateways().get("0")).isInstanceOf(ZeebeBrokerNode.class);
+    assertThat(cluster.getGateways())
+        .as("there is a gateway even if there is only a single node")
+        .hasSize(1);
+    assertThat(cluster.getGateways().get("0"))
+        .as("the gateway is actual a broker as it is an embedded gateway")
+        .isInstanceOf(ZeebeBrokerNode.class);
     assertThat(cluster.getGateways().get("0").getEnvMap())
+        .as("the broker is configured to enable the embedded gateway")
         .containsEntry("ZEEBE_BROKER_GATEWAY_ENABLE", "true");
   }
 
@@ -437,8 +501,9 @@ final class ZeebeClusterBuilderTest {
     final ZeebeCluster cluster = builder.build();
 
     // then
-    assertThat(cluster.getGateways()).isEmpty();
+    assertThat(cluster.getGateways()).as("there are no configured gateways").isEmpty();
     assertThat(cluster.getBrokers().get(0).getEnvMap())
+        .as("the broker is not configured to enable the embedded gateway")
         .doesNotContainEntry("ZEEBE_BROKER_GATEWAY_ENABLE", "true");
   }
 }
