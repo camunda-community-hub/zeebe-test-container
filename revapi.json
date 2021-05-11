@@ -2,28 +2,45 @@
   {
     "extension": "revapi.semver.ignore",
     "configuration": {
-      "enabled" : true,
-      "versionIncreaseAllows" : {
-        "major" : "breaking",
-        "minor" : "nonBreaking",
-        "patch" : "equivalent"
+      "enabled": true,
+      "versionIncreaseAllows": {
+        "major": "breaking",
+        "minor": "nonBreaking",
+        "patch": "equivalent"
       },
-      "passThroughDifferences": ["java.class.nonPublicPartOfAPI"]
+      "passThroughDifferences": [
+        "java.class.nonPublicPartOfAPI"
+      ]
     }
   },
   {
     "extension": "revapi.differences",
     "configuration": {
-      "justification": "Allow Testcontainers and Docker libraries to add new methods",
+      "justification": "The library is meant to extend Testcontainers, and as such will expose its types and the Docker types as well",
       "ignore": true,
       "differences": [
         {
-          "code": "java.method.addedToInterface",
-          "newArchive": "org.testcontainers:testcontainers:jar"
+          "code": "java.class.externalClassExposedInAPI",
+          "oldArchive": "org.testcontainers:testcontainers:jar"
         },
         {
-          "code": "java.method.addedToInterface",
-          "newArchive": "com.github.docker-java:docker-java-core:jar"
+          "code": "java.class.externalClassExposedInAPI",
+          "oldArchive": "com.github.docker-java:docker-java-core:jar"
+        },
+        {
+          "code": "java.method.addedToInterface"
+        }
+      ]
+    }
+  },
+  {
+    "extension": "revapi.differences",
+    "configuration": {
+      "justification": "While we break ABI compatibility when adding new methods, it's acceptable to do so since the migration effort is quite low, and in most cases the interfaces are there to be consumed, not implemented",
+      "ignore": true,
+      "differences": [
+        {
+          "code": "java.method.addedToInterface"
         }
       ]
     }

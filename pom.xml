@@ -33,6 +33,9 @@
     <!-- license header -->
     <license.header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</license.header>
 
+    <!-- skip checks -->
+    <skip.check>false</skip.check>
+
     <!-- project dependencies -->
     <version.apiguardian>1.1.1</version.apiguardian>
     <version.assertj>3.19.0</version.assertj>
@@ -107,8 +110,6 @@
       <version>${version.mockito}</version>
       <scope>test</scope>
     </dependency>
-
-    <!-- this is a change in the pom.xml -->
 
     <dependency>
       <groupId>org.mockito</groupId>
@@ -238,6 +239,7 @@
             <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
             <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
           </sourceDirectories>
+          <skip>${skip.check}</skip>
         </configuration>
         <executions>
           <execution>
@@ -283,6 +285,9 @@
             </goals>
           </execution>
         </executions>
+        <configuration>
+          <skip>${skip.check}</skip>
+        </configuration>
       </plugin>
 
       <!-- compatibility checks/guard -->
@@ -311,9 +316,11 @@
           <expandProperties>true</expandProperties>
           <analysisConfigurationFiles>
             <configurationFile>
-              <path>${project.basedir}/revapi.json</path>
+              <path>revapi.json</path>
             </configurationFile>
           </analysisConfigurationFiles>
+          <oldVersion>RELEASE</oldVersion>
+          <skip>${skip.check}</skip>
         </configuration>
       </plugin>
 
@@ -329,6 +336,7 @@
           <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
           <format>JSON</format>
           <prettyPrint>true</prettyPrint>
+          <skip>${skip.check}</skip>
         </configuration>
         <executions>
           <execution>
@@ -345,6 +353,9 @@
   <profiles>
     <profile>
       <id>community-action-maven-release</id>
+      <properties>
+        <skip.check>true</skip.check>
+      </properties>
       <build>
         <plugins>
           <plugin>
