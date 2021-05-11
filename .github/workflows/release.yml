@@ -8,8 +8,13 @@ name: Deploy artifacts with Maven
 on:
   push:
     branches: [ master ]
+    paths:
+      - 'src/**'
+      - 'pom.xml'
+      - 'revapi.json'
   release:
     types: [ published ]
+  workflow_dispatch: { }
 jobs:
   publish:
     runs-on: ubuntu-20.04

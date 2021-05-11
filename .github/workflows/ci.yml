@@ -1,7 +1,17 @@
 name: Java CI
 on:
-  pull_request: { }
-  push: { branches: [ master ] }
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'pom.xml'
+      - 'revapi.json'
+  push:
+    branches: [ master ]
+    paths:
+      - 'src/**'
+      - 'pom.xml'
+      - 'revapi.json'
+  workflow_dispatch: { }
 jobs:
   build:
     name: Build, Test, and Verify
@@ -37,6 +47,7 @@ jobs:
   sonar:
     name: SonarCloud Scan
     runs-on: ubuntu-latest
+    if: ${{ secrets.SONAR_TOKEN != '' }}
     steps:
       - uses: actions/checkout@v2
         with:
