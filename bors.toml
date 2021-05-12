@@ -1,6 +1,0 @@
-status = [
-  "continuous-integration/jenkins/branch"
-]
-
-required_approvals = 0
-delete_merged_branches = true
