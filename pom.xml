@@ -484,9 +484,9 @@
   </repositories>
 
   <scm>
-    <url>https://github.com/zeebe-io/zeebe-test-container</url>
-    <connection>scm:git:git@github.com:zeebe-io/zeebe-test-container.git</connection>
-    <developerConnection>scm:git:git@github.com:zeebe-io/zeebe-test-container.git
+    <url>https://github.com/camunda-community-hub/zeebe-test-container</url>
+    <connection>scm:git:git@github.com:camunda-community-hub/zeebe-test-container.git</connection>
+    <developerConnection>scm:git:git@github.com:camunda-community-hub/zeebe-test-container.git
     </developerConnection>
     <tag>HEAD</tag>
   </scm>
