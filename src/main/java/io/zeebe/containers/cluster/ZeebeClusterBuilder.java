@@ -18,6 +18,7 @@ package io.zeebe.containers.cluster;
 import io.zeebe.containers.ZeebeBrokerContainer;
 import io.zeebe.containers.ZeebeBrokerNode;
 import io.zeebe.containers.ZeebeContainer;
+import io.zeebe.containers.ZeebeDefaults;
 import io.zeebe.containers.ZeebeGatewayContainer;
 import io.zeebe.containers.ZeebeGatewayNode;
 import io.zeebe.containers.ZeebeTopologyWaitStrategy;
@@ -31,6 +32,7 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
+import org.testcontainers.utility.DockerImageName;
 
 /**
  * Convenience class to help build Zeebe clusters.
@@ -94,6 +96,7 @@ public class ZeebeClusterBuilder {
   private static final String BROKER_NETWORK_ALIAS_PREFIX = "zeebe-broker-";
   private static final String GATEWAY_NETWORK_ALIAS_PREFIX = "zeebe-gateway-";
   private static final String DEFAULT_CLUSTER_NAME = "zeebe-cluster";
+  private static final ZeebeDefaults ZEEBE_DEFAULTS = ZeebeDefaults.getInstance();
 
   private Network network = Network.SHARED;
   private String name = DEFAULT_CLUSTER_NAME;
@@ -104,6 +107,8 @@ public class ZeebeClusterBuilder {
   private int partitionsCount = 1;
   private int replicationFactor = 1;
   private boolean useEmbeddedGateway = true;
+  private DockerImageName gatewayImageName = ZEEBE_DEFAULTS.getDefaultDockerImage();
+  private DockerImageName brokerImageName = ZEEBE_DEFAULTS.getDefaultDockerImage();
 
   private final Map<String, ZeebeGatewayNode<? extends GenericContainer<?>>> gateways =
       new HashMap<>();
@@ -243,6 +248,41 @@ public class ZeebeClusterBuilder {
   }
 
   /**
+   * Sets the docker image for separate gateways. This could be used to create a test against
+   * specific Zeebe version.
+   *
+   * @param gatewayImageName the docker image name of the Zeebe
+   * @return this builder instance for chaining
+   */
+  public ZeebeClusterBuilder withGatewayImage(final DockerImageName gatewayImageName) {
+    this.gatewayImageName = Objects.requireNonNull(gatewayImageName);
+    return this;
+  }
+
+  /**
+   * Sets the docker image for brokers with embedded gateways. This could be used to create a test
+   * against specific Zeebe version.
+   *
+   * @param brokerImageName the docker image name of the Zeebe
+   * @return this builder instance for chaining
+   */
+  public ZeebeClusterBuilder withBrokerImage(final DockerImageName brokerImageName) {
+    this.brokerImageName = Objects.requireNonNull(brokerImageName);
+    return this;
+  }
+
+  /**
+   * Sets the docker image for brokers with embedded gateways and separate gateways. This could be
+   * used to create a test against specific Zeebe version.
+   *
+   * @param imageName the docker image name of the Zeebe
+   * @return this builder instance for chaining
+   */
+  public ZeebeClusterBuilder withImage(final DockerImageName imageName) {
+    return this.withGatewayImage(imageName).withBrokerImage(imageName);
+  }
+
+  /**
    * Builds a new Zeebe cluster. Will create {@link #brokersCount} brokers (accessible later via
    * {@link ZeebeCluster#getBrokers()}) and {@link #gatewaysCount} standalone gateways (accessible
    * later via {@link ZeebeCluster#getGateways()}).
@@ -305,13 +345,13 @@ public class ZeebeClusterBuilder {
       final ZeebeBrokerNode<?> broker;
 
       if (useEmbeddedGateway) {
-        final ZeebeContainer container = new ZeebeContainer();
+        final ZeebeContainer container = new ZeebeContainer(brokerImageName);
         configureGateway(container);
 
         broker = container;
         gateways.put(String.valueOf(i), container);
       } else {
-        broker = new ZeebeBrokerContainer();
+        broker = new ZeebeBrokerContainer(brokerImageName);
       }
 
       configureBroker(broker, i);
@@ -341,7 +381,7 @@ public class ZeebeClusterBuilder {
   }
 
   private ZeebeGatewayContainer createStandaloneGateway(final String memberId) {
-    final ZeebeGatewayContainer gateway = new ZeebeGatewayContainer();
+    final ZeebeGatewayContainer gateway = new ZeebeGatewayContainer(gatewayImageName);
 
     gateway
         .withNetwork(network)
