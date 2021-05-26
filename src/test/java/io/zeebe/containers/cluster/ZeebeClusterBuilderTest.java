@@ -22,9 +22,12 @@ import static org.assertj.core.api.Assertions.entry;
 import io.zeebe.containers.ZeebeBrokerNode;
 import io.zeebe.containers.ZeebeGatewayNode;
 import io.zeebe.containers.ZeebeNode;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.Container;
 import org.testcontainers.containers.GenericContainer;
@@ -505,5 +508,28 @@ final class ZeebeClusterBuilderTest {
     assertThat(cluster.getBrokers().get(0).getEnvMap())
         .as("the broker is not configured to enable the embedded gateway")
         .doesNotContainEntry("ZEEBE_BROKER_GATEWAY_ENABLE", "true");
+  }
+
+  @Test
+  void shouldSetEnvironmentVariablesForStandaloneGateway() {
+    // given
+    final ZeebeClusterBuilder builder = new ZeebeClusterBuilder();
+    final String environmentVariable = "ZEEBE_GATEWAY_MONITORING_ENABLED";
+
+    // when
+    builder
+        .withEmbeddedGateway(false)
+        .withBrokersCount(1)
+        .withGatewaysCount(1)
+        .withStandaloneGatewayEnvs(Collections.singletonMap(environmentVariable, "true"));
+    final ZeebeCluster cluster = builder.build();
+
+    assertThat(cluster.getGateways())
+        .hasSize(1)
+        .hasValueSatisfying(
+            new Condition<>(
+                zeebeGatewayNode ->
+                    Objects.equals(zeebeGatewayNode.getEnvMap().get(environmentVariable), "true"),
+                "has specified environment variables"));
   }
 }

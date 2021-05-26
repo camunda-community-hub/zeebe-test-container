@@ -22,6 +22,7 @@ import io.zeebe.containers.ZeebeGatewayContainer;
 import io.zeebe.containers.ZeebeGatewayNode;
 import io.zeebe.containers.ZeebeTopologyWaitStrategy;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -104,6 +105,7 @@ public class ZeebeClusterBuilder {
   private int partitionsCount = 1;
   private int replicationFactor = 1;
   private boolean useEmbeddedGateway = true;
+  private Map<String, String> gatewayEnvs = Collections.emptyMap();
 
   private final Map<String, ZeebeGatewayNode<? extends GenericContainer<?>>> gateways =
       new HashMap<>();
@@ -243,6 +245,17 @@ public class ZeebeClusterBuilder {
   }
 
   /**
+   * Sets additional environment variables for the standalone gateways in the cluster.
+   *
+   * @param envs the environment map
+   * @return this builder instance for chaining
+   */
+  public ZeebeClusterBuilder withStandaloneGatewayEnvs(final Map<String, String> envs) {
+    this.gatewayEnvs = Objects.requireNonNull(envs);
+    return this;
+  }
+
+  /**
    * Builds a new Zeebe cluster. Will create {@link #brokersCount} brokers (accessible later via
    * {@link ZeebeCluster#getBrokers()}) and {@link #gatewaysCount} standalone gateways (accessible
    * later via {@link ZeebeCluster#getGateways()}).
@@ -348,7 +361,8 @@ public class ZeebeClusterBuilder {
         .withNetworkAliases(memberId)
         .withEnv("ZEEBE_GATEWAY_CLUSTER_CLUSTERNAME", name)
         .withEnv("ZEEBE_GATEWAY_CLUSTER_HOST", gateway.getInternalHost())
-        .withEnv("ZEEBE_GATEWAY_CLUSTER_MEMBERID", memberId);
+        .withEnv("ZEEBE_GATEWAY_CLUSTER_MEMBERID", memberId)
+        .withEnv(gatewayEnvs);
 
     configureGateway(gateway);
     gateways.put(memberId, gateway);
