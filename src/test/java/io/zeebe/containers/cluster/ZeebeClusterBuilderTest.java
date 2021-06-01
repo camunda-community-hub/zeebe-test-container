@@ -24,6 +24,7 @@ import io.zeebe.containers.ZeebeGatewayNode;
 import io.zeebe.containers.ZeebeNode;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
@@ -521,9 +522,12 @@ final class ZeebeClusterBuilderTest {
     final ZeebeCluster cluster = builder.build();
 
     // then
-    final Map<String, ZeebeGatewayNode<? extends GenericContainer<?>>> gateways =
-        cluster.getGateways();
-    assertThat(gateways).hasSize(1).hasValueSatisfying(zeebeImageHasImageName(zeebeDockerImage));
+    assertThat(cluster
+      .getGateways()
+      .entrySet())
+      .as("the only gateway created has the right docker image")
+      .singleElement()
+      .satisfies(gatewayEntry -> verifyZeebeHasImageName(gatewayEntry.getValue(), zeebeDockerImage));
   }
 
   @Test
@@ -538,9 +542,12 @@ final class ZeebeClusterBuilderTest {
     final ZeebeCluster cluster = builder.build();
 
     // then
-    final Map<Integer, ZeebeBrokerNode<? extends GenericContainer<?>>> brokers =
-        cluster.getBrokers();
-    assertThat(brokers).hasSize(1).hasValueSatisfying(zeebeImageHasImageName(zeebeDockerImage));
+    assertThat(cluster
+      .getBrokers()
+      .entrySet())
+      .as("the only broker created has the right docker image")
+      .singleElement()
+      .satisfies(brokerEntry -> verifyZeebeHasImageName(brokerEntry.getValue(), zeebeDockerImage));
   }
 
   @Test
@@ -559,17 +566,24 @@ final class ZeebeClusterBuilderTest {
     final ZeebeCluster cluster = builder.build();
 
     // then
-    final Map<Integer, ZeebeBrokerNode<? extends GenericContainer<?>>> brokers =
-        cluster.getBrokers();
-    assertThat(brokers).hasSize(1).hasValueSatisfying(zeebeImageHasImageName(zeebeDockerImage));
-    final Map<String, ZeebeGatewayNode<? extends GenericContainer<?>>> gateways =
-        cluster.getGateways();
-    assertThat(gateways).hasSize(1).hasValueSatisfying(zeebeImageHasImageName(zeebeDockerImage));
+    assertThat(cluster.getBrokers().entrySet())
+      .as("the only broker created has the right docker image")
+      .singleElement()
+      .satisfies(brokerEntry -> verifyZeebeHasImageName(brokerEntry.getValue(), zeebeDockerImage));
+    assertThat(cluster.getGateways().entrySet())
+      .as("the only standalone gateway created has the right docker image")
+      .singleElement()
+      .satisfies(gatewayEntry -> verifyZeebeHasImageName(gatewayEntry.getValue(), zeebeDockerImage));
   }
 
   private Condition<ZeebeNode<? extends GenericContainer<?>>> zeebeImageHasImageName(
       final String imageName) {
     return new Condition<>(
         node -> node.getDockerImageName().equals(imageName), "Image Name Condition");
+  }
+
+  private void verifyZeebeHasImageName(final ZeebeNode<? extends GenericContainer<?>> zeebe,
+    final String imageName) {
+    assertThat(zeebe.getDockerImageName()).isEqualTo(imageName);
   }
 }
