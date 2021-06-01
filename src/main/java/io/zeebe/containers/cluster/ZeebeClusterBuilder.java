@@ -15,10 +15,11 @@
  */
 package io.zeebe.containers.cluster;
 
+import static io.zeebe.containers.ZeebeDefaults.getInstance;
+
 import io.zeebe.containers.ZeebeBrokerContainer;
 import io.zeebe.containers.ZeebeBrokerNode;
 import io.zeebe.containers.ZeebeContainer;
-import io.zeebe.containers.ZeebeDefaults;
 import io.zeebe.containers.ZeebeGatewayContainer;
 import io.zeebe.containers.ZeebeGatewayNode;
 import io.zeebe.containers.ZeebeTopologyWaitStrategy;
@@ -96,7 +97,6 @@ public class ZeebeClusterBuilder {
   private static final String BROKER_NETWORK_ALIAS_PREFIX = "zeebe-broker-";
   private static final String GATEWAY_NETWORK_ALIAS_PREFIX = "zeebe-gateway-";
   private static final String DEFAULT_CLUSTER_NAME = "zeebe-cluster";
-  private static final ZeebeDefaults ZEEBE_DEFAULTS = ZeebeDefaults.getInstance();
 
   private Network network = Network.SHARED;
   private String name = DEFAULT_CLUSTER_NAME;
@@ -107,8 +107,8 @@ public class ZeebeClusterBuilder {
   private int partitionsCount = 1;
   private int replicationFactor = 1;
   private boolean useEmbeddedGateway = true;
-  private DockerImageName gatewayImageName = ZEEBE_DEFAULTS.getDefaultDockerImage();
-  private DockerImageName brokerImageName = ZEEBE_DEFAULTS.getDefaultDockerImage();
+  private DockerImageName gatewayImageName = getInstance().getDefaultDockerImage();
+  private DockerImageName brokerImageName = getInstance().getDefaultDockerImage();
 
   private final Map<String, ZeebeGatewayNode<? extends GenericContainer<?>>> gateways =
       new HashMap<>();
@@ -279,7 +279,7 @@ public class ZeebeClusterBuilder {
    * @return this builder instance for chaining
    */
   public ZeebeClusterBuilder withImage(final DockerImageName imageName) {
-    return this.withGatewayImage(imageName).withBrokerImage(imageName);
+    return withGatewayImage(imageName).withBrokerImage(imageName);
   }
 
   /**
