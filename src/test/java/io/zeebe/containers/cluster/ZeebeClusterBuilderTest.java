@@ -25,8 +25,15 @@ import io.zeebe.containers.ZeebeNode;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.testcontainers.containers.Container;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
@@ -511,6 +518,40 @@ final class ZeebeClusterBuilderTest {
         .doesNotContainEntry("ZEEBE_BROKER_GATEWAY_ENABLE", "true");
   }
 
+  @ParameterizedTest
+  @ArgumentsSource(ConfigurationArguments.class)
+  void shouldConfigureGatewayAndBroker(
+      final Consumer<ZeebeNode<?>> nodeCfgFunction,
+      final Consumer<ZeebeBrokerNode<?>> brokerCfgFunction,
+      final Consumer<ZeebeGatewayNode<?>> gatewayCfgFunction,
+      final Condition<ZeebeBrokerNode<? extends GenericContainer<?>>> brokerCondition,
+      final Condition<ZeebeGatewayNode<? extends GenericContainer<?>>> gatewayNodeCondition) {
+    // given
+    final ZeebeClusterBuilder builder = new ZeebeClusterBuilder();
+
+    // when
+    builder
+        .withNodeCfg(nodeCfgFunction)
+        .withBrokerCfg(brokerCfgFunction)
+        .withGatewayCfg(gatewayCfgFunction)
+        .withBrokersCount(1)
+        .withGatewaysCount(1)
+        .withEmbeddedGateway(false);
+    final ZeebeCluster cluster = builder.build();
+
+    // then
+    assertThat(cluster.getGateways())
+        .as("there is only one gateway")
+        .hasSize(1)
+        .as("gatewayCondition")
+        .hasValueSatisfying(gatewayNodeCondition);
+    assertThat(cluster.getBrokers())
+        .as("there is only one broker")
+        .hasSize(1)
+        .as("brokerCondition")
+        .hasValueSatisfying(brokerCondition);
+  }
+
   @Test
   void shouldSetImageNameForGateways() {
     // given
@@ -586,5 +627,75 @@ final class ZeebeClusterBuilderTest {
   private void verifyZeebeHasImageName(
       final ZeebeNode<? extends GenericContainer<?>> zeebe, final String imageName) {
     assertThat(zeebe.getDockerImageName()).isEqualTo(imageName);
+  }
+
+  static class ConfigurationArguments implements ArgumentsProvider {
+
+    @Override
+    public Stream<? extends Arguments> provideArguments(final ExtensionContext extensionContext)
+        throws Exception {
+      final String nodeCfgKey = "nodeCfgKey";
+      final String brokerCfgKey = "brokerCfgKey";
+      final String gatewayCfgKey = "gatewayCfgKey";
+      final String envDescription = getDescription("all zeebe nodes", true, nodeCfgKey);
+      return Stream.of(
+          Arguments.of(
+              (Consumer<ZeebeNode<?>>) zeebeNode -> zeebeNode.addEnv(nodeCfgKey, ""),
+              (Consumer<ZeebeBrokerNode<?>>) zeebeBrokerNode -> {},
+              (Consumer<ZeebeGatewayNode<?>>) zeebeGatewayNode -> {},
+              new Condition<ZeebeBrokerNode<? extends GenericContainer<?>>>(
+                  broker -> broker.getEnvMap().containsKey(nodeCfgKey), envDescription),
+              new Condition<ZeebeGatewayNode<? extends GenericContainer<?>>>(
+                  gateway -> gateway.getEnvMap().containsKey(nodeCfgKey), envDescription)),
+          Arguments.of(
+              (Consumer<ZeebeNode<?>>) zeebeNode -> {},
+              (Consumer<ZeebeBrokerNode<?>>)
+                  zeebeBrokerNode -> zeebeBrokerNode.addEnv(brokerCfgKey, ""),
+              (Consumer<ZeebeGatewayNode<?>>) zeebeGatewayNode -> {},
+              new Condition<ZeebeBrokerNode<? extends GenericContainer<?>>>(
+                  broker -> broker.getEnvMap().containsKey(brokerCfgKey),
+                  getDescription("Broker", true, brokerCfgKey)),
+              new Condition<ZeebeGatewayNode<? extends GenericContainer<?>>>(
+                  gateway -> !gateway.getEnvMap().containsKey(brokerCfgKey),
+                  getDescription("Gateway", false, brokerCfgKey))),
+          Arguments.of(
+              (Consumer<ZeebeNode<?>>) zeebeNode -> {},
+              (Consumer<ZeebeBrokerNode<?>>) zeebeBrokerNode -> {},
+              (Consumer<ZeebeGatewayNode<?>>)
+                  zeebeGatewayNode -> zeebeGatewayNode.addEnv(gatewayCfgKey, ""),
+              new Condition<ZeebeBrokerNode<? extends GenericContainer<?>>>(
+                  broker -> !broker.getEnvMap().containsKey(gatewayCfgKey),
+                  getDescription("Broker", false, gatewayCfgKey)),
+              new Condition<ZeebeGatewayNode<? extends GenericContainer<?>>>(
+                  gateway -> gateway.getEnvMap().containsKey(gatewayCfgKey),
+                  getDescription("Gateway", true, gatewayCfgKey))),
+          Arguments.of(
+              (Consumer<ZeebeNode<?>>)
+                  zeebeNode -> {
+                    zeebeNode.addEnv(gatewayCfgKey, "2");
+                    zeebeNode.addEnv(brokerCfgKey, "2");
+                  },
+              (Consumer<ZeebeBrokerNode<?>>)
+                  zeebeBrokerNode -> zeebeBrokerNode.addEnv(brokerCfgKey, "1"),
+              (Consumer<ZeebeGatewayNode<?>>)
+                  zeebeGatewayNode -> zeebeGatewayNode.addEnv(gatewayCfgKey, "1"),
+              new Condition<ZeebeBrokerNode<? extends GenericContainer<?>>>(
+                  broker -> broker.getEnvMap().get(brokerCfgKey).equals("1"),
+                  "broker configuration should override node configuration"),
+              new Condition<ZeebeGatewayNode<? extends GenericContainer<?>>>(
+                  gateway -> gateway.getEnvMap().get(gatewayCfgKey).equals("1"),
+                  "gateway configuration should override node configuration")));
+    }
+
+    private String getDescription(
+        final String zeebeNodeName, final boolean isPositive, final String nodeCfgKey) {
+      final String verb;
+      if (isPositive) {
+        verb = "should";
+      } else {
+        verb = "should not";
+      }
+      return String.format("%s %s have %s variable", zeebeNodeName, verb, nodeCfgKey);
+    }
   }
 }
