@@ -33,8 +33,19 @@
     <!-- license header -->
     <license.header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</license.header>
 
-    <!-- skip checks -->
-    <skip.check>false</skip.check>
+    <!--
+      you can use the following to disable specific checks. the approach taken is to use a single
+      new property, skipChecks, which is the default value for pre-defined properties such as
+      checkstyle.skip. that way, you can use skipChecks, but you can also still use checkstyle.skip
+      if you only want to disable checkstyle
+      -->
+    <skipChecks>false</skipChecks>
+    <checkstyle.skip>${skipChecks}</checkstyle.skip>
+    <revapi.skip>${skipChecks}</revapi.skip>
+    <license.skip>${skipChecks}</license.skip>
+    <enforcer.skip>${skipChecks}</enforcer.skip>
+    <mdep.analyze.skip>${skipChecks}</mdep.analyze.skip>
+    <fmt.skip>${skipChecks}</fmt.skip>
 
     <!-- project dependencies -->
     <version.apiguardian>1.1.2</version.apiguardian>
@@ -249,7 +260,6 @@
             <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
             <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
           </sourceDirectories>
-          <skip>${skip.check}</skip>
         </configuration>
         <executions>
           <execution>
@@ -295,9 +305,6 @@
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <skip>${skip.check}</skip>
-        </configuration>
       </plugin>
 
       <!-- compatibility checks/guard -->
@@ -330,7 +337,6 @@
             </configurationFile>
           </analysisConfigurationFiles>
           <oldVersion>RELEASE</oldVersion>
-          <skip>${skip.check}</skip>
         </configuration>
       </plugin>
 
@@ -346,7 +352,7 @@
           <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
           <format>JSON</format>
           <prettyPrint>true</prettyPrint>
-          <skip>${skip.check}</skip>
+          <skip>${skipChecks}</skip>
         </configuration>
         <executions>
           <execution>
@@ -364,7 +370,8 @@
     <profile>
       <id>community-action-maven-release</id>
       <properties>
-        <skip.check>true</skip.check>
+        <skipChecks>true</skipChecks>
+        <skipTests>true</skipTests>
       </properties>
       <build>
         <plugins>
@@ -402,9 +409,8 @@
         <sonar.organization>zeebe-io</sonar.organization>
         <sonar.login>${env.SONARCLOUD_TOKEN}</sonar.login>
 
-        <!-- skip some checks -->
         <skipTests>true</skipTests>
-        <checkstyle.skip>true</checkstyle.skip>
+        <skipChecks>true</skipChecks>
       </properties>
       <build>
         <plugins>
