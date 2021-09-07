@@ -25,10 +25,12 @@ import io.zeebe.containers.ZeebeNode;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.Container;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
+import org.testcontainers.utility.DockerImageName;
 
 final class ZeebeClusterBuilderTest {
   @Test
@@ -505,5 +507,82 @@ final class ZeebeClusterBuilderTest {
     assertThat(cluster.getBrokers().get(0).getEnvMap())
         .as("the broker is not configured to enable the embedded gateway")
         .doesNotContainEntry("ZEEBE_BROKER_GATEWAY_ENABLE", "true");
+  }
+
+  @Test
+  void shouldSetImageNameForGateways() {
+    // given
+    final ZeebeClusterBuilder builder = new ZeebeClusterBuilder();
+    final String zeebeDockerImage = "camunda/zeebe:latest";
+
+    // when
+    final DockerImageName gatewayImageName = DockerImageName.parse(zeebeDockerImage);
+    builder.withGatewayImage(gatewayImageName).withGatewaysCount(1).withEmbeddedGateway(false);
+    final ZeebeCluster cluster = builder.build();
+
+    // then
+    assertThat(cluster.getGateways().entrySet())
+        .as("the only gateway created has the right docker image")
+        .singleElement()
+        .satisfies(
+            gatewayEntry -> verifyZeebeHasImageName(gatewayEntry.getValue(), zeebeDockerImage));
+  }
+
+  @Test
+  void shouldSetImageNameForBrokers() {
+    // given
+    final ZeebeClusterBuilder builder = new ZeebeClusterBuilder();
+    final String zeebeDockerImage = "camunda/zeebe:latest";
+
+    // when
+    final DockerImageName gatewayImageName = DockerImageName.parse(zeebeDockerImage);
+    builder.withBrokerImage(gatewayImageName).withBrokersCount(1);
+    final ZeebeCluster cluster = builder.build();
+
+    // then
+    assertThat(cluster.getBrokers().entrySet())
+        .as("the only broker created has the right docker image")
+        .singleElement()
+        .satisfies(
+            brokerEntry -> verifyZeebeHasImageName(brokerEntry.getValue(), zeebeDockerImage));
+  }
+
+  @Test
+  void shouldSetImageNameForGatewaysAndBrokers() {
+    // given
+    final ZeebeClusterBuilder builder = new ZeebeClusterBuilder();
+    final String zeebeDockerImage = "camunda/zeebe:latest";
+
+    // when
+    final DockerImageName gatewayImageName = DockerImageName.parse(zeebeDockerImage);
+    builder
+        .withImage(gatewayImageName)
+        .withBrokersCount(1)
+        .withGatewaysCount(1)
+        .withEmbeddedGateway(false);
+    final ZeebeCluster cluster = builder.build();
+
+    // then
+    assertThat(cluster.getBrokers().entrySet())
+        .as("the only broker created has the right docker image")
+        .singleElement()
+        .satisfies(
+            brokerEntry -> verifyZeebeHasImageName(brokerEntry.getValue(), zeebeDockerImage));
+    assertThat(cluster.getGateways().entrySet())
+        .as("the only standalone gateway created has the right docker image")
+        .singleElement()
+        .satisfies(
+            gatewayEntry -> verifyZeebeHasImageName(gatewayEntry.getValue(), zeebeDockerImage));
+  }
+
+  private Condition<ZeebeNode<? extends GenericContainer<?>>> zeebeImageHasImageName(
+      final String imageName) {
+    return new Condition<>(
+        node -> node.getDockerImageName().equals(imageName), "Image Name Condition");
+  }
+
+  private void verifyZeebeHasImageName(
+      final ZeebeNode<? extends GenericContainer<?>> zeebe, final String imageName) {
+    assertThat(zeebe.getDockerImageName()).isEqualTo(imageName);
   }
 }
