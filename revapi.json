@@ -1,86 +1,60 @@
 [
   {
-    "extension": "revapi.semver.ignore",
+    "extension": "revapi.java",
+    "configuration": {
+      "reportUsesFor": "all-differences",
+      "missing-classes": {
+        "behavior": "ignore",
+        "ignoreMissingAnnotations": true
+      },
+      "matchOverloads": false
+    }
+  },
+  {
+    "extension": "revapi.versions",
     "configuration": {
       "enabled": true,
-      "versionIncreaseAllows": {
-        "major": "breaking",
-        "minor": "nonBreaking",
-        "patch": "equivalent"
-      },
       "passThroughDifferences": [
         "java.class.nonPublicPartOfAPI"
-      ]
-    }
-  },
-  {
-    "extension": "revapi.differences",
-    "configuration": {
-      "justification": "The library is meant to extend Testcontainers, and as such will expose its types and the Docker types as well",
-      "ignore": true,
-      "differences": [
-        {
-          "code": "java.class.externalClassExposedInAPI",
-          "oldArchive": "org.testcontainers:testcontainers:jar"
+      ],
+      "versionIncreaseAllows": {
+        "major": {
+          "severity": "BREAKING"
         },
-        {
-          "code": "java.class.externalClassExposedInAPI",
-          "oldArchive": "com.github.docker-java:docker-java-core:jar"
+        "minor": {
+          "classification": {
+            "BINARY": "NON_BREAKING",
+            "SOURCE": "BREAKING",
+            "SEMANTIC": "BREAKING",
+            "OTHER": "BREAKING"
+          }
         },
-        {
-          "code": "java.method.addedToInterface"
-        },
-        {
-          "code": "java.class.externalClassExposedInAPI",
-          "oldArchive": "org.apache.commons:commons-compress:jar:1.21"
+        "patch": {
+          "classification": {
+            "BINARY": "NON_BREAKING",
+            "SOURCE": "BREAKING",
+            "SEMANTIC": "BREAKING",
+            "OTHER": "BREAKING"
+          }
         }
-      ]
-    }
-  },
-  {
-    "extension": "revapi.differences",
-    "configuration": {
-      "justification": "While we break ABI compatibility when adding new methods, it's acceptable to do so since the migration effort is quite low, and in most cases the interfaces are there to be consumed, not implemented",
-      "ignore": true,
-      "differences": [
-        {
-          "code": "java.method.addedToInterface"
-        }
-      ]
-    }
-  },
-  {
-    "extension": "revapi.differences",
-    "configuration": {
-      "differences": [
-        {
-          "ignore": true,
-          "code": "java.method.added",
-          "new": "method org.apache.commons.compress.archivers.ArchiveEntry org.apache.commons.compress.archivers.tar.TarArchiveOutputStream::createArchiveEntry(java.nio.file.Path, java.lang.String, java.nio.file.LinkOption[]) throws java.io.IOException",
-          "justification": "ADD YOUR EXPLANATION FOR THE NECESSITY OF THIS CHANGE",
-          "package": "org.apache.commons.compress.archivers.tar",
-          "classQualifiedName": "org.apache.commons.compress.archivers.tar.TarArchiveOutputStream",
-          "classSimpleName": "TarArchiveOutputStream",
-          "methodName": "createArchiveEntry",
-          "elementKind": "method",
-          "newArchive": "org.apache.commons:commons-compress:jar:1.21",
-          "newArchiveRole": "supplementary",
-          "breaksSemanticVersioning": "true"
-        }
-      ]
+      }
     }
   },
   {
     "extension": "revapi.filter",
+    "justification": "Ignore everything not included in the module itself",
     "configuration": {
-      "elements": {
-        "exclude": [
-          {
-            "matcher": "java",
-            "match": "@org.apiguardian.api.API(status != org.apiguardian.api.API.Status.STABLE) ^*;"
-          }
+      "archives": {
+        "include": [
+          "io\\.zeebe:zeebe-test-container:.*"
         ]
-      }
+      },
+      "exclude": [
+        {
+          "matcher": "java",
+          "match": "@org.apiguardian.api.API(status != org.apiguardian.api.API.Status.STABLE) ^*;"
+        }
+      ]
     }
   }
 ]
