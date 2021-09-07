@@ -29,6 +29,10 @@
         },
         {
           "code": "java.method.addedToInterface"
+        },
+        {
+          "code": "java.class.externalClassExposedInAPI",
+          "oldArchive": "org.apache.commons:commons-compress:jar:1.21"
         }
       ]
     }
@@ -41,6 +45,27 @@
       "differences": [
         {
           "code": "java.method.addedToInterface"
+        }
+      ]
+    }
+  },
+  {
+    "extension": "revapi.differences",
+    "configuration": {
+      "differences": [
+        {
+          "ignore": true,
+          "code": "java.method.added",
+          "new": "method org.apache.commons.compress.archivers.ArchiveEntry org.apache.commons.compress.archivers.tar.TarArchiveOutputStream::createArchiveEntry(java.nio.file.Path, java.lang.String, java.nio.file.LinkOption[]) throws java.io.IOException",
+          "justification": "ADD YOUR EXPLANATION FOR THE NECESSITY OF THIS CHANGE",
+          "package": "org.apache.commons.compress.archivers.tar",
+          "classQualifiedName": "org.apache.commons.compress.archivers.tar.TarArchiveOutputStream",
+          "classSimpleName": "TarArchiveOutputStream",
+          "methodName": "createArchiveEntry",
+          "elementKind": "method",
+          "newArchive": "org.apache.commons:commons-compress:jar:1.21",
+          "newArchiveRole": "supplementary",
+          "breaksSemanticVersioning": "true"
         }
       ]
     }
