@@ -112,9 +112,9 @@ public class ZeebeClusterBuilder {
   private DockerImageName gatewayImageName = getInstance().getDefaultDockerImage();
   private DockerImageName brokerImageName = getInstance().getDefaultDockerImage();
 
-  private Consumer<ZeebeNode<?>> nodeCfgFunction = cfg -> {};
-  private Consumer<ZeebeBrokerNode<?>> brokerCfgFunction = cfg -> {};
-  private Consumer<ZeebeGatewayNode<?>> gatewayCfgFunction = cfg -> {};
+  private Consumer<ZeebeNode<?>> nodeConfig = cfg -> {};
+  private Consumer<ZeebeBrokerNode<?>> brokerConfig = cfg -> {};
+  private Consumer<ZeebeGatewayNode<?>> gatewayConfig = cfg -> {};
 
   private final Map<String, ZeebeGatewayNode<? extends GenericContainer<?>>> gateways =
       new HashMap<>();
@@ -288,19 +288,20 @@ public class ZeebeClusterBuilder {
     return withGatewayImage(imageName).withBrokerImage(imageName);
   }
 
-  public ZeebeClusterBuilder withNodeCfg(final Consumer<ZeebeNode<?>> nodeCfgFunction) {
-    this.nodeCfgFunction = nodeCfgFunction;
+  public ZeebeClusterBuilder withNodeConfig(final Consumer<ZeebeNode<?>> nodeCfgFunction) {
+    this.nodeConfig = nodeCfgFunction;
     return this;
   }
 
-  public ZeebeClusterBuilder withGatewayCfg(
+  public ZeebeClusterBuilder withGatewayConfig(
       final Consumer<ZeebeGatewayNode<?>> gatewayCfgFunction) {
-    this.gatewayCfgFunction = gatewayCfgFunction;
+    this.gatewayConfig = gatewayCfgFunction;
     return this;
   }
 
-  public ZeebeClusterBuilder withBrokerCfg(final Consumer<ZeebeBrokerNode<?>> brokerCfgFunction) {
-    this.brokerCfgFunction = brokerCfgFunction;
+  public ZeebeClusterBuilder withBrokerConfig(
+      final Consumer<ZeebeBrokerNode<?>> brokerCfgFunction) {
+    this.brokerConfig = brokerCfgFunction;
     return this;
   }
 
@@ -376,8 +377,8 @@ public class ZeebeClusterBuilder {
         gateways.put(String.valueOf(i), container);
       } else {
         broker = new ZeebeBrokerContainer(brokerImageName);
-        nodeCfgFunction.accept(broker);
-        brokerCfgFunction.accept(broker);
+        nodeConfig.accept(broker);
+        brokerConfig.accept(broker);
       }
 
       configureBroker(broker, i);
@@ -428,8 +429,8 @@ public class ZeebeClusterBuilder {
                 .forBrokersCount(brokersCount)
                 .forPartitionsCount(partitionsCount)
                 .forReplicationFactor(replicationFactor));
-    nodeCfgFunction.accept(gatewayContainer);
-    gatewayCfgFunction.accept(gatewayContainer);
+    nodeConfig.accept(gatewayContainer);
+    gatewayConfig.accept(gatewayContainer);
   }
 
   private void configureBroker(final ZeebeBrokerNode<?> broker, final int index) {
@@ -446,8 +447,8 @@ public class ZeebeClusterBuilder {
             .withEnv("ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR", String.valueOf(replicationFactor))
             .withEnv("ZEEBE_BROKER_CLUSTER_PARTITIONSCOUNT", String.valueOf(partitionsCount))
             .withStartupTimeout(Duration.ofMinutes((long) brokersCount + gatewaysCount));
-    nodeCfgFunction.accept(broker);
-    brokerCfgFunction.accept(broker);
+    nodeConfig.accept(broker);
+    brokerConfig.accept(broker);
   }
 
   private void configureBrokerInitialContactPoints() {

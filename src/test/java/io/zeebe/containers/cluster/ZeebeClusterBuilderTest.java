@@ -531,9 +531,9 @@ final class ZeebeClusterBuilderTest {
 
     // when
     builder
-        .withNodeCfg(nodeCfgFunction)
-        .withBrokerCfg(brokerCfgFunction)
-        .withGatewayCfg(gatewayCfgFunction)
+        .withNodeConfig(nodeCfgFunction)
+        .withBrokerConfig(brokerCfgFunction)
+        .withGatewayConfig(gatewayCfgFunction)
         .withBrokersCount(1)
         .withGatewaysCount(1)
         .withEmbeddedGateway(false);
