@@ -289,8 +289,8 @@ public class ZeebeClusterBuilder {
   }
 
   /**
-   * Sets the configuration function that will be executed lately in the {@link #build()} method on
-   * both brokers and gateways (embedded gateways included). NOTE: this configuration has the lowest
+   * Sets the configuration function that will be executed in the {@link #build()} method on both
+   * brokers and gateways (embedded gateways included). NOTE: this configuration has the lowest
    * priority, e.g. other configurations ({@link #gatewayConfig} or {@link #brokerConfig}) will
    * override this configuration in case of conflicts.
    *
@@ -303,9 +303,9 @@ public class ZeebeClusterBuilder {
   }
 
   /**
-   * Sets the configuration function that will be executed lately in the {@link #build()} method on
-   * each gateway (including embedded gateways). NOTE: in case of conflicts with {@link #nodeConfig}
-   * this configuration will override {@link #nodeConfig}. NOTE: in case of conflicts with this
+   * Sets the configuration function that will be executed in the {@link #build()} method on each
+   * gateway (including embedded gateways). NOTE: in case of conflicts with {@link #nodeConfig} this
+   * configuration will override {@link #nodeConfig}. NOTE: in case of conflicts with this
    * configuration is an embedded gateway configuration and a broker configuration, broker
    * configuration will override this configuration.
    *
@@ -320,8 +320,8 @@ public class ZeebeClusterBuilder {
   }
 
   /**
-   * Sets the configuration function that will be executed lately in the {@link #build()} method on
-   * each broker. NOTE: in case of conflicts with {@link #nodeConfig} or {@link #gatewayConfig} this
+   * Sets the configuration function that will be executed in the {@link #build()} method on each
+   * broker. NOTE: in case of conflicts with {@link #nodeConfig} or {@link #gatewayConfig} this
    * configuration will override them.
    *
    * @param brokerCfgFunction the function that will be applied on all cluster brokers
