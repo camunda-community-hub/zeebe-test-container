@@ -527,9 +527,6 @@ final class ZeebeClusterBuilderTest {
 
     // then
     assertThat(cluster.getBrokers())
-        .as(
-            "all brokers must have %s environment variable, e.g. must be configured by function",
-            foreseeEnv)
         .allSatisfy(
             (integer, zeebeBrokerNode) ->
                 assertThat(zeebeBrokerNode.getEnvMap())
@@ -538,9 +535,6 @@ final class ZeebeClusterBuilderTest {
                         zeebeBrokerNode, foreseeEnv)
                     .containsKey(foreseeEnv));
     assertThat(cluster.getGateways())
-        .as(
-            "all gateways must not have %s environment variable, e.g. must not configured by function",
-            foreseeEnv)
         .allSatisfy(
             (s, zeebeGatewayNode) ->
                 assertThat(zeebeGatewayNode.getEnvMap())
@@ -566,9 +560,6 @@ final class ZeebeClusterBuilderTest {
 
     // then
     assertThat(cluster.getBrokers())
-        .as(
-            "all brokers must have %s environment variable, e.g. configured by function",
-            foreseeEnv)
         .allSatisfy(
             (integer, zeebeBrokerNode) ->
                 assertThat(zeebeBrokerNode.getEnvMap())
@@ -577,9 +568,6 @@ final class ZeebeClusterBuilderTest {
                         zeebeBrokerNode, foreseeEnv)
                     .containsKey(foreseeEnv));
     assertThat(cluster.getGateways())
-        .as(
-            "all gateways must have %s environment variable, e.g. configured by function",
-            foreseeEnv)
         .allSatisfy(
             (integer, zeebeGatewayNode) ->
                 assertThat(zeebeGatewayNode.getEnvMap())
@@ -605,9 +593,6 @@ final class ZeebeClusterBuilderTest {
 
     // then
     assertThat(cluster.getBrokers())
-        .as(
-            "all brokers must have %s environment variable, e.g. must be configured by function because they are have embedded gateways",
-            foreseeEnv)
         .allSatisfy(
             (integer, zeebeBrokerNode) ->
                 assertThat(zeebeBrokerNode.getEnvMap())
@@ -616,9 +601,6 @@ final class ZeebeClusterBuilderTest {
                         zeebeBrokerNode, foreseeEnv)
                     .containsKey(foreseeEnv));
     assertThat(cluster.getGateways())
-        .as(
-            "all gateways must have %s environment variable, e.g. must be configured by function",
-            foreseeEnv)
         .allSatisfy(
             (s, zeebeGatewayNode) ->
                 assertThat(zeebeGatewayNode.getEnvMap())
@@ -644,9 +626,6 @@ final class ZeebeClusterBuilderTest {
 
     // then
     assertThat(cluster.getBrokers())
-        .as(
-            "all brokers must not have %s environment variable, e.g. must not be configured by function",
-            foreseeEnv)
         .allSatisfy(
             (integer, zeebeBrokerNode) ->
                 assertThat(zeebeBrokerNode.getEnvMap())
@@ -655,9 +634,6 @@ final class ZeebeClusterBuilderTest {
                         zeebeBrokerNode, foreseeEnv)
                     .doesNotContainKey(foreseeEnv));
     assertThat(cluster.getGateways())
-        .as(
-            "all gateways must have %s environment variable, e.g. must be configured by function",
-            foreseeEnv)
         .allSatisfy(
             (s, zeebeGatewayNode) ->
                 assertThat(zeebeGatewayNode.getEnvMap())
@@ -687,9 +663,6 @@ final class ZeebeClusterBuilderTest {
 
     // then
     assertThat(cluster.getBrokers())
-        .as(
-            "all brokers must have %s environment variable with %s value, e.g. must be configured by broker function",
-            foreseeEnv, brokerValue)
         .allSatisfy(
             (integer, zeebeBrokerNode) ->
                 assertThat(zeebeBrokerNode.getEnvMap())
@@ -698,9 +671,6 @@ final class ZeebeClusterBuilderTest {
                         zeebeBrokerNode, foreseeEnv)
                     .containsEntry(foreseeEnv, brokerValue));
     assertThat(cluster.getGateways())
-        .as(
-            "all gateways must have %s environment variable with %s value, e.g. must be configured by node function",
-            foreseeEnv, nodeValue)
         .allSatisfy(
             (s, zeebeGatewayNode) ->
                 assertThat(zeebeGatewayNode.getEnvMap())
@@ -730,9 +700,6 @@ final class ZeebeClusterBuilderTest {
 
     // then
     assertThat(cluster.getBrokers())
-        .as(
-            "all brokers must have %s environment variable with %s value, e.g. must not be configured by gateway function",
-            foreseeEnv, gatewayValue)
         .allSatisfy(
             (integer, zeebeBrokerNode) ->
                 assertThat(zeebeBrokerNode.getEnvMap())
@@ -741,9 +708,6 @@ final class ZeebeClusterBuilderTest {
                         zeebeBrokerNode, foreseeEnv)
                     .containsEntry(foreseeEnv, nodeValue));
     assertThat(cluster.getGateways())
-        .as(
-            "all gateways must have %s environment variable with %s value, e.g. must be configured by gateway function",
-            foreseeEnv, nodeValue)
         .allSatisfy(
             (s, zeebeGatewayNode) ->
                 assertThat(zeebeGatewayNode.getEnvMap())
@@ -773,9 +737,6 @@ final class ZeebeClusterBuilderTest {
 
     // then
     assertThat(cluster.getBrokers())
-        .as(
-            "all brokers must have %s environment variable with %s value, e.g. must not be configured by gateway function",
-            foreseeEnv, gatewayValue)
         .allSatisfy(
             (integer, zeebeBrokerNode) ->
                 assertThat(zeebeBrokerNode.getEnvMap())
@@ -784,9 +745,6 @@ final class ZeebeClusterBuilderTest {
                         zeebeBrokerNode, foreseeEnv)
                     .containsEntry(foreseeEnv, brokerValue));
     assertThat(cluster.getGateways())
-        .as(
-            "all gateways must not have %s environment variable with %s value, e.g. must not be configured by gateway function",
-            foreseeEnv, brokerValue)
         .allSatisfy(
             (s, zeebeGatewayNode) ->
                 assertThat(zeebeGatewayNode.getEnvMap())
