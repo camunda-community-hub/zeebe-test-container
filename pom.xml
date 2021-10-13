@@ -49,7 +49,7 @@
 
     <!-- project dependencies -->
     <version.apiguardian>1.1.2</version.apiguardian>
-    <version.assertj>3.20.2</version.assertj>
+    <version.assertj>3.21.0</version.assertj>
     <version.awaitility>4.1.0</version.awaitility>
     <version.checkstyle>9.0.1</version.checkstyle>
     <version.junit-jupiter>5.7.2</version.junit-jupiter>
