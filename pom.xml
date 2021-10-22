@@ -57,7 +57,7 @@
     <version.mockito>4.0.0</version.mockito>
     <version.revapi>0.26.0</version.revapi>
     <version.slf4j>1.7.32</version.slf4j>
-    <version.testcontainers>1.16.0</version.testcontainers>
+    <version.testcontainers>1.16.2</version.testcontainers>
     <version.commons-compress>1.21</version.commons-compress>
     <version.zeebe>1.2.1</version.zeebe>
 
