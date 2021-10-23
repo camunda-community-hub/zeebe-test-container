@@ -122,7 +122,8 @@ final class ZeebeClusterBuilderTest {
     // then
     assertThatCode(builder::build)
         .as(
-            "the builder should not accept a replication factor which is greater than the number of brokers")
+            "the builder should not accept a replication factor which is greater than the number of"
+                + " brokers")
         .isInstanceOf(IllegalStateException.class);
   }
 
@@ -429,7 +430,8 @@ final class ZeebeClusterBuilderTest {
 
     assertThat(brokerZeroInitialContactPoints)
         .as(
-            "both broker 0 and broker 1 report each other as initial contact points via environment variables")
+            "both broker 0 and broker 1 report each other as initial contact points via environment"
+                + " variables")
         .isEqualTo(brokerOneInitialContactPoints)
         .containsOnlyOnce(brokers.get(0).getInternalClusterAddress())
         .containsOnlyOnce(brokers.get(1).getInternalClusterAddress());

@@ -135,7 +135,8 @@ public class ZeebeCluster implements Startable {
     // gateways), as they may end up creating multiple real containers from a single
     // GenericContainer if the containerId property isn't updated in either thread
     LOGGER.info(
-        "Starting cluster {} with {} brokers, {} gateways, {} partitions, and a replication factor of {}",
+        "Starting cluster {} with {} brokers, {} gateways, {} partitions, and a replication factor"
+            + " of {}",
         name,
         brokers.size(),
         gateways.size(),
@@ -214,7 +215,8 @@ public class ZeebeCluster implements Startable {
             .orElseThrow(
                 () ->
                     new NoSuchElementException(
-                        "Expected at least one gateway for the client to connect to, but there is none"));
+                        "Expected at least one gateway for the client to connect to, but there is"
+                            + " none"));
 
     return ZeebeClient.newClientBuilder()
         .gatewayAddress(gateway.getExternalGatewayAddress())

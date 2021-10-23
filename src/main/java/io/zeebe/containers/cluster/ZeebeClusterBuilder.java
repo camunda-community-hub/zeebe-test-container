@@ -328,13 +328,15 @@ public class ZeebeClusterBuilder {
     if (brokersCount > 0) {
       if (partitionsCount < 1) {
         throw new IllegalStateException(
-            "Expected to have at least one partition if there are any brokers, but partitionsCount was "
+            "Expected to have at least one partition if there are any brokers, but partitionsCount"
+                + " was "
                 + partitionsCount);
       }
 
       if (replicationFactor < 1) {
         throw new IllegalStateException(
-            "Expected to have replication factor at least 1 if there are any brokers, but replicationFactor was "
+            "Expected to have replication factor at least 1 if there are any brokers, but"
+                + " replicationFactor was "
                 + replicationFactor);
       }
     }
