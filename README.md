@@ -604,8 +604,9 @@ you will need to sign the [Contributor License Agreement](https://cla-assistant.
 In order to build from source, you will need to install maven 3.6+. You can find more about it on
 the [maven homepage](https://maven.apache.org/users/index.html).
 
-You will also need a JDK targeting Java 8+. We recommend installing any flavour of OpenJDK such as
-[AdoptOpenJDK](https://adoptopenjdk.net/).
+While the project targets Java 8 for compatibility purposes, for development you will need at least
+Java 11 - ideally Java 17, as that's what we use for continuous integration. We recommend installing
+any flavour of OpenJDK such as [Eclipse Temurin](https://projects.eclipse.org/projects/adoptium.temurin).
 
 Finally, you will need to [install Docker](https://docs.docker.com/get-docker/) on your local
 machine.
