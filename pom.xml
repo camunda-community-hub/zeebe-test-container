@@ -1,37 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
   <modelVersion>4.0.0</modelVersion>
-  <name>Zeebe Test Container</name>
-  <artifactId>zeebe-test-container</artifactId>
-  <packaging>jar</packaging>
-  <groupId>io.zeebe</groupId>
-  <version>3.0.1-SNAPSHOT</version>
-  <inceptionYear>2019</inceptionYear>
-  <url>https://github.com/zeebe-io/zeebe-test-container</url>
 
   <parent>
     <groupId>org.camunda</groupId>
     <artifactId>camunda-release-parent</artifactId>
     <version>3.9.1</version>
     <!-- do not remove empty tag - http://jira.codehaus.org/browse/MNG-4687 -->
-    <relativePath />
+    <relativePath/>
   </parent>
+
+  <groupId>io.zeebe</groupId>
+  <artifactId>zeebe-test-container</artifactId>
+  <version>3.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>Zeebe Test Container</name>
+  <url>https://github.com/zeebe-io/zeebe-test-container</url>
+  <inceptionYear>2019</inceptionYear>
+
+  <scm>
+    <connection>scm:git:git@github.com:camunda-community-hub/zeebe-test-container.git</connection>
+    <developerConnection>scm:git:git@github.com:camunda-community-hub/zeebe-test-container.git</developerConnection>
+    <tag>HEAD</tag>
+    <url>https://github.com/camunda-community-hub/zeebe-test-container</url>
+  </scm>
 
   <properties>
     <!-- release parent settings -->
     <version.java>1.8</version.java>
-    <nexus.snapshot.repository>
-      https://app.camunda.com/nexus/content/repositories/zeebe-io-snapshots/
-    </nexus.snapshot.repository>
-    <nexus.release.repository>https://app.camunda.com/nexus/content/repositories/zeebe-io/
-    </nexus.release.repository>
+    <nexus.snapshot.repository>https://app.camunda.com/nexus/content/repositories/zeebe-io-snapshots/</nexus.snapshot.repository>
+    <nexus.release.repository>https://app.camunda.com/nexus/content/repositories/zeebe-io/</nexus.release.repository>
 
     <!-- disable jdk8 javadoc checks on release build -->
     <additionalparam>-Xdoclint:none</additionalparam>
-
-    <!-- license header -->
-    <license.header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</license.header>
 
     <!--
       you can use the following to disable specific checks. the approach taken is to use a single
@@ -41,11 +42,11 @@
       -->
     <skipChecks>false</skipChecks>
     <checkstyle.skip>${skipChecks}</checkstyle.skip>
-    <revapi.skip>${skipChecks}</revapi.skip>
-    <license.skip>${skipChecks}</license.skip>
+    <dependency-check.skip>${skipChecks}</dependency-check.skip>
     <enforcer.skip>${skipChecks}</enforcer.skip>
     <mdep.analyze.skip>${skipChecks}</mdep.analyze.skip>
-    <fmt.skip>${skipChecks}</fmt.skip>
+    <revapi.skip>${skipChecks}</revapi.skip>
+    <spotless.check.skip>${skipChecks}</spotless.check.skip>
 
     <!-- project dependencies -->
     <version.apiguardian>1.1.2</version.apiguardian>
@@ -64,13 +65,13 @@
     <!-- plugin version -->
     <plugin.version.checkstyle>3.1.2</plugin.version.checkstyle>
     <plugin.version.enforcer>3.0.0-M2</plugin.version.enforcer>
-    <plugin.version.fmt>2.12</plugin.version.fmt>
     <plugin.version.gpg>3.0.1</plugin.version.gpg>
+    <plugin.version.jar>3.2.0</plugin.version.jar>
     <plugin.version.javadoc>3.3.1</plugin.version.javadoc>
-    <plugin.version.license>4.1</plugin.version.license>
     <plugin.version.owasp>6.4.1</plugin.version.owasp>
     <plugin.version.revapi>0.14.5</plugin.version.revapi>
     <plugin.version.sonar>3.9.0.2155</plugin.version.sonar>
+    <plugin.version.spotless>2.17.2</plugin.version.spotless>
     <plugin.version.surefire>3.0.0-M5</plugin.version.surefire>
 
     <!-- maven extensions -->
@@ -83,27 +84,32 @@
         <groupId>io.camunda</groupId>
         <artifactId>zeebe-bom</artifactId>
         <version>${version.zeebe}</version>
-        <scope>import</scope>
         <type>pom</type>
+        <scope>import</scope>
       </dependency>
 
-      <!-- We need to do this since there is a problem with
-      testcontainers 1.16.0 and this dependency:
-      https://github.com/testcontainers/testcontainers-java/issues/4384 -->
       <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-compress</artifactId>
-        <version>${version.commons-compress}</version>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${version.junit-jupiter}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>testcontainers-bom</artifactId>
+        <version>${version.testcontainers}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
 
   <dependencies>
-
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>testcontainers</artifactId>
-      <version>${version.testcontainers}</version>
     </dependency>
 
     <dependency>
@@ -143,14 +149,12 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <version>${version.junit-jupiter}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-params</artifactId>
-      <version>${version.junit-jupiter}</version>
       <scope>test</scope>
     </dependency>
 
@@ -158,7 +162,6 @@
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>${version.testcontainers}</version>
       <scope>test</scope>
     </dependency>
 
@@ -192,8 +195,44 @@
     </dependency>
   </dependencies>
 
+  <repositories>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>zeebe</id>
+      <name>Zeebe Repository</name>
+      <url>https://app.camunda.com/nexus/content/repositories/zeebe-io/</url>
+    </repository>
+
+    <repository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>zeebe-snapshots</id>
+      <name>Zeebe Snapshot Repository</name>
+      <url>https://app.camunda.com/nexus/content/repositories/zeebe-io-snapshots/</url>
+    </repository>
+  </repositories>
+
   <build>
     <plugins>
+      <!-- JAR packaging plugin -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>${plugin.version.jar}</version>
+        <configuration>
+          <useDefaultManifestFile>false</useDefaultManifestFile>
+        </configuration>
+      </plugin>
+
       <!-- fix javadoc plugin version to 3.1.0 to fix module error -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -204,31 +243,38 @@
         </configuration>
       </plugin>
 
-      <!-- LICENSE PLUGIN -->
+      <!-- Licensing and formatting -->
       <plugin>
-        <groupId>com.mycila</groupId>
-        <artifactId>license-maven-plugin</artifactId>
-        <version>${plugin.version.license}</version>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>${plugin.version.spotless}</version>
         <configuration>
-          <header>${license.header}</header>
-          <properties>
-            <owner>camunda services GmbH</owner>
-            <email>info@camunda.com</email>
-          </properties>
-          <includes>
-            <include>**/*.java</include>
-          </includes>
-          <mapping>
-            <java>SLASHSTAR_STYLE</java>
-          </mapping>
+          <ratchetFrom>origin/master</ratchetFrom>
+          <java>
+            <googleJavaFormat>
+              <version>1.11.0</version>
+              <style>GOOGLE</style>
+              <reflowLongStrings>true</reflowLongStrings>
+            </googleJavaFormat>
+            <licenseHeader>
+              <file>${project.basedir}/HEADER</file>
+            </licenseHeader>
+          </java>
+          <pom>
+            <includes>
+              <include>pom.xml</include>
+            </includes>
+            <sortPom>
+              <expandEmptyElements>false</expandEmptyElements>
+            </sortPom>
+          </pom>
         </configuration>
         <executions>
           <execution>
-            <id>add-license</id>
-            <phase>compile</phase>
             <goals>
-              <goal>format</goal>
+              <goal>apply</goal>
             </goals>
+            <phase>process-sources</phase>
           </execution>
         </executions>
       </plugin>
@@ -238,6 +284,16 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <version>${plugin.version.checkstyle}</version>
+        <configuration>
+          <configLocation>check/.checkstyle.xml</configLocation>
+          <includeTestSourceDirectory>true</includeTestSourceDirectory>
+          <encoding>UTF-8</encoding>
+          <failOnViolation>true</failOnViolation>
+          <sourceDirectories>
+            <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+            <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
+          </sourceDirectories>
+        </configuration>
         <!-- dependency on build tool to reference the checkstyle cfg -->
         <dependencies>
           <dependency>
@@ -251,25 +307,14 @@
             <version>${version.checkstyle}</version>
           </dependency>
         </dependencies>
-        <configuration>
-          <configLocation>check/.checkstyle.xml</configLocation>
-          <includeTestSourceDirectory>true</includeTestSourceDirectory>
-          <encoding>UTF-8</encoding>
-          <failOnViolation>true</failOnViolation>
-          <sourceDirectories>
-            <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
-            <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
-          </sourceDirectories>
-        </configuration>
         <executions>
           <execution>
             <id>validate-java</id>
-            <phase>validate</phase>
             <goals>
               <goal>check</goal>
             </goals>
-            <configuration>
-            </configuration>
+            <phase>validate</phase>
+            <configuration/>
           </execution>
         </executions>
       </plugin>
@@ -293,25 +338,21 @@
         </dependencies>
       </plugin>
 
-      <!-- Google code format plugin -->
-      <plugin>
-        <groupId>com.coveo</groupId>
-        <artifactId>fmt-maven-plugin</artifactId>
-        <version>${plugin.version.fmt}</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>format</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
       <!-- compatibility checks/guard -->
       <plugin>
         <groupId>org.revapi</groupId>
         <artifactId>revapi-maven-plugin</artifactId>
         <version>${plugin.version.revapi}</version>
+        <configuration>
+          <checkDependencies>false</checkDependencies>
+          <expandProperties>true</expandProperties>
+          <analysisConfigurationFiles>
+            <configurationFile>
+              <path>revapi.json</path>
+            </configurationFile>
+          </analysisConfigurationFiles>
+          <oldVersion>RELEASE</oldVersion>
+        </configuration>
         <dependencies>
           <dependency>
             <groupId>org.revapi</groupId>
@@ -321,23 +362,13 @@
         </dependencies>
         <executions>
           <execution>
-            <phase>verify</phase>
             <id>check</id>
             <goals>
               <goal>check</goal>
             </goals>
+            <phase>verify</phase>
           </execution>
         </executions>
-        <configuration>
-          <checkDependencies>true</checkDependencies>
-          <expandProperties>true</expandProperties>
-          <analysisConfigurationFiles>
-            <configurationFile>
-              <path>revapi.json</path>
-            </configurationFile>
-          </analysisConfigurationFiles>
-          <oldVersion>RELEASE</oldVersion>
-        </configuration>
       </plugin>
 
       <!-- vulnerability scanning -->
@@ -352,14 +383,13 @@
           <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
           <format>JSON</format>
           <prettyPrint>true</prettyPrint>
-          <skip>${skipChecks}</skip>
         </configuration>
         <executions>
           <execution>
-            <phase>verify</phase>
             <goals>
               <goal>check</goal>
             </goals>
+            <phase>verify</phase>
           </execution>
         </executions>
       </plugin>
@@ -379,15 +409,6 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
             <version>${plugin.version.gpg}</version>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
             <configuration>
               <!-- Prevent gpg from using pinentry programs -->
               <gpgArguments>
@@ -395,6 +416,15 @@
                 <arg>loopback</arg>
               </gpgArguments>
             </configuration>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <phase>verify</phase>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>
@@ -420,10 +450,10 @@
             <version>${plugin.version.sonar}</version>
             <executions>
               <execution>
-                <phase>verify</phase>
                 <goals>
                   <goal>sonar</goal>
                 </goals>
+                <phase>verify</phase>
               </execution>
             </executions>
           </plugin>
@@ -472,38 +502,4 @@
       </build>
     </profile>
   </profiles>
-
-  <repositories>
-    <repository>
-      <id>zeebe</id>
-      <name>Zeebe Repository</name>
-      <url>https://app.camunda.com/nexus/content/repositories/zeebe-io/</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-
-    <repository>
-      <id>zeebe-snapshots</id>
-      <name>Zeebe Snapshot Repository</name>
-      <url>https://app.camunda.com/nexus/content/repositories/zeebe-io-snapshots/</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
-
-  <scm>
-    <url>https://github.com/camunda-community-hub/zeebe-test-container</url>
-    <connection>scm:git:git@github.com:camunda-community-hub/zeebe-test-container.git</connection>
-    <developerConnection>scm:git:git@github.com:camunda-community-hub/zeebe-test-container.git
-    </developerConnection>
-    <tag>HEAD</tag>
-  </scm>
 </project>
