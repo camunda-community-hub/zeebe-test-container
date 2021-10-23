@@ -272,9 +272,9 @@
         <executions>
           <execution>
             <goals>
-              <goal>apply</goal>
+              <goal>check</goal>
             </goals>
-            <phase>process-sources</phase>
+            <phase>validate</phase>
           </execution>
         </executions>
       </plugin>
@@ -423,59 +423,6 @@
                   <goal>sign</goal>
                 </goals>
                 <phase>verify</phase>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>sonar</id>
-      <properties>
-        <!-- sonarscanner integration -->
-        <!-- sonar.login token must be passed at runtime to avoid sharing token -->
-        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.organization>zeebe-io</sonar.organization>
-        <sonar.login>${env.SONARCLOUD_TOKEN}</sonar.login>
-
-        <skipTests>true</skipTests>
-        <skipChecks>true</skipChecks>
-      </properties>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.sonarsource.scanner.maven</groupId>
-            <artifactId>sonar-maven-plugin</artifactId>
-            <version>${plugin.version.sonar}</version>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>sonar</goal>
-                </goals>
-                <phase>verify</phase>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>jdk8</id>
-      <activation>
-        <jdk>(,1.8]</jdk>
-      </activation>
-      <build>
-        <plugins>
-          <!-- disable formatting plugin on Java 8 as it's not Java 8 compatible -->
-          <plugin>
-            <groupId>com.coveo</groupId>
-            <artifactId>fmt-maven-plugin</artifactId>
-            <version>${plugin.version.fmt}</version>
-            <executions>
-              <execution>
-                <phase>none</phase>
               </execution>
             </executions>
           </plugin>

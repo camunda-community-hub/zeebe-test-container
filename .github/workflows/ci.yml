@@ -26,7 +26,7 @@ jobs:
           cache: 'maven'
       - name: Build
         id: build
-        run: mvn -B -DskipTests -Dspotless.apply.skip=true clean verify
+        run: mvn -B -DskipTests clean verify
       - name: Test
         id: test
         timeout-minutes: 20
