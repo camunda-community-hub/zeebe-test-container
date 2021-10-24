@@ -22,14 +22,17 @@ use containers for your tests, as well as general prerequisites.
   - [Broker with embedded gateway](#broker-with-embedded-gateway)
   - [Standalone broker without gateway](#standalone-broker-without-gateway)
   - [Standalone gateway](#standalone-gateway)
-  - [Cluster](#cluster)
-    - [Usage](#usage-1)
-    - [Example](#example)
   - [Configuring your container](#configuring-your-container)
   - [Examples](#examples)
   - [Continuous Integration](#continuous-integration)
-- [Tips](#tips)
+- [Experimental features](#experimental-features)
+  - [Cluster](#cluster)
+    - [Usage](#usage-1)
+    - [Examples](#examples-1)
   - [Debugging](#debugging)
+  - [Volumes and data](#volumes-and-data)
+  - [Extracting data](#extracting-data)
+- [Tips](#tips)
   - [Tailing your container's logs during development](#tailing-your-containers-logs-during-development)
   - [Configuring GenericContainer specific properties with a Zeebe*Node interface](#configuring-genericcontainer-specific-properties-with-a-zeebenode-interface)
   - [Advanced Docker usage via the DockerClient](#advanced-docker-usage-via-the-dockerclient)
@@ -58,7 +61,7 @@ Version 1.x and 2.x is compatible with the following Zeebe versions:
 
 Version 3.x is compatible with the following Zeebe versions:
 
-- 1.0
+- 1.x
 
 ## Installation
 
@@ -79,9 +82,9 @@ testImplementation 'io.zeebe:zeebe-test-container:3.0.0'
 
 ### Requirements
 
-Zeebe Test Container is built for Java 8+, and will probably not work on lower Java versions.
+Zeebe Test Container is built for Java 8+, and will not work on lower Java versions.
 
-Additionally, you will need to comply to all of the Testcontainers requirements, as defined
+Additionally, you will need to comply with all the Testcontainers requirements, as defined
 [here](https://www.testcontainers.org/#prerequisites).
 
 ## Compatibility guarantees
@@ -261,9 +264,12 @@ testing purposes should be enough.
 The container is considered started if and only if:
 
 1. The monitoring, command, cluster, and gateway ports are open and accepting connections (read more
-   about the ports [here](https://docs.zeebe.io/operations/network-ports.html)).
+   about the
+   ports [here](https://docs.camunda.io/docs/components/zeebe/deployment-guide/operations/network-ports/))
+   .
 1. The broker ready check returns a 204 (see more about this
-   check [here](https://docs.zeebe.io/operations/health.html#ready-check)).
+   check [here](https://docs.camunda.io/docs/components/zeebe/deployment-guide/operations/health/#ready-check))
+   .
 1. The gateway topology is considered complete.
 
 > A topology is considered complete if there is a leader for all partitions.
@@ -280,9 +286,12 @@ typically be combined with a `ZeebeGatewayContainer` or a `ZeebeContainer`.
 The container is considered started if and only if:
 
 1. The monitoring, command, and cluster ports are open and accepting connections (read more about
-   the ports [here](https://docs.zeebe.io/operations/network-ports.html)).
+   the
+   ports [here](https://docs.camunda.io/docs/components/zeebe/deployment-guide/operations/network-ports/))
+   .
 1. The broker ready check returns a 204 (see more about this
-   check [here](https://docs.zeebe.io/operations/health.html#ready-check)).
+   check [here](https://docs.camunda.io/docs/components/zeebe/deployment-guide/operations/health/#ready-check))
+   .
 
 Once started, the container is ready to accept commands via the command port; you should therefore
 link a gateway to it if you wish to use it.
@@ -298,7 +307,8 @@ you enable monitoring, remember to expose the port as well via
 The container is considered started if and only if:
 
 1. The cluster and gateway ports are open and accepting connections (read more about the
-   ports [here](https://docs.zeebe.io/operations/network-ports.html)).
+   ports [here](https://docs.camunda.io/docs/components/zeebe/deployment-guide/operations/network-ports/))
+   .
 1. The gateway topology is considered complete.
 
 > A topology is considered complete if there is a leader for all partitions.
@@ -306,90 +316,13 @@ The container is considered started if and only if:
 Once started, the container is ready to accept commands, and a client can connect to it by setting
 its `gatewayAddress` to `ZeebeContainer#getExternalGatewayAddress()`.
 
-## Cluster
-
-> NOTE: the cluster API is currently an experimental API. You're encouraged to use it and give
-> feedback, as this is how we can validate it. Keep in mind however that it is subject to change in
-> the future.
-
-A typical production Zeebe deployment will be a cluster of nodes, some brokers, and possibly some
-standalone gateways. It can be useful to test against such deployments for acceptance or E2E tests.
-
-While it's not too hard to manually link several containers, it can become tedious and error prone
-if you want to test many different configurations. The cluster API provides you with an easy way to
-programmatically build Zeebe deployments while minimizing the surface of configuration errors.
-
-> NOTE: if you have a static deployment that you don't need to change programmatically per test,
-> then you might want to consider setting up a static Zeebe cluster in your CI pipeline (either via
-> Helm or docker-compose), or even using Testcontainer's
-> [docker-compose](https://www.testcontainers.org/modules/docker_compose/) feature.
-
-### Usage
-
-The main entry point is the `ZeebeClusterBuilder`, which can be instantiated via
-`ZeebeCluster#builder()`. The builder can be used to configure the topology of your cluster. You can
-configure the following:
-
-- the number of brokers in the cluster (by default 1)
-- whether or not brokers should be using the embedded gateway (by default true)
-- the number of standalone gateways in the cluster (by default 0)
-- the number of partitions in the cluster (by default 1)
-- the replication factor of each partition (by default 1)
-- the network the containers should use (by default `Network#SHARED`)
-
-Container instances (e.g. `ZeebeBrokerContainer` or `ZeebeContainer`) are only instantiated and
-configured once you call `#build()`. At this point, your cluster is configured in a valid way, but
-isn't started yet - that is, no real Docker containers have been created/started.
-
-Once your cluster is built, you can access its brokers and gateways via `ZeebeCluster#getBrokers`
-and `ZeebeCluster#getGateways`. This allows you to further configure each container as you wish
-before actually starting the cluster. For example, if you want to create a large cluster with many
-brokers and need to increase the startup time:
-
-```java
-import io.zeebe.containers.cluster.ZeebeCluster;
-import java.util.concurrent.TimeUnit;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
-
-class ZeebeHugeClusterTest {
-
-  private final ZeebeCluster cluster =
-    ZeebeCluster.builder()
-      .withEmbeddedGateway(false)
-      .withGatewaysCount(3)
-      .withBrokersCount(6)
-      .withPartitionsCount(6)
-      .withReplicationFactor(3)
-      .build();
-
-  @AfterEach
-  void tearDown() {
-    cluster.stop();
-  }
-
-  @Test
-  @Timeout(value = 30, unit = TimeUnit.MINUTES)
-  void shouldStartCluster() {
-    // given
-    // configure each container to have a high start up time as they get started in parallel
-    cluster.getBrokers().values()
-      .forEach(broker -> broker.self().withStartupTimeout(Duration.ofMinutes(5)));
-    cluster.getGateways().values()
-      .forEach(gateway -> gateway.self().withStartupTimeout(Duration.ofMinutes(5)));
-    cluster.start();
-
-    // test more things
-  }
-}
-```
-
-### Example
+### Examples
 
 Here is a short example on how to set up a cluster for testing with junit5.
 
 ```java
+package com.acme.zeebe;
+
 import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.api.response.BrokerInfo;
 import io.camunda.zeebe.client.api.response.Topology;
@@ -455,7 +388,8 @@ package.
 
 Configuring your Zeebe container of choice is done exactly as you normally would - via environment
 variables or via configuration file. You can find out more about it on the
-[Zeebe documentation website](https://docs.zeebe.io/operations/configuration.html).
+[Zeebe documentation website](https://docs.camunda.io/docs/components/zeebe/deployment-guide/configuration/configuration/)
+.
 
 > Zeebe 0.23.x and upwards use Spring Boot for configuration - refer to their documentation on how
 > environment variables are mapped to configuration settings. You can read more about this
@@ -479,7 +413,102 @@ If you wish to use this with your continous integration pipeline (e.g. Jenkins, 
 [Testcontainers](https://www.testcontainers.org/supported_docker_environment/) has a section
 explaining how to use it, how volumes can be shared, etc.
 
-# Tips
+# Experimental features
+
+There are currently several experimental features across the project. As described in the
+compatibility guarantees, we only guarantee backwards compatibility for stable APIs (marked by the
+annotation `@API(status = Status.STABLE)`). Typically, you shouldn't be using anything else.
+However, there are some features which already provide value, but for which the correct API is
+unclear; these are marked with `@API(status = Status.EXPERIMENTAL)`. These may be changed, or
+dropped depending on their usefulness.
+
+> NOTE: you should never use anything marked as `@API(status = Status.INTERNAL)`. These are there
+> purely for internal purposes, and cannot be relied on at all.
+
+## Cluster
+
+> NOTE: the cluster API is currently an experimental API. You're encouraged to use it and give
+> feedback, as this is how we can validate it. Keep in mind however that it is subject to change in
+> the future.
+
+A typical production Zeebe deployment will be a cluster of nodes, some brokers, and possibly some
+standalone gateways. It can be useful to test against such deployments for acceptance or E2E tests.
+
+While it's not too hard to manually link several containers, it can become tedious and error prone
+if you want to test many different configurations. The cluster API provides you with an easy way to
+programmatically build Zeebe deployments while minimizing the surface of configuration errors.
+
+> NOTE: if you have a static deployment that you don't need to change programmatically per test,
+> then you might want to consider setting up a static Zeebe cluster in your CI pipeline (either via
+> Helm or docker-compose), or even using Testcontainer's
+> [docker-compose](https://www.testcontainers.org/modules/docker_compose/) feature.
+
+### Usage
+
+The main entry point is the `ZeebeClusterBuilder`, which can be instantiated via
+`ZeebeCluster#builder()`. The builder can be used to configure the topology of your cluster. You can
+configure the following:
+
+- the number of brokers in the cluster (by default 1)
+- whether brokers should be using the embedded gateway (by default true)
+- the number of standalone gateways in the cluster (by default 0)
+- the number of partitions in the cluster (by default 1)
+- the replication factor of each partition (by default 1)
+- the network the containers should use (by default `Network#SHARED`)
+
+Container instances (e.g. `ZeebeBrokerContainer` or `ZeebeContainer`) are only instantiated and
+configured once you call `#build()`. At this point, your cluster is configured in a valid way, but
+isn't started yet - that is, no real Docker containers have been created/started.
+
+Once your cluster is built, you can access its brokers and gateways via `ZeebeCluster#getBrokers`
+and `ZeebeCluster#getGateways`. This allows you to further configure each container as you wish
+before actually starting the cluster.
+
+### Example
+
+For example, if you want to create a large cluster with many brokers and need to increase the
+startup time:
+
+```java
+package com.acme.zeebe;
+
+import io.zeebe.containers.cluster.ZeebeCluster;
+import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+
+class ZeebeHugeClusterTest {
+
+  private final ZeebeCluster cluster =
+    ZeebeCluster.builder()
+      .withEmbeddedGateway(false)
+      .withGatewaysCount(3)
+      .withBrokersCount(6)
+      .withPartitionsCount(6)
+      .withReplicationFactor(3)
+      .build();
+
+  @AfterEach
+  void tearDown() {
+    cluster.stop();
+  }
+
+  @Test
+  @Timeout(value = 30, unit = TimeUnit.MINUTES)
+  void shouldStartCluster() {
+    // given
+    // configure each container to have a high start up time as they get started in parallel
+    cluster.getBrokers().values()
+      .forEach(broker -> broker.self().withStartupTimeout(Duration.ofMinutes(5)));
+    cluster.getGateways().values()
+      .forEach(gateway -> gateway.self().withStartupTimeout(Duration.ofMinutes(5)));
+    cluster.start();
+
+    // test more things
+  }
+}
+```
 
 ## Debugging
 
@@ -545,6 +574,151 @@ You can also configure the port of the debug server, or even configure the start
 debugger to connect by using `RemoteDebugger#configure(GenericContainer<?>, int, boolean)`. See the
 Javadoc for more.
 
+## Volumes and data
+
+Zeebe brokers store all their data under a configurable data directory (default
+to `/usr/local/zeebe/data`). By default, when you start a container, this data is ephemeral and will
+be deleted when the container is removed.
+
+If you want to keep the data around, there's a few ways you can do so. One option is to use a folder
+on the host machine, and mount it as the data directory. Here's an example:
+
+```java
+package com.acme.zeebe;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import io.zeebe.containers.ZeebeBrokerContainer;
+import io.zeebe.containers.ZeebeHostData;
+import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+
+final class HostDataExampleTest {
+
+  @Test
+  @Timeout(value = 5, unit = TimeUnit.MINUTES)
+  void shouldSaveDataOnTheHost(@TempDir final Path tempDir) {
+    // given
+    final ZeebeHostData data = new ZeebeHostData(tempDir.toString());
+    try (final ZeebeBrokerContainer container = new ZeebeBrokerContainer().withZeebeData(data)) {
+      // when
+      container.start();
+    }
+
+    // then
+    assertThat(tempDir).isNotEmptyDirectory();
+  }
+}
+```
+
+This will have Zeebe write its data directly to a directory on your host machine. Note that the
+permissions of the written files will be assigned to the user the container runs in. This means if
+the broker process in the container runs as root, then the files written will belong to root, and
+your user may not be able to run it. To circumvent this, you will need to run your container as your
+user as well. You can do so by modifying the create command passing the correct user to the host
+config, e.g. `container.withCreateContainerCmdModifier(cmd -> cmd.withUser("1000:0"))`.
+
+> NOTE: this may or may not work on Windows. I have no access to a Windows machine, so I can't
+> really say how permissions should look like for a Windows machine. It's recommended instead to
+> use volumes, and extract the data from it if you need.
+
+On the other hand, you can also use a Docker volume for this. The volume is reusable across multiple
+runs, and can also be mounted on different containers. Here's an example:
+
+```java
+package com.acme.zeebe;
+
+import static org.assertj.core.api.Assertions.assertThatCode;
+
+import io.zeebe.containers.ZeebeBrokerContainer;
+import io.zeebe.containers.ZeebeVolume;
+import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+
+final class VolumeExampleTest {
+
+  @Test
+  @Timeout(value = 5, unit = TimeUnit.MINUTES)
+  void shouldUseVolume() {
+    // given
+    final ZeebeVolume volume = ZeebeVolume.newVolume();
+    try (final ZeebeContainer container = new ZeebeContainer().withZeebeData(volume)) {
+      // when
+      container.start();
+      container.stop();
+
+      // then
+      assertThatCode(() -> container.start()).doesNotThrowExceptions();
+    }
+  }
+}
+```
+
+You can see a more complete
+example [here](/src/test/java/io/zeebe/containers/examples/ReusableVolumeExampleTest.java).
+
+## Extracting data
+
+At times, you may want to extract data from a running container, or from a volume. This can happen
+if you want to run a broker locally based on test data for debugging. It can also be used to
+generate Zeebe data which can be reused in further test as a starting point to avoid always
+regenerating that data.
+
+There are two main interfaces for this. If you want to extract the data from a running container,
+you can directly
+use [ContainerArchive](/src/main/java/io/zeebe/containers/archive/ContainerArchive.java). This
+represents a reference to a zipped, TAR file on a given container, which can be extracted to a local
+path.
+
+Here's an example which will extract Zeebe's default data directory to `/tmp/zeebe`. This will
+result in a copy of the Zeebe data directory at `/tmp/zeebe/usr/local/zeebe/data`.
+
+```java
+package com.acme.zeebe;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import io.zeebe.containers.ZeebeBrokerContainer;
+import io.zeebe.containers.archive.ContainerArchive;
+import java.io.IOException;
+import java.nio.file.Path;
+import org.junit.jupiter.api.Test;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+@Testcontainers
+final class ExtractDataLiveExampleTest {
+
+  @Container
+  private final ZeebeBrokerContainer container = new ZeebeBrokerContainer();
+
+  @Test
+  void shouldExtractData() throws IOException {
+    // given
+    final Path destination = Paths.get("/tmp/zeebe");
+    final ContainerArchive archive = ContainerArchive.builder().withContainer(container).build();
+
+    // when
+    archive.extract(destination);
+
+    // then
+    assertThat(destination).isNotEmptyDirectory();
+    assertThat(destination.resolve("usr/local/zeebe/data")).isNotEmptyDirectory();
+  }
+}
+```
+
+> NOTE: if all you wanted was to download the data, you could simply use
+> `ContainerArchive#transferTo(Path)`. This will download the zipped archive to the given path as
+> is.
+
+You can find more examples for this feature
+under [examples/archive](/src/test/java/io/zeebe/containers/examples/archive).
+
+# Tips
+
 ## Tailing your container's logs during development
 
 As containers are somewhat opaque by nature (though Testcontainers already does a great job of
@@ -596,6 +770,8 @@ configure it in ways that are only available to `GenericContainer` instances. Yo
 For example:
 
 ```java
+package com.acme.zeebe;
+
 import io.zeebe.containers.cluster.ZeebeCluster;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;
@@ -671,7 +847,8 @@ the [maven homepage](https://maven.apache.org/users/index.html).
 
 While the project targets Java 8 for compatibility purposes, for development you will need at least
 Java 11 - ideally Java 17, as that's what we use for continuous integration. We recommend installing
-any flavour of OpenJDK such as [Eclipse Temurin](https://projects.eclipse.org/projects/adoptium.temurin).
+any flavour of OpenJDK such
+as [Eclipse Temurin](https://projects.eclipse.org/projects/adoptium.temurin).
 
 Finally, you will need to [install Docker](https://docs.docker.com/get-docker/) on your local
 machine.
@@ -692,6 +869,16 @@ Should you wish to only build without running the tests, you can run:
 
 ```shell
 mvn clean package
+```
+
+## Code style
+
+The project uses Spotless to apply consistent formatting and licensing to all project files. By
+default, the build only performs the required checks. If you wish to auto format/license your code,
+run:
+
+```shell
+mvn spotless:apply
 ```
 
 ## Backwards compatibility
@@ -743,7 +930,8 @@ To work on an issue, follow the following steps:
 
 Commit messages use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary)
 format, with a slight twist. See the
-[Zeebe commit guidelines for more](https://github.com/camunda-cloud/zeebe/blob/develop/CONTRIBUTING.md#commit-message-guidelines).
+[Zeebe commit guidelines for more](https://github.com/camunda-cloud/zeebe/blob/develop/CONTRIBUTING.md#commit-message-guidelines)
+.
 
 ## Contributor License Agreement
 

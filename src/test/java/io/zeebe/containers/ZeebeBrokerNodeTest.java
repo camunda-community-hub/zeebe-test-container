@@ -24,6 +24,7 @@ import io.camunda.zeebe.client.api.response.ProcessInstanceEvent;
 import io.camunda.zeebe.model.bpmn.Bpmn;
 import io.camunda.zeebe.model.bpmn.BpmnModelInstance;
 import io.camunda.zeebe.test.util.asserts.TopologyAssert;
+import io.zeebe.containers.util.TestUtils;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;

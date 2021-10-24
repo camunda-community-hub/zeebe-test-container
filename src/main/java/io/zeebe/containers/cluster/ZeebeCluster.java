@@ -15,7 +15,6 @@
  */
 package io.zeebe.containers.cluster;
 
-import com.google.common.collect.Streams;
 import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.ZeebeClientBuilder;
 import io.zeebe.containers.ZeebeBrokerNode;
@@ -232,6 +231,6 @@ public class ZeebeCluster implements Startable {
   }
 
   private Stream<GenericContainer<? extends GenericContainer<?>>> getClusterContainers() {
-    return Streams.concat(getBrokerContainers(), getGatewayContainers()).distinct();
+    return Stream.concat(getBrokerContainers(), getGatewayContainers()).distinct();
   }
 }

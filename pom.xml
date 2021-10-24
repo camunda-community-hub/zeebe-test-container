@@ -49,10 +49,14 @@
     <spotless.check.skip>${skipChecks}</spotless.check.skip>
 
     <!-- project dependencies -->
+    <version.agrona>1.12.0</version.agrona>
     <version.apiguardian>1.1.2</version.apiguardian>
     <version.assertj>3.21.0</version.assertj>
     <version.awaitility>4.1.1</version.awaitility>
     <version.checkstyle>9.0.1</version.checkstyle>
+    <version.compress>1.21</version.compress>
+    <version.docker-java>3.2.12</version.docker-java>
+    <version.duct-tape>1.0.8</version.duct-tape>
     <version.junit-jupiter>5.8.1</version.junit-jupiter>
     <version.junit-surefire-provider>1.3.2</version.junit-surefire-provider>
     <version.mockito>4.0.0</version.mockito>
@@ -64,11 +68,11 @@
 
     <!-- plugin version -->
     <plugin.version.checkstyle>3.1.2</plugin.version.checkstyle>
+    <plugin.version.dependency>3.2.0</plugin.version.dependency>
     <plugin.version.enforcer>3.0.0-M2</plugin.version.enforcer>
     <plugin.version.gpg>3.0.1</plugin.version.gpg>
     <plugin.version.jar>3.2.0</plugin.version.jar>
     <plugin.version.javadoc>3.3.1</plugin.version.javadoc>
-    <plugin.version.owasp>6.4.1</plugin.version.owasp>
     <plugin.version.revapi>0.14.5</plugin.version.revapi>
     <plugin.version.sonar>3.9.0.2155</plugin.version.sonar>
     <plugin.version.spotless>2.17.3</plugin.version.spotless>
@@ -130,6 +134,18 @@
       <scope>provided</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.agrona</groupId>
+      <artifactId>agrona</artifactId>
+      <version>${version.agrona}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-compress</artifactId>
+      <version>${version.compress}</version>
+    </dependency>
+
     <!-- mocking -->
     <dependency>
       <groupId>org.mockito</groupId>
@@ -170,6 +186,19 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
       <version>${version.slf4j}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Zeebe libraries for testing -->
+    <dependency>
+      <groupId>io.camunda</groupId>
+      <artifactId>zeebe-bpmn-model</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.camunda</groupId>
+      <artifactId>zeebe-gateway-protocol-impl</artifactId>
       <scope>test</scope>
     </dependency>
 
@@ -278,7 +307,7 @@
         </executions>
       </plugin>
 
-      <!-- CHECKSTYLE -->
+      <!-- Linting -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
@@ -370,25 +399,22 @@
         </executions>
       </plugin>
 
-      <!-- vulnerability scanning -->
+      <!-- dependency rules enforcement -->
       <plugin>
-        <groupId>org.owasp</groupId>
-        <artifactId>dependency-check-maven</artifactId>
-        <version>${plugin.version.owasp}</version>
-        <configuration>
-          <skipProvidedScope>true</skipProvidedScope>
-          <skipRuntimeScope>true</skipRuntimeScope>
-          <failBuildOnCVSS>7</failBuildOnCVSS>
-          <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
-          <format>JSON</format>
-          <prettyPrint>true</prettyPrint>
-        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>${plugin.version.enforcer}</version>
         <executions>
           <execution>
+            <id>enforce-unique-dependencies</id>
             <goals>
-              <goal>check</goal>
+              <goal>enforce</goal>
             </goals>
-            <phase>verify</phase>
+            <configuration>
+              <rules>
+                <banDuplicatePomDependencyVersions/>
+              </rules>
+            </configuration>
           </execution>
         </executions>
       </plugin>
