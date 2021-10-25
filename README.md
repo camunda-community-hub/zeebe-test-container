@@ -29,6 +29,7 @@ use containers for your tests, as well as general prerequisites.
   - [Examples](#examples)
   - [Continuous Integration](#continuous-integration)
 - [Tips](#tips)
+  - [Debugging](#debugging)
   - [Tailing your container's logs during development](#tailing-your-containers-logs-during-development)
   - [Configuring GenericContainer specific properties with a Zeebe*Node interface](#configuring-genericcontainer-specific-properties-with-a-zeebenode-interface)
   - [Advanced Docker usage via the DockerClient](#advanced-docker-usage-via-the-dockerclient)
@@ -479,6 +480,70 @@ If you wish to use this with your continous integration pipeline (e.g. Jenkins, 
 explaining how to use it, how volumes can be shared, etc.
 
 # Tips
+
+## Debugging
+
+There might be cases where you want to debug a container you just started in one of your tests. You
+can use the [RemoteDebugger](/src/main/java/io/zeebe/containers/util/RemoteDebugger.java) utility
+for this. By default, it will start your container and attach a debugging agent to it on port 5005.
+The container startup is then suspended until a debugger attaches to it.
+
+> NOTE: since the startup is suspended until a debugger connects to it, it's possible for a the
+> startup strategy to time out if no debugger connects to it.
+
+You can use it with any container as:
+
+```java
+package com.acme.zeebe;
+
+import io.zeebe.containers.ZeebeContainer;
+import io.zeebe.containers.util.RemoteDebugger;
+import org.junit.jupiter.api.Test;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+@Testcontainers
+public class MyFeatureTest {
+
+  @Container
+  private final ZeebeContainer zeebeContainer = RemoteDebugger.configure(new ZeebeContainer());
+
+  @Test
+  void shouldTestProperty() {
+    // test...
+  }
+}
+```
+
+Note that `RemoteDebugger#configure(GenericContainer<?>)` returns the same container, so you can use
+the return value to chain more configuration around your container.
+
+```java
+package com.acme.zeebe;
+
+import io.zeebe.containers.ZeebeContainer;
+import io.zeebe.containers.util.RemoteDebugger;
+import org.junit.jupiter.api.Test;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+@Testcontainers
+public class MyFeatureTest {
+
+  @Container
+  private final ZeebeContainer zeebeContainer = RemoteDebugger.configure(new ZeebeContainer())
+    .withEnv("ZEEBE_BROKER_NETWORK_HOST", "0.0.0.0");
+
+  @Test
+  void shouldTestProperty() {
+    // test...
+  }
+}
+```
+
+You can also configure the port of the debug server, or even configure the startup to not wait for a
+debugger to connect by using `RemoteDebugger#configure(GenericContainer<?>, int, boolean)`. See the
+Javadoc for more.
 
 ## Tailing your container's logs during development
 
