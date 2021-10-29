@@ -29,6 +29,7 @@ use containers for your tests, as well as general prerequisites.
   - [Cluster](#cluster)
     - [Usage](#usage-1)
     - [Examples](#examples-1)
+    - [Cluster startup time](#cluster-startup-time)
   - [Debugging](#debugging)
   - [Volumes and data](#volumes-and-data)
   - [Extracting data](#extracting-data)
@@ -316,74 +317,6 @@ The container is considered started if and only if:
 Once started, the container is ready to accept commands, and a client can connect to it by setting
 its `gatewayAddress` to `ZeebeContainer#getExternalGatewayAddress()`.
 
-### Examples
-
-Here is a short example on how to set up a cluster for testing with junit5.
-
-```java
-package com.acme.zeebe;
-
-import io.camunda.zeebe.client.ZeebeClient;
-import io.camunda.zeebe.client.api.response.BrokerInfo;
-import io.camunda.zeebe.client.api.response.Topology;
-import io.zeebe.containers.cluster.ZeebeCluster;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
-
-/**
- * Showcases how you can create a test with a cluster of two brokers and one standalone gateway.
- * Configuration is kept to minimum, as the goal here is only to showcase how to connect the
- * different nodes together.
- */
-class ZeebeClusterWithGatewayExampleTest {
-
-  private final ZeebeCluster cluster =
-    ZeebeCluster.builder()
-      .withEmbeddedGateway(false)
-      .withGatewaysCount(1)
-      .withBrokersCount(2)
-      .withPartitionsCount(2)
-      .withReplicationFactor(1)
-      .build();
-
-  @AfterEach
-  void tearDown() {
-    cluster.stop();
-  }
-
-  @Test
-  @Timeout(value = 15, unit = TimeUnit.MINUTES)
-  void shouldStartCluster() {
-    // given
-    cluster.start();
-
-    // when
-    final Topology topology;
-    try (final ZeebeClient client = cluster.newClientBuilder().build()) {
-      topology = client.newTopologyRequest().send().join(5, TimeUnit.SECONDS);
-    }
-
-    // then
-    final List<BrokerInfo> brokers = topology.getBrokers();
-    Assertions.assertThat(topology.getClusterSize()).isEqualTo(3);
-    Assertions.assertThat(brokers)
-      .hasSize(2)
-      .extracting(BrokerInfo::getAddress)
-      .containsExactlyInAnyOrder(
-        cluster.getBrokers().get(0).getInternalCommandAddress(),
-        cluster.getBrokers().get(1).getInternalCommandAddress());
-  }
-}
-```
-
-You can find more examples by looking at the
-[test/java/io/zeebe/containers/examples/cluster](/src/test/java/io/zeebe/containers/examples/cluster)
-package.
-
 ## Configuring your container
 
 Configuring your Zeebe container of choice is done exactly as you normally would - via environment
@@ -464,9 +397,77 @@ Once your cluster is built, you can access its brokers and gateways via `ZeebeCl
 and `ZeebeCluster#getGateways`. This allows you to further configure each container as you wish
 before actually starting the cluster.
 
-### Example
+### Examples
 
-For example, if you want to create a large cluster with many brokers and need to increase the
+Here is a short example on how to set up a cluster for testing with junit5.
+
+```java
+package com.acme.zeebe;
+
+import io.camunda.zeebe.client.ZeebeClient;
+import io.camunda.zeebe.client.api.response.BrokerInfo;
+import io.camunda.zeebe.client.api.response.Topology;
+import io.zeebe.containers.cluster.ZeebeCluster;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+
+/**
+ * Showcases how you can create a test with a cluster of two brokers and one standalone gateway.
+ * Configuration is kept to minimum, as the goal here is only to showcase how to connect the
+ * different nodes together.
+ */
+class ZeebeClusterWithGatewayExampleTest {
+
+  private final ZeebeCluster cluster =
+    ZeebeCluster.builder()
+      .withEmbeddedGateway(false)
+      .withGatewaysCount(1)
+      .withBrokersCount(2)
+      .withPartitionsCount(2)
+      .withReplicationFactor(1)
+      .build();
+
+  @AfterEach
+  void tearDown() {
+    cluster.stop();
+  }
+
+  @Test
+  @Timeout(value = 15, unit = TimeUnit.MINUTES)
+  void shouldStartCluster() {
+    // given
+    cluster.start();
+
+    // when
+    final Topology topology;
+    try (final ZeebeClient client = cluster.newClientBuilder().build()) {
+      topology = client.newTopologyRequest().send().join(5, TimeUnit.SECONDS);
+    }
+
+    // then
+    final List<BrokerInfo> brokers = topology.getBrokers();
+    Assertions.assertThat(topology.getClusterSize()).isEqualTo(3);
+    Assertions.assertThat(brokers)
+      .hasSize(2)
+      .extracting(BrokerInfo::getAddress)
+      .containsExactlyInAnyOrder(
+        cluster.getBrokers().get(0).getInternalCommandAddress(),
+        cluster.getBrokers().get(1).getInternalCommandAddress());
+  }
+}
+```
+
+You can find more examples by looking at the
+[test/java/io/zeebe/containers/examples/cluster](/src/test/java/io/zeebe/containers/examples/cluster)
+package.
+
+### Cluster startup time
+
+There are some caveat as well. For example, if you want to create a large cluster with many brokers and need to increase the
 startup time:
 
 ```java
