@@ -21,6 +21,7 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse.Mount;
 import com.github.dockerjava.api.model.Volume;
+import io.zeebe.containers.util.TestUtils;
 import java.nio.file.Path;
 import java.util.Objects;
 import org.junit.jupiter.api.Test;

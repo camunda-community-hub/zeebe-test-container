@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.zeebe.containers;
+package io.zeebe.containers.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 
-final class TestUtils {
+public final class TestUtils {
   private TestUtils() {}
 
   /**
@@ -32,7 +32,7 @@ final class TestUtils {
    *
    * @return the current uid and gid as a string
    */
-  static String getRunAsUser() {
+  public static String getRunAsUser() {
     return getUid() + ":" + getGid();
   }
 
@@ -41,7 +41,7 @@ final class TestUtils {
    *
    * @return the current Unix group ID
    */
-  static String getGid() {
+  public static String getGid() {
     return execCommand("id -g");
   }
 
@@ -50,7 +50,7 @@ final class TestUtils {
    *
    * @return the current Unix user ID
    */
-  static String getUid() {
+  public static String getUid() {
     return execCommand("id -u");
   }
 

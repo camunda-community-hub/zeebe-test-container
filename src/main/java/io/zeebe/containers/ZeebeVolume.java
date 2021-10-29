@@ -25,6 +25,11 @@ import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.SELContext;
 import com.github.dockerjava.api.model.Volume;
+import io.zeebe.containers.archive.ContainerArchive;
+import io.zeebe.containers.archive.ContainerArchiveBuilder;
+import io.zeebe.containers.util.TinyContainer;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.function.UnaryOperator;
 import org.apiguardian.api.API;
@@ -101,6 +106,47 @@ public class ZeebeVolume implements AutoCloseable, ZeebeData {
   public void close() {
     try (final RemoveVolumeCmd command = client.removeVolumeCmd(name)) {
       command.exec();
+    }
+  }
+
+  /**
+   * Convenience method to extract the data from this volume, whether it is or isn't already
+   * attached to a container. This will start a tiny container which will only serves to extract the
+   * data of this volume.
+   *
+   * <p>If it's already attached to a container, consider using the {@link
+   * ContainerArchive#builder()} directly.
+   *
+   * @param destination the destination to extract the contents of this volume to
+   * @throws IOException if the archive cannot be extracted to the local destination
+   */
+  public void extract(final Path destination) throws IOException {
+    extract(destination, UnaryOperator.identity());
+  }
+
+  /**
+   * Convenience method to extract the data from this volume, whether it is or isn't already
+   * attached to a container. This will start a tiny container which will only serves to extract the
+   * data of this volume.
+   *
+   * <p>If it's already attached to a container, consider using the {@link
+   * ContainerArchive#builder()} directly.
+   *
+   * @param destination the destination to extract the contents of this volume to
+   * @param modifier an operator which takes in a pre-configured builder and can modify it
+   * @throws IOException if the archive cannot be extracted to the local destination
+   */
+  public void extract(final Path destination, final UnaryOperator<ContainerArchiveBuilder> modifier)
+      throws IOException {
+    try (final TinyContainer container = new TinyContainer()) {
+      container.withCreateContainerCmdModifier(this::attachVolumeToContainer);
+      container.start();
+
+      final ContainerArchiveBuilder builder =
+          ContainerArchive.builder().withClient(client).withContainer(container);
+      final ContainerArchive archive = modifier.apply(builder).build();
+
+      archive.extract(destination);
     }
   }
 

@@ -15,6 +15,7 @@
  */
 package io.zeebe.containers;
 
+import io.camunda.zeebe.client.ZeebeClient;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 import org.testcontainers.utility.DockerImageName;
@@ -30,7 +31,8 @@ public final class ZeebeDefaults {
   private static final String ZEEBE_CONTAINER_IMAGE_PROPERTY = "zeebe.container.image";
   private static final String DEFAULT_ZEEBE_CONTAINER_IMAGE = "camunda/zeebe";
   private static final String ZEEBE_CONTAINER_VERSION_PROPERTY = "zeebe.container.version";
-  private static final String DEFAULT_ZEEBE_VERSION = "1.0.0";
+  private static final String DEFAULT_ZEEBE_VERSION =
+      ZeebeClient.class.getPackage().getImplementationVersion();
   private static final String DEFAULT_ZEEBE_DATA_PATH = "/usr/local/zeebe/data";
 
   private ZeebeDefaults() {}
@@ -57,6 +59,7 @@ public final class ZeebeDefaults {
     return DockerImageName.parse(getDefaultImage()).withTag(getDefaultVersion());
   }
 
+  /** @return the default data directory of the container */
   public String getDefaultDataPath() {
     return DEFAULT_ZEEBE_DATA_PATH;
   }

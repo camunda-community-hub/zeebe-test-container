@@ -30,9 +30,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
- * io.zeebe.containers.examples.cluster.ZeebeClusterWithEmbeddedGatewaysExampleTest This example
- * show cases how to create a simple test against a single node broker where data is kept across
- * restarts.
+ * This example showcases how to create a simple test against a single node broker where data is
+ * kept across restarts.
  *
  * <p>To validate this, we deploy a process, restart the node, and then create an instance. If the
  * data was not kept, then the original process wouldn't have been deployed.
@@ -46,7 +45,7 @@ final class ReusableVolumeExampleTest {
 
   @Test
   @Timeout(value = 5, unit = TimeUnit.MINUTES)
-  void shouldConnectToZeebe() {
+  void shouldReuseVolume() {
     // given
     final BpmnModelInstance process =
         Bpmn.createExecutableProcess("process").startEvent().endEvent().done();
