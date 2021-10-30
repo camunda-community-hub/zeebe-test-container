@@ -15,6 +15,8 @@
  */
 package io.zeebe.containers;
 
+import io.zeebe.containers.clock.ContainerClock;
+import io.zeebe.containers.clock.LibFakeTimeClock;
 import java.time.Duration;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
@@ -62,6 +64,8 @@ public class ZeebeBrokerContainer extends GenericContainer<ZeebeBrokerContainer>
 
   private static final Duration DEFAULT_STARTUP_TIMEOUT = Duration.ofMinutes(1);
 
+  private LibFakeTimeClock clock;
+
   /**
    * Creates a new container with the default Zeebe image and version.
    *
@@ -76,6 +80,35 @@ public class ZeebeBrokerContainer extends GenericContainer<ZeebeBrokerContainer>
   public ZeebeBrokerContainer(final DockerImageName dockerImageName) {
     super(dockerImageName);
     applyDefaultConfiguration();
+  }
+
+  @Override
+  protected void configure() {
+    super.configure();
+
+    if (clock != null) {
+      clock.configure(this);
+    }
+  }
+
+  @Override
+  public ZeebeBrokerContainer withContainerClockEnabled() {
+    if (clock == null) {
+      clock = LibFakeTimeClock.withTempFile();
+    }
+
+    return this;
+  }
+
+  @Override
+  public ContainerClock getClock() {
+    if (clock == null) {
+      throw new UnsupportedOperationException(
+          "Expected to get a container clock, but this container was not configured for it; to do"
+              + " so, please call #withContainerClockEnabled() before starting the container");
+    }
+
+    return clock;
   }
 
   private void applyDefaultConfiguration() {

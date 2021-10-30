@@ -15,6 +15,7 @@
  */
 package io.zeebe.containers;
 
+import io.zeebe.containers.clock.ContainerClock;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 import org.testcontainers.containers.GenericContainer;
@@ -84,4 +85,25 @@ public interface ZeebeBrokerNode<T extends GenericContainer<T> & ZeebeBrokerNode
     data.attach(self());
     return self();
   }
+
+  /**
+   * Configures this container to use a clock that can be controlled from the outside. Once enabled,
+   * you can then call {@link #getClock()} to manipulate the time of the container. Note that you
+   * can manipulate it even when the container is not created/running. Doing so may allow you to
+   * already set a start time, for example.
+   *
+   * @return this container for chaining
+   */
+  @API(status = Status.EXPERIMENTAL)
+  T withContainerClockEnabled();
+
+  /**
+   * Returns the clock for this container, which allows you to change the time of the container.
+   *
+   * @return this container for chaining
+   * @throws UnsupportedOperationException if the container was not configured to use a clock via
+   *     {@link #withContainerClockEnabled()}
+   */
+  @API(status = Status.EXPERIMENTAL)
+  ContainerClock getClock();
 }
