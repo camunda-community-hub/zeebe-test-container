@@ -33,6 +33,7 @@ use containers for your tests, as well as general prerequisites.
   - [Debugging](#debugging)
   - [Volumes and data](#volumes-and-data)
   - [Extracting data](#extracting-data)
+  - [Time travel](#time-travel)
 - [Tips](#tips)
   - [Tailing your container's logs during development](#tailing-your-containers-logs-during-development)
   - [Configuring GenericContainer specific properties with a Zeebe*Node interface](#configuring-genericcontainer-specific-properties-with-a-zeebenode-interface)
@@ -342,7 +343,7 @@ A series of examples are included as part of the tests, see
 
 ## Continuous Integration
 
-If you wish to use this with your continous integration pipeline (e.g. Jenkins, CircleCI), the
+If you wish to use this with your continuous integration pipeline (e.g. Jenkins, CircleCI), the
 [Testcontainers](https://www.testcontainers.org/supported_docker_environment/) has a section
 explaining how to use it, how volumes can be shared, etc.
 
@@ -367,13 +368,13 @@ dropped depending on their usefulness.
 A typical production Zeebe deployment will be a cluster of nodes, some brokers, and possibly some
 standalone gateways. It can be useful to test against such deployments for acceptance or E2E tests.
 
-While it's not too hard to manually link several containers, it can become tedious and error prone
-if you want to test many different configurations. The cluster API provides you with an easy way to
+While it's not too hard to manually link several containers, it can become tedious and error-prone
+if you want to test different configurations. The cluster API provides you with an easy way to
 programmatically build Zeebe deployments while minimizing the surface of configuration errors.
 
 > NOTE: if you have a static deployment that you don't need to change programmatically per test,
 > then you might want to consider setting up a static Zeebe cluster in your CI pipeline (either via
-> Helm or docker-compose), or even using Testcontainer's
+> Helm or docker-compose), or even using Testcontainers'
 > [docker-compose](https://www.testcontainers.org/modules/docker_compose/) feature.
 
 ### Usage
@@ -467,8 +468,8 @@ package.
 
 ### Cluster startup time
 
-There are some caveat as well. For example, if you want to create a large cluster with many brokers and need to increase the
-startup time:
+There are some caveat as well. For example, if you want to create a large cluster with many brokers
+and need to increase the startup time:
 
 ```java
 package com.acme.zeebe;
@@ -518,7 +519,7 @@ can use the [RemoteDebugger](/src/main/java/io/zeebe/containers/util/RemoteDebug
 for this. By default, it will start your container and attach a debugging agent to it on port 5005.
 The container startup is then suspended until a debugger attaches to it.
 
-> NOTE: since the startup is suspended until a debugger connects to it, it's possible for a the
+> NOTE: since the startup is suspended until a debugger connects to it, it's possible for the
 > startup strategy to time out if no debugger connects to it.
 
 You can use it with any container as:
@@ -718,6 +719,128 @@ final class ExtractDataLiveExampleTest {
 You can find more examples for this feature
 under [examples/archive](/src/test/java/io/zeebe/containers/examples/archive).
 
+## Time travel
+
+There are times when you want to test something that is time sensitive, e.g. a timer start event
+creates a process instance when the condition is reached, or a message is sent after a boundary
+timer catch event expires. You might even want to test non-BPMN timers, e.g. network timeouts, or
+I/O timeouts.
+
+> NOTE: this is an advanced feature, and should only be used with care and with tests where the
+> scope is very narrow. Since you will be changing the system clock, other things may happen that
+> you wouldn't expect, so be very careful with this feature. As long as you keep your test scope
+> narrow, it should be fine. Also be aware that as with anything dealing with time, things may not
+> always be perfectly accurate to the nanosecond, so allow for small deviations.
+
+It's possible to manipulate the system clock as seen by the JVM process. There is one caveat
+however, the monotonic clock (e.g. `System.nanoTime()`) is not mocked. Doing so causes different
+things in the JVM to break, so only clock-related calls (e.g. `System.currentTimeMillis()`) are
+mocked.
+
+> This is a purely opt-in feature, as it's still unclear how flaky or dangerous this may be. The
+> goal is to see how much value this brings for users (optionally with some fixes or changes), and
+> if it's worth it, we will keep it.
+
+The container clock is currently only available for `ZeebeBrokerNode` instances. This is to keep the
+API small for now, and because this is where the main use case is - to trigger timed events in
+brokers.
+
+To enable the clock for a broker, you will have to configure it
+via `ZeebeBrokerNode#withContainerClockEnabled()` before it starts. If you did not do it before the
+container started, then the clock will simply change (though no errors will be produced). Once
+enabled, you can access it via `ZeebeBrokerNode#getClock()`.
+
+Here's a quick example of how that looks like:
+
+```java
+package com.acme.zeebe;
+
+import io.zeebe.containers.ZeebeContainer;
+import java.time.Duration;
+import org.junit.jupiter.api.Test;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+@Testcontainers
+final class TimerStartEventExampleTest {
+
+  @Container
+  private final ZeebeContainer container = new ZeebeContainer().withContainerClockEnabled();
+
+  @Test
+  void shouldAdvanceTheClock() {
+    // given some conditions
+    // when - advance time manually
+    container.getClock().addTime(Duration.ofMinutes(10));
+    // then - assert something
+  }
+}
+```
+
+The main API you will use is
+the [ContainerClock](/src/main/java/io/zeebe/containers/clock/ContainerClock.java). This API allows
+you to pin the container clock to a specific time, to add/subtract relative durations, and to unpin
+the time.
+
+Pinning the time refers to freezing the time to a specific timestamp. All subsequent calls to the
+clock will return the same timestamp, and time will not move forward until you've unpinned it (
+either via `ContainerClock#unpinTime()` or `ContainerClock#resetTime()`).
+
+Here's a quick example:
+
+```java
+package com.acme.zeebe;
+
+import io.zeebe.containers.ZeebeContainer;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import org.junit.jupiter.api.Test;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+@Testcontainers
+final class TimerStartEventExampleTest {
+
+  @Container
+  private final ZeebeContainer container = new ZeebeContainer().withContainerClockEnabled();
+
+  @Test
+  void shouldPinTheClock() {
+    // given some conditions
+    final Instant oneYearFromNow = Instant.now().plus(1, ChronoUnit.YEARS);
+
+    // when - advance time manually
+    container.getClock().pinTime(oneYearFromNow);
+
+    // then - assert something one year in the future
+  }
+}
+```
+
+When the time is pinned, you can either unpin it or reset it. Unpinning the time will make it move
+forward from the previously set time. For example, if you've pinned it to 2021-10-30 16:36:16, and
+wait 10 minutes. At this point, all calls to the clock still return the pinned timestamp. If you
+unpin it and wait 1 second, the next call will return 2021-10-30 16:36:17 (with some variance in
+milliseconds). In contrast, if you reset the time, then the next call will return the actual current
+timestamp, e.g. 2021-10-30 16:36:27 (roughly).
+
+You can also add or subtract relative durations to the current time
+via `ContainerClock#addTime(Duration)`, as seen in the first example. To subtract time, simply pass
+a negative duration. Consecutive calls to `addTime` are cumulative. This means,
+calling `clock.addTime(Duration.ofSecond(10))` twice in a row will add 20 seconds. Note that when
+adding offsets, if the time is not pinned, then time will keep moving between calls. If the time is
+pinned, the offset is added/subtracted to the pinned time, but time remains frozen. If you've added
+a relative duration, resetting the time will also reset it, such that further calls will return the
+current timestamp.
+
+You can find more examples [here](/src/test/java/io/zeebe/containers/examples/clock).
+
+> NOTE: the current implementation of this feature relies on a pre-compiled, embedded
+> [libfaketime](https://github.com/wolfcw/libfaketime) (version 0.9.9). This version is compiled for
+> Debian based systems and works well with the default Zeebe image, but may not work with custom
+> images, e.g. an Alpine based Zeebe image
+
 # Tips
 
 ## Tailing your container's logs during development
@@ -897,7 +1020,7 @@ them easily if we realize they need to be adapted.
 
 ## Report issues or contact developers
 
-Work on Zeebe Test Container is done entirely through the Github repository. If you want to report a
+Work on Zeebe Test Container is done entirely through the GitHub repository. If you want to report a
 bug or request a new feature feel free to open a new issue on [GitHub][issues].
 
 ## Create a Pull Request
@@ -924,7 +1047,7 @@ To work on an issue, follow the following steps:
    to open a draft PR.
 1. If you think you finished the issue please prepare the branch for reviewing. In general the
    commits should be squashed into meaningful commits with a helpful message. This means cleanup/fix
-   etc commits should be squashed into the related commit.
+   etc. commits should be squashed into the related commit.
 1. Finally, be sure to check on the CI results and fix any reported errors.
 
 ## Commit Message Guidelines
