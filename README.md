@@ -696,7 +696,7 @@ final class ExtractDataLiveExampleTest {
   private final ZeebeBrokerContainer container = new ZeebeBrokerContainer();
 
   @Test
-  void shouldExtractData() throws IOException {
+  void shouldExtractData() {
     // given
     final Path destination = Paths.get("/tmp/zeebe");
     final ContainerArchive archive = ContainerArchive.builder().withContainer(container).build();

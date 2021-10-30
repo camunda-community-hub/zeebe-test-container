@@ -142,8 +142,7 @@ public class ZeebeVolume implements AutoCloseable, ZeebeData {
       container.withCreateContainerCmdModifier(this::attachVolumeToContainer);
       container.start();
 
-      final ContainerArchiveBuilder builder =
-          ContainerArchive.builder().withClient(client).withContainer(container);
+      final ContainerArchiveBuilder builder = ContainerArchive.builder().withContainer(container);
       final ContainerArchive archive = modifier.apply(builder).build();
 
       archive.extract(destination);

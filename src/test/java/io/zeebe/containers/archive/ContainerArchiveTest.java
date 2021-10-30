@@ -53,7 +53,7 @@ final class ContainerArchiveTest {
       container.start();
 
       // when
-      archive = new ContainerArchive(remoteArchivePath, container.getContainerId());
+      archive = new ContainerArchive(remoteArchivePath, container);
       archive.extract(destination);
     }
 
@@ -79,7 +79,7 @@ final class ContainerArchiveTest {
       container.start();
 
       // when
-      archive = new ContainerArchive(remoteArchivePath, container.getContainerId());
+      archive = new ContainerArchive(remoteArchivePath, container);
       archive.transferTo(copiedArchivePath);
     }
 
