@@ -16,6 +16,7 @@
 package io.zeebe.containers;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.condition.OS.LINUX;
 
 import io.camunda.zeebe.client.ZeebeClient;
@@ -24,10 +25,13 @@ import io.camunda.zeebe.client.api.response.ProcessInstanceEvent;
 import io.camunda.zeebe.model.bpmn.Bpmn;
 import io.camunda.zeebe.model.bpmn.BpmnModelInstance;
 import io.camunda.zeebe.test.util.asserts.TopologyAssert;
+import io.zeebe.containers.clock.ContainerClock;
 import io.zeebe.containers.util.TestUtils;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -39,6 +43,8 @@ import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -133,6 +139,57 @@ class ZeebeBrokerNodeTest {
     } finally {
       CloseHelper.quietCloseAll(gateway, broker);
     }
+  }
+
+  @SuppressWarnings("unused")
+  @ParameterizedTest(name = "{0} should fail to access the clock when not configured")
+  @MethodSource("nodeProvider")
+  @Execution(ExecutionMode.CONCURRENT)
+  void shouldFailToGetClockIfNotConfigured(final String testName, final ZeebeBrokerNode<?> node) {
+    // given - when - then
+    assertThatCode(node::getClock).isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @SuppressWarnings("unused")
+  @ParameterizedTest(name = "{0} should be able to access the clock when configured")
+  @MethodSource("nodeProvider")
+  @Execution(ExecutionMode.CONCURRENT)
+  void shouldGetClockIfConfigured(final String testName, final ZeebeBrokerNode<?> node) {
+    // given
+    node.withContainerClockEnabled();
+
+    // when
+    final ContainerClock clock = node.getClock();
+
+    // then
+    assertThat(clock).isNotNull();
+  }
+
+  @SuppressWarnings({"unused", "java:S2925"})
+  @Timeout(value = 5, unit = TimeUnit.MINUTES)
+  @ParameterizedTest(name = "{0} should modify the container time via its clock")
+  @MethodSource("nodeProvider")
+  void shouldTimeTravel(final String testName, final ZeebeBrokerNode<?> node)
+      throws IOException, InterruptedException {
+    // given
+    final Instant now = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+    final GenericContainer<?> container = node.self();
+    node.withContainerClockEnabled();
+
+    // when
+    final Instant containerTime;
+    try {
+      container.start();
+      node.getClock().pinTime(now);
+      Thread.sleep(1_000);
+      containerTime = TestUtils.getContainerInstant(container);
+    } finally {
+      container.stop();
+    }
+    final ContainerClock clock = node.getClock();
+
+    // then
+    assertThat(containerTime).isBetween(now.minusSeconds(1), now.plusMillis(100));
   }
 
   private static ZeebeBrokerNode<?> provideBrokerWithHostData(

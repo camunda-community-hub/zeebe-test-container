@@ -29,7 +29,7 @@ import org.testcontainers.containers.wait.strategy.WaitAllStrategy.Mode;
 import org.testcontainers.utility.DockerImageName;
 
 /**
- * Represents a Zeebe broker docker instance - that is, without an embedded gateway. By default it
+ * Represents a Zeebe broker docker instance - that is, without an embedded gateway. By default, it
  * will expose all {@link ZeebePort} ports except the gateway port.
  *
  * <p>It is considered ready if:

@@ -19,6 +19,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import org.testcontainers.containers.GenericContainer;
 
 public final class TestUtils {
   private TestUtils() {}
@@ -52,6 +55,26 @@ public final class TestUtils {
    */
   public static String getUid() {
     return execCommand("id -u");
+  }
+
+  /**
+   * Returns the current {@link Instant} as seen by the container. The instant is truncated down to
+   * millis, as nanoseconds are observed differently at times between the host and the container.
+   *
+   * @param container the container to inspect
+   * @return the current instant from the container
+   * @throws IOException if the container cannot be accessed
+   * @throws InterruptedException if the thread is interrupted while awaiting the result of the
+   *     command
+   */
+  public static Instant getContainerInstant(final GenericContainer<?> container)
+      throws IOException, InterruptedException {
+    final String output =
+        container.execInContainer("/bin/date", "--utc", "+%s.%N").getStdout().trim();
+    final String[] epoch = output.split("\\.", 2);
+
+    return Instant.ofEpochSecond(Long.parseLong(epoch[0]), Long.parseLong(epoch[1]))
+        .truncatedTo(ChronoUnit.MILLIS);
   }
 
   private static String execCommand(final String command) {

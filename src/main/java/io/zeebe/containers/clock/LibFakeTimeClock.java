@@ -31,7 +31,6 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
-import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.MountableFile;
@@ -51,6 +50,10 @@ import org.testcontainers.utility.MountableFile;
  *
  * <p>Setting the time is done via a shared file; writing to that file will update the time in the
  * container.
+ *
+ * <p>NOTE: using this will fix the time zone of the container to UTC. For the default Zeebe image
+ * this isn't a problem as that's already its time zone, but it may be unexpected if you were
+ * setting one.
  */
 @API(status = Status.INTERNAL)
 public final class LibFakeTimeClock implements ContainerClock {
@@ -61,7 +64,7 @@ public final class LibFakeTimeClock implements ContainerClock {
   private static final String LIB_FAKETIME_MOUNT = "/tmp/libfaketime.so.1";
   private static final String FAKETIME_FILE_MOUNT = "/tmp/faketime.rc";
   private static final DateTimeFormatter DATE_TIME_FORMATTER =
-      DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").withZone(ZoneOffset.UTC);
+      DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.n").withZone(ZoneOffset.UTC);
   private static final DecimalFormat DURATION_FORMATTER = new DecimalFormat();
 
   static {
@@ -70,6 +73,7 @@ public final class LibFakeTimeClock implements ContainerClock {
     DURATION_FORMATTER.setMaximumFractionDigits(3);
     DURATION_FORMATTER.setPositivePrefix("+");
     DURATION_FORMATTER.setNegativePrefix("-");
+    DURATION_FORMATTER.setGroupingUsed(false);
   }
 
   private final Path sharedFile;
@@ -99,8 +103,7 @@ public final class LibFakeTimeClock implements ContainerClock {
   @Override
   public void addTime(final Duration offset) {
     if (isTimePinned()) {
-      currentTime = currentTime.plus(offset);
-      pinTime(currentTime);
+      pinTime(currentTime.plus(offset));
     } else {
       if (currentOffset == null) {
         currentOffset = offset;
@@ -115,6 +118,7 @@ public final class LibFakeTimeClock implements ContainerClock {
   @Override
   public void pinTime(final Instant time) {
     this.currentTime = time;
+    currentOffset = null;
     updateTime(formatTime(time));
   }
 
@@ -124,17 +128,15 @@ public final class LibFakeTimeClock implements ContainerClock {
       return;
     }
 
-    final Instant now = Instant.now();
-    final Duration offset = Duration.between(now, currentTime);
-    LoggerFactory.getLogger(LibFakeTimeClock.class)
-        .info("Time elapsed between {} and {}: {}", now, currentTime, offset);
-
-    currentOffset = offset;
+    currentOffset = Duration.between(Instant.now(), currentTime);
+    currentTime = null;
     updateTime(formatTime(currentOffset));
   }
 
   @Override
   public void resetTime() {
+    currentTime = null;
+    currentOffset = null;
     updateTime(NULL_OFFSET);
   }
 
@@ -187,7 +189,8 @@ public final class LibFakeTimeClock implements ContainerClock {
     container
         .withEnv("FAKETIME_TIMESTAMP_FILE", FAKETIME_FILE_MOUNT)
         .withEnv("FAKETIME_DONT_FAKE_MONOTONIC", "1") // ensure System.nanoTime() will work properly
-        .withEnv("FAKETIME_DONT_RESET", "1"); // allows us to "unpin" time
+        .withEnv("FAKETIME_DONT_RESET", "1") // allows us to "unpin" time
+        .withEnv("TZ", "TC"); // enforce time zone to be UTC as that's what we will set
 
     // having an empty file will cause issues, so better reset with some 0 offset
     resetTime();

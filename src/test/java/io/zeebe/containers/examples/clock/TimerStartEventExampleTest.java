@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.zeebe.containers.examples;
+package io.zeebe.containers.examples.clock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,7 +43,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  * <p>See {@link io.zeebe.containers.clock.ContainerClock} for more possibilities.
  */
 @Testcontainers
-final class TimeTravelExampleTest {
+final class TimerStartEventExampleTest {
   @Container
   private final ZeebeContainer container = new ZeebeContainer().withContainerClockEnabled();
 

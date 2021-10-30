@@ -29,7 +29,11 @@ public final class TinyContainer extends GenericContainer<TinyContainer> {
   private static final DockerImageName IMAGE = DockerImageName.parse("alpine:3.14.2");
 
   public TinyContainer() {
-    super(IMAGE);
+    this(IMAGE);
+  }
+
+  public TinyContainer(final DockerImageName imageName) {
+    super(imageName);
   }
 
   @Override
