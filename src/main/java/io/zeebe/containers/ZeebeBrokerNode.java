@@ -95,7 +95,13 @@ public interface ZeebeBrokerNode<T extends GenericContainer<T> & ZeebeBrokerNode
    * @return this container for chaining
    */
   @API(status = Status.EXPERIMENTAL)
-  T withContainerClockEnabled();
+  default T withContainerClockEnabled() {
+    throw new UnsupportedOperationException(
+        String.format(
+            "Expected class '%s' to implement ZeebeBrokerNode#withContainerClockEnabled, but it"
+                + " doesn't",
+            getClass()));
+  }
 
   /**
    * Returns the clock for this container, which allows you to change the time of the container.
@@ -105,5 +111,10 @@ public interface ZeebeBrokerNode<T extends GenericContainer<T> & ZeebeBrokerNode
    *     {@link #withContainerClockEnabled()}
    */
   @API(status = Status.EXPERIMENTAL)
-  ContainerClock getClock();
+  default ContainerClock getClock() {
+    throw new UnsupportedOperationException(
+        String.format(
+            "Expected class '%s' to implement ZeebeBrokerNode#getClock, but it doesn't",
+            getClass()));
+  }
 }
