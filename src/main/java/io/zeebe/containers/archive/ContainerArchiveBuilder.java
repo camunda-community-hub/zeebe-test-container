@@ -15,17 +15,12 @@
  */
 package io.zeebe.containers.archive;
 
-import com.github.dockerjava.api.DockerClient;
 import io.zeebe.containers.ZeebeDefaults;
-import io.zeebe.containers.util.SyncDockerExecHandler;
-import java.time.Duration;
-import java.util.concurrent.TimeoutException;
+import java.io.IOException;
+import java.util.Objects;
 import org.agrona.LangUtil;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
 
 /**
@@ -53,13 +48,9 @@ public final class ContainerArchiveBuilder {
   @SuppressWarnings("java:S1075") // this is a default value, hard-coding it is fine
   private static final String DEFAULT_ARCHIVE_PATH = "/tmp/data.tar.gz";
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ContainerArchiveBuilder.class);
-
   private String containerPath = ZeebeDefaults.getInstance().getDefaultDataPath();
   private String archivePath = DEFAULT_ARCHIVE_PATH;
-  private DockerClient client = DockerClientFactory.lazyClient();
-  private Duration archivingTimeout = Duration.ofMinutes(1);
-  private String containerId;
+  private GenericContainer<?> container;
 
   /**
    * Sets the container on which the archive will be created/referenced. Note that the container
@@ -71,23 +62,7 @@ public final class ContainerArchiveBuilder {
    * @throws IllegalArgumentException if the container was not created yet
    */
   public <T extends GenericContainer<T>> ContainerArchiveBuilder withContainer(final T container) {
-    if (!container.isCreated()) {
-      throw new IllegalArgumentException(
-          "Expected to extract data from the given container, but it doesn't exist yet");
-    }
-
-    return withContainerId(container.getContainerId());
-  }
-
-  /**
-   * Sets the container on which the archive will be created/referenced. Note that this method
-   * expects the container for the given ID to exist already.
-   *
-   * @param containerId the ID of the container on which the archive will exist
-   * @return this builder for chaining
-   */
-  public ContainerArchiveBuilder withContainerId(final String containerId) {
-    this.containerId = containerId;
+    this.container = Objects.requireNonNull(container);
     return this;
   }
 
@@ -99,19 +74,7 @@ public final class ContainerArchiveBuilder {
    * @return this builder for chaining
    */
   public ContainerArchiveBuilder withArchivePath(final String archivePath) {
-    this.archivePath = archivePath;
-    return this;
-  }
-
-  /**
-   * Sets the Docker client that will be used to create and later extract the archive. Can be
-   * omitted, and will default to {@link DockerClientFactory#lazyClient()}.
-   *
-   * @param client the Docker client to use
-   * @return this builder for chaining
-   */
-  public ContainerArchiveBuilder withClient(final DockerClient client) {
-    this.client = client;
+    this.archivePath = Objects.requireNonNull(archivePath);
     return this;
   }
 
@@ -122,67 +85,41 @@ public final class ContainerArchiveBuilder {
    * @return this builder for chaining
    */
   public ContainerArchiveBuilder withContainerPath(final String containerPath) {
-    this.containerPath = containerPath;
-    return this;
-  }
-
-  /**
-   * Sets the time to wait for the creation of the archive in {@link #build()}. By default, it will
-   * wait 1 minute.
-   *
-   * @param timeout the new timeout to set when archiving
-   * @return this builder for chaining
-   */
-  public ContainerArchiveBuilder withArchivingTimeout(final Duration timeout) {
-    this.archivingTimeout = timeout;
+    this.containerPath = Objects.requireNonNull(containerPath);
     return this;
   }
 
   /**
    * Creates an archive at {@link #archivePath} which will contain {@link #containerPath} on the
-   * container with ID {@link #containerId}.
+   * given container.
    *
    * @return a {@link ContainerArchive} instance referencing the archive at {@link #archivePath} on
-   *     the container with ID {@link #containerId}
+   *     the given container
    * @throws IllegalArgumentException if no container or container ID was configured
    */
   public ContainerArchive build() {
-    if (containerId == null) {
+    if (container == null) {
       throw new IllegalArgumentException(
-          "Expected to reference an archive from a container, but no container ID given");
+          "Expected to reference an archive from a container, but no container given");
+    }
+
+    if (!container.isCreated()) {
+      throw new IllegalArgumentException(
+          "Expected to extract data from the given container, but it doesn't exist yet");
     }
 
     archiveContainerPath();
-    return new ContainerArchive(archivePath, containerId, client);
+    return new ContainerArchive(archivePath, container);
   }
 
   private void archiveContainerPath() {
-    final String execCommandId =
-        client
-            .execCreateCmd(containerId)
-            .withCmd("tar", "-chzf", archivePath, containerPath)
-            .withAttachStdout(true)
-            .withAttachStderr(true)
-            .exec()
-            .getId();
-    final SyncDockerExecHandler execHandler = new SyncDockerExecHandler(LOGGER);
-    client.execStartCmd(execCommandId).exec(execHandler);
-    execHandler.await(archivingTimeout);
-
-    if (execHandler.hasError()) {
-      final Throwable error = execHandler.error();
-      if (error instanceof TimeoutException) {
-        final TimeoutException descriptiveError =
-            new TimeoutException(
-                String.format(
-                    "Timed out archiving '%s' on '%s' after '%s'; if there are no outstanding "
-                        + "errors in the logs, consider increasing the archiving timeout "
-                        + "via #withArchivingTimeout(Duration)",
-                    containerPath, containerId, archivingTimeout));
-        LangUtil.rethrowUnchecked(descriptiveError);
-      }
-
-      LangUtil.rethrowUnchecked(error);
+    try {
+      container.execInContainer("tar", "-chzf", archivePath, containerPath);
+    } catch (IOException e) {
+      LangUtil.rethrowUnchecked(e);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      LangUtil.rethrowUnchecked(e);
     }
   }
 }

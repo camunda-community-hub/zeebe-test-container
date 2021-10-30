@@ -15,7 +15,6 @@
  */
 package io.zeebe.containers.archive;
 
-import com.github.dockerjava.api.DockerClient;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -25,8 +24,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
-import org.testcontainers.DockerClientFactory;
-import org.testcontainers.shaded.com.github.dockerjava.core.RemoteApiVersion;
+import org.testcontainers.containers.GenericContainer;
 
 /**
  * Represents a TAR file on a remote container, which can be extracted to a given path. If the TAR
@@ -65,40 +63,20 @@ import org.testcontainers.shaded.com.github.dockerjava.core.RemoteApiVersion;
 @API(status = Status.EXPERIMENTAL)
 public final class ContainerArchive {
   private final String archivePath;
-  private final String containerId;
-  private final DockerClient client;
+  private final GenericContainer<?> container;
 
   /**
-   * Creates a new reference to a TAR file at path {@code archivePath} on the container with ID
-   * {@code containerId}. Will use {@link DockerClientFactory#lazyClient()} as the default client.
-   *
-   * <p>NOTE: this simply creates a reference to the archive. If you wish to also create the archive
-   * from a path, then use the {@link #builder()}.
-   *
-   * @param archivePath the path of the archive on the container
-   * @param containerId the ID of the container
-   */
-  @SuppressWarnings("unused") // convenience method to be consumed by users
-  public ContainerArchive(final String archivePath, final String containerId) {
-    this(archivePath, containerId, DockerClientFactory.lazyClient());
-  }
-
-  /**
-   * Creates a new reference to a TAR file at path {@code archivePath} on the container with ID
-   * {@code containerId}.
+   * Creates a new reference to a TAR file at path {@code archivePath} on the given container.
    *
    * <p>NOTE: this simply creates a reference to the archive. If you wish to also create the archive
    * * from a path, then use the {@link #builder()}.
    *
    * @param archivePath the path of the archive on the container
-   * @param containerId the ID of the container
-   * @param client the Docker client to use
+   * @param container the container on which the archive resides
    */
-  public ContainerArchive(
-      final String archivePath, final String containerId, final DockerClient client) {
+  public ContainerArchive(final String archivePath, final GenericContainer<?> container) {
     this.archivePath = archivePath;
-    this.containerId = containerId;
-    this.client = client;
+    this.container = container;
   }
 
   /**
@@ -123,15 +101,10 @@ public final class ContainerArchive {
    * also created via {@link java.nio.file.Files#createDirectories(Path, FileAttribute[])}.
    *
    * @param destination the destination path for the archive's contents
-   * @throws IOException if the archive cannot be read on the container, or any of its files cannot
-   *     be read/written
    */
-  public void extract(final Path destination) throws IOException {
-    try (final InputStream rawInput = readArchive();
-        final GzipCompressorInputStream gzipInput = new GzipCompressorInputStream(rawInput);
-        final TarArchiveInputStream tarInput = new TarArchiveInputStream(gzipInput)) {
-      TarExtractor.INSTANCE.extract(tarInput, destination);
-    }
+  public void extract(final Path destination) {
+    container.copyFileFromContainer(
+        archivePath, rawInput -> extractFromInput(destination, rawInput));
   }
 
   /**
@@ -146,29 +119,16 @@ public final class ContainerArchive {
    */
   public void transferTo(final Path destination) throws IOException {
     Files.createDirectories(destination.getParent());
-
-    try (final InputStream inputStream = readArchive()) {
-      Files.copy(inputStream, destination);
-    }
+    container.copyFileFromContainer(archivePath, input -> Files.copy(input, destination));
   }
 
-  @SuppressWarnings("java:S1874") // do use the deprecated API when the remove version calls for it
-  private InputStream readArchive() throws IOException {
-    final String rawDockerVersion = client.versionCmd().exec().getApiVersion();
-    final RemoteApiVersion dockerVersion = RemoteApiVersion.parseConfig(rawDockerVersion);
-    final InputStream rawInputStream;
-
-    if (!dockerVersion.isGreaterOrEqual(RemoteApiVersion.VERSION_1_20)) {
-      rawInputStream = client.copyFileFromContainerCmd(containerId, archivePath).exec();
-    } else {
-      rawInputStream = client.copyArchiveFromContainerCmd(containerId, archivePath).exec();
+  private Void extractFromInput(final Path destination, final InputStream rawInput)
+      throws IOException {
+    try (final GzipCompressorInputStream gzipInput = new GzipCompressorInputStream(rawInput);
+        final TarArchiveInputStream tarInput = new TarArchiveInputStream(gzipInput)) {
+      TarExtractor.INSTANCE.extract(tarInput, destination);
     }
 
-    // Docker will TAR whatever we asked to copy, so we end up with a TAR ball containing a single
-    // file, the archive itself
-    final TarArchiveInputStream input = new TarArchiveInputStream(rawInputStream);
-    input.getNextTarEntry();
-
-    return input;
+    return null;
   }
 }
