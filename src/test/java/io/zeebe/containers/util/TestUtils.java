@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import org.testcontainers.containers.GenericContainer;
 
 public final class TestUtils {
@@ -58,8 +57,7 @@ public final class TestUtils {
   }
 
   /**
-   * Returns the current {@link Instant} as seen by the container. The instant is truncated down to
-   * millis, as nanoseconds are observed differently at times between the host and the container.
+   * Returns the current {@link Instant} as seen by the container.
    *
    * @param container the container to inspect
    * @return the current instant from the container
@@ -73,8 +71,7 @@ public final class TestUtils {
         container.execInContainer("/bin/date", "--utc", "+%s.%N").getStdout().trim();
     final String[] epoch = output.split("\\.", 2);
 
-    return Instant.ofEpochSecond(Long.parseLong(epoch[0]), Long.parseLong(epoch[1]))
-        .truncatedTo(ChronoUnit.MILLIS);
+    return Instant.ofEpochSecond(Long.parseLong(epoch[0]), Long.parseLong(epoch[1]));
   }
 
   private static String execCommand(final String command) {

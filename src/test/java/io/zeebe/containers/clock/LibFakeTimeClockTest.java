@@ -22,16 +22,19 @@ import io.zeebe.containers.util.TinyContainer;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.testcontainers.utility.DockerImageName;
 
 /**
- * NOTE: timestamps are compared down to their milliseconds, because the nano clocks may not always
- * return the same thing on the host and the container. This is because nanos come from the
- * monotonic clock, which we aren't overloading (as it would break other things in the JVM).
+ * NOTE: timestamps are compared down with a small variance, as I've observed differences of a few
+ * nanoseconds at times, which I attribute to rounding errors when parsing the date on the container
+ * side or on this side. While I can't be sure, having a very small variance is not a blocker in
+ * this case, you can always truncate the date down to micros or millis, e.g. {@link
+ * Instant#truncatedTo(TemporalUnit)}, and still get value from this. In most cases this is accurate
+ * enough.
  *
  * <p>The tests also use the smallest available Debian based image, as an Alpine image (the default
  * for {@link TinyContainer}) will not be able to load the packaged libfaketime.
@@ -46,8 +49,7 @@ final class LibFakeTimeClockTest {
   void shouldPinTime() throws IOException, InterruptedException {
     // given
     final LibFakeTimeClock clock = LibFakeTimeClock.withTempFile();
-    final Instant pinnedTime =
-        Instant.now().minus(Duration.ofDays(1)).truncatedTo(ChronoUnit.MILLIS);
+    final Instant pinnedTime = Instant.now().minus(Duration.ofDays(1));
     final Instant containerTime;
 
     // when
@@ -61,15 +63,14 @@ final class LibFakeTimeClockTest {
     }
 
     // then
-    assertThat(containerTime).isBetween(pinnedTime.minusMillis(100), pinnedTime.plusMillis(100));
+    assertThat(containerTime).isBetween(pinnedTime.minusMillis(10), pinnedTime.plusMillis(10));
   }
 
   @Test
   void shouldUnpinTime() throws IOException, InterruptedException {
     // given
     final LibFakeTimeClock clock = LibFakeTimeClock.withTempFile();
-    final Instant pinnedTime =
-        Instant.now().minus(Duration.ofDays(1)).truncatedTo(ChronoUnit.MILLIS);
+    final Instant pinnedTime = Instant.now().minus(Duration.ofDays(1));
     final Instant containerTime;
 
     // when
@@ -85,15 +86,15 @@ final class LibFakeTimeClockTest {
 
     // then
     // unfortunately we have to give a generous upper bound to avoid flakiness
-    assertThat(containerTime).isBetween(pinnedTime.minusMillis(100), pinnedTime.plusSeconds(5));
+    assertThat(containerTime).isBetween(pinnedTime.minusMillis(10), pinnedTime.plusSeconds(5));
   }
 
   @Test
   void shouldResetPinnedTime() throws IOException, InterruptedException {
     // given
     final LibFakeTimeClock clock = LibFakeTimeClock.withTempFile();
-    final Instant now = Instant.now().truncatedTo(ChronoUnit.MILLIS);
-    final Instant pinnedTime = now.minus(Duration.ofDays(1)).truncatedTo(ChronoUnit.MILLIS);
+    final Instant now = Instant.now();
+    final Instant pinnedTime = now.minus(Duration.ofDays(1));
     final Instant containerTime;
 
     // when
@@ -107,14 +108,14 @@ final class LibFakeTimeClockTest {
 
     // then
     // unfortunately we have to give a generous upper bound to avoid flakiness
-    assertThat(containerTime).isBetween(now.minusMillis(100), now.plusSeconds(30));
+    assertThat(containerTime).isBetween(now.minusMillis(10), now.plusSeconds(30));
   }
 
   @Test
   void shouldResetAddedTime() throws IOException, InterruptedException {
     // given
     final LibFakeTimeClock clock = LibFakeTimeClock.withTempFile();
-    final Instant now = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+    final Instant now = Instant.now();
     final Instant containerTime;
 
     // when
@@ -128,14 +129,14 @@ final class LibFakeTimeClockTest {
 
     // then
     // unfortunately we have to give a generous upper bound to avoid flakiness
-    assertThat(containerTime).isBetween(now.minusMillis(100), now.plusSeconds(30));
+    assertThat(containerTime).isBetween(now.minusMillis(10), now.plusSeconds(30));
   }
 
   @Test
   void shouldNotAddTimeCumulativelyAfterReset() throws IOException, InterruptedException {
     // given
     final LibFakeTimeClock clock = LibFakeTimeClock.withTempFile();
-    final Instant now = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+    final Instant now = Instant.now();
     final Instant containerTime;
 
     // when
@@ -152,14 +153,14 @@ final class LibFakeTimeClockTest {
     // unfortunately we have to give a generous upper bound to avoid flakiness
     assertThat(containerTime)
         .isBetween(
-            now.plus(Duration.ofMinutes(10)).minusMillis(100), now.plus(Duration.ofMinutes(11)));
+            now.plus(Duration.ofMinutes(10)).minusMillis(10), now.plus(Duration.ofMinutes(11)));
   }
 
   @Test
   void shouldAddTime() throws IOException, InterruptedException {
     // given
     final LibFakeTimeClock clock = LibFakeTimeClock.withTempFile();
-    final Instant now = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+    final Instant now = Instant.now();
     final Duration offset = Duration.ofSeconds(60);
     final Instant containerTime;
 
@@ -174,14 +175,14 @@ final class LibFakeTimeClockTest {
     // then
     // unfortunately we have to give a generous upper bound to avoid flakiness
     assertThat(containerTime)
-        .isBetween(now.plus(offset).minusMillis(100), now.plus(Duration.ofSeconds(90)));
+        .isBetween(now.plus(offset).minusMillis(10), now.plus(Duration.ofSeconds(90)));
   }
 
   @Test
   void shouldAddTimeCumulatively() throws IOException, InterruptedException {
     // given
     final LibFakeTimeClock clock = LibFakeTimeClock.withTempFile();
-    final Instant now = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+    final Instant now = Instant.now();
     final Duration offset = Duration.ofSeconds(60);
     final Instant containerTime;
 
@@ -198,14 +199,14 @@ final class LibFakeTimeClockTest {
     // unfortunately we have to give a generous upper bound to avoid flakiness
     assertThat(containerTime)
         .isBetween(
-            now.plus(offset).plus(offset).minusMillis(100), now.plus(Duration.ofSeconds(150)));
+            now.plus(offset).plus(offset).minusMillis(10), now.plus(Duration.ofSeconds(150)));
   }
 
   @Test
   void shouldAddTimeToPinnedTime() throws IOException, InterruptedException {
     // given
     final LibFakeTimeClock clock = LibFakeTimeClock.withTempFile();
-    final Instant pinnedTime = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+    final Instant pinnedTime = Instant.now();
     final Duration offset = Duration.ofSeconds(60);
     final Instant containerTime;
 
@@ -222,14 +223,14 @@ final class LibFakeTimeClockTest {
     // unfortunately we have to give an inaccurate bounds to avoid flakiness
     assertThat(containerTime)
         .isBetween(
-            pinnedTime.plus(offset).minusMillis(100), pinnedTime.plus(Duration.ofSeconds(90)));
+            pinnedTime.plus(offset).minusMillis(10), pinnedTime.plus(Duration.ofSeconds(90)));
   }
 
   @Test
   void shouldResetOffsetWhenPinningTime() throws IOException, InterruptedException {
     // given
     final LibFakeTimeClock clock = LibFakeTimeClock.withTempFile();
-    final Instant pinnedTime = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+    final Instant pinnedTime = Instant.now();
     final Duration offset = Duration.ofSeconds(60);
     final Instant containerTime;
 
@@ -247,6 +248,6 @@ final class LibFakeTimeClockTest {
     // unfortunately we have to give an inaccurate bounds to avoid flakiness
     assertThat(containerTime)
         .isBetween(
-            pinnedTime.plus(offset).minusMillis(100), pinnedTime.plus(Duration.ofSeconds(90)));
+            pinnedTime.plus(offset).minusMillis(10), pinnedTime.plus(Duration.ofSeconds(90)));
   }
 }

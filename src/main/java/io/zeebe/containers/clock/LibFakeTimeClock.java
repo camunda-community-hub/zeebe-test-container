@@ -43,7 +43,7 @@ import org.testcontainers.utility.MountableFile;
  * <p>The packaged library was built in the Zeebe container, and is not portable, i.e. if you use a
  * custom image it may not work.
  *
- * <p>Using this implementation will configure (via {@link #configure(GenericContainer)} the
+ * <p>Using this implementation will configure (via {@link #configure(GenericContainer)}) the
  * container to preload a copied `libfaketime.so.1` (copied from the classpath) for every program in
  * the container by setting the environment variable `LD_PRELOAD`. This includes any interactive
  * commands attaching themselves to the container, for example.
@@ -64,7 +64,7 @@ public final class LibFakeTimeClock implements ContainerClock {
   private static final String LIB_FAKETIME_MOUNT = "/tmp/libfaketime.so.1";
   private static final String FAKETIME_FILE_MOUNT = "/tmp/faketime.rc";
   private static final DateTimeFormatter DATE_TIME_FORMATTER =
-      DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.n").withZone(ZoneOffset.UTC);
+      DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSSSS").withZone(ZoneOffset.UTC);
   private static final DecimalFormat DURATION_FORMATTER = new DecimalFormat();
 
   static {
@@ -157,8 +157,8 @@ public final class LibFakeTimeClock implements ContainerClock {
             sharedFile,
             StandardOpenOption.CREATE,
             StandardOpenOption.WRITE,
+            StandardOpenOption.TRUNCATE_EXISTING,
             StandardOpenOption.SYNC)) {
-      channel.truncate(0);
       channel.write(bufferView);
     } catch (final IOException e) {
       throw new UncheckedIOException(
