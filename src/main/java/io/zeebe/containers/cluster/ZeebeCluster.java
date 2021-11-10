@@ -99,6 +99,16 @@ public class ZeebeCluster implements Startable {
   private final int replicationFactor;
   private final int partitionsCount;
 
+  /**
+   * Creates a new cluster from the given parameters.
+   *
+   * @param network the network attached to each node
+   * @param name the name of the cluster (should also be configured on the nodes)
+   * @param gateways the set of gateway nodes, identified by their member ID
+   * @param brokers the set of broker nodes, identified by their node ID
+   * @param replicationFactor the replication factor of the cluster
+   * @param partitionsCount the number of partitions in the cluster
+   */
   public ZeebeCluster(
       final Network network,
       final String name,

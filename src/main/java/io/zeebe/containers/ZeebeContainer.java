@@ -82,6 +82,7 @@ public class ZeebeContainer extends GenericContainer<ZeebeContainer>
     return waitingFor(newDefaultWaitStrategy());
   }
 
+  /** @return the default wait strategy for this container */
   protected WaitAllStrategy newDefaultWaitStrategy() {
     return new WaitAllStrategy(Mode.WITH_OUTER_TIMEOUT)
         .withStrategy(new HostPortWaitStrategy())

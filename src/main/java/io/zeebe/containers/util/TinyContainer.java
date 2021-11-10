@@ -28,6 +28,7 @@ import org.testcontainers.utility.DockerImageName;
 public final class TinyContainer extends GenericContainer<TinyContainer> {
   private static final DockerImageName IMAGE = DockerImageName.parse("alpine:3.14.2");
 
+  /** Configures a new container using an Alpine based image */
   public TinyContainer() {
     super(IMAGE);
   }

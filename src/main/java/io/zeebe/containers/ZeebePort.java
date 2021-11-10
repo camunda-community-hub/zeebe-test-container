@@ -21,9 +21,13 @@ import org.apiguardian.api.API.Status;
 /** Represents the list of known port in a Zeebe cluster, all node types included. */
 @API(status = Status.STABLE)
 public enum ZeebePort {
+  /** Port of the command API, i.e. the port used by the gateway to communicate with the broker */
   COMMAND(26501),
+  /** Port of the gateway API, i.e. the port used by the client to communicate with any gateway */
   GATEWAY(26500),
+  /** Port for internal communication, i.e. what all nodes use to communicate for clustering */
   INTERNAL(26502),
+  /** Port for the management server, i.e. actuators, metrics, etc. */
   MONITORING(9600);
 
   private final int port;

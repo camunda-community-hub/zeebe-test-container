@@ -38,7 +38,7 @@ import org.testcontainers.utility.DockerImageName;
  *   <li>the topology check is successful (see {@link #newDefaultTopologyCheck()}
  * </ul>
  *
- * <h3>Connecting to brokers</h3>
+ * <h2>Connecting to brokers</h2>
  *
  * <p>If you want to connect this gateway to other nodes, the recommended way is to create a new
  * network (e.g. {@link Network#newNetwork()}) and set it as the network of each container you wish
@@ -50,7 +50,7 @@ import org.testcontainers.utility.DockerImageName;
  * contactPoint} to the broker's address; if it is a {@link ZeebeNode} you can use {@link
  * ZeebeNode#getInternalClusterAddress()}.
  *
- * <h3>Accessing the gateway</h3>
+ * <h2>Accessing the gateway</h2>
  *
  * <p>Once started, you can build a new client for it e.g.:
  *
@@ -81,6 +81,11 @@ public class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContaine
     this(ZeebeDefaults.getInstance().getDefaultDockerImage());
   }
 
+  /**
+   * Creates a new container using the given image.
+   *
+   * @param dockerImageName the base image for the container
+   */
   public ZeebeGatewayContainer(final DockerImageName dockerImageName) {
     super(dockerImageName);
     applyDefaultConfiguration();

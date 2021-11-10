@@ -37,7 +37,7 @@ import org.testcontainers.utility.DockerImageName;
  *   <li>the ready check is successful (see {@link #newDefaultBrokerReadyCheck()})
  * </ul>
  *
- * <h3>Connecting to other nodes</h3>
+ * <h2>Connecting to other nodes</h2>
  *
  * <p>If you want to connect this broker to other nodes, the recommended way is to create a new
  * network (e.g. {@link Network#newNetwork()}) and set it as the network of each container you wish

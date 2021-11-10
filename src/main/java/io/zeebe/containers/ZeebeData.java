@@ -19,8 +19,18 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 import org.testcontainers.containers.GenericContainer;
 
+/**
+ * Represents any type of data container which will hold the Zeebe data (i.e. logs and snapshots)
+ */
 @API(status = Status.EXPERIMENTAL)
 @FunctionalInterface
 public interface ZeebeData {
+
+  /**
+   * Attaches the data to the given container.
+   *
+   * @param container the container to attach to
+   * @param <T> the type of the container
+   */
   <T extends GenericContainer<T> & ZeebeBrokerNode<T>> void attach(final T container);
 }

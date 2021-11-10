@@ -48,6 +48,11 @@ import org.testcontainers.containers.GenericContainer;
 public class ZeebeHostData implements ZeebeData {
   private final String hostPath;
 
+  /**
+   * Creates a new {@link ZeebeHostData} which points to the given host path.
+   *
+   * @param hostPath the path where the data will be stored on the host
+   */
   public ZeebeHostData(final String hostPath) {
     this.hostPath = hostPath;
   }

@@ -53,7 +53,11 @@ import org.testcontainers.containers.GenericContainer;
  */
 @API(status = Status.EXPERIMENTAL)
 public final class RemoteDebugger {
+
+  /** The default binding port for the remote debugger server */
   public static final int DEFAULT_REMOTE_DEBUGGER_PORT = 5005;
+
+  /** The default timeout that will be applied to the container being debugged */
   public static final Duration DEFAULT_START_TIMEOUT = Duration.ofMinutes(5);
 
   private RemoteDebugger() {}
