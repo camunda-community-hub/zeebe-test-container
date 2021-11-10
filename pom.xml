@@ -252,6 +252,16 @@
 
   <build>
     <plugins>
+      <!-- compiler plugin -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration combine.children="append">
+          <!-- setting it to true unfortunately causes us to recompile every time -->
+          <useIncrementalCompilation>false</useIncrementalCompilation>
+        </configuration>
+      </plugin>
+
       <!-- JAR packaging plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
