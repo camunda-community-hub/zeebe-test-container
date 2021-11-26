@@ -31,6 +31,7 @@ import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 import org.testcontainers.containers.GenericContainer;
@@ -364,7 +365,23 @@ public class ZeebeClusterBuilder {
     // is one
     createStandaloneGateways();
 
+    Stream.concat(brokers.values().stream(), gateways.values().stream())
+        .distinct()
+        .forEach(this::applyConfigFunctions);
+
     return new ZeebeCluster(network, name, gateways, brokers, replicationFactor, partitionsCount);
+  }
+
+  private void applyConfigFunctions(final ZeebeNode<?> node) {
+    nodeConfig.accept(node);
+
+    if (node instanceof ZeebeGatewayNode) {
+      gatewayConfig.accept((ZeebeGatewayNode<?>) node);
+    }
+
+    if (node instanceof ZeebeBrokerNode) {
+      brokerConfig.accept((ZeebeBrokerNode<?>) node);
+    }
   }
 
   private void validate() {
@@ -405,8 +422,6 @@ public class ZeebeClusterBuilder {
         gateways.put(String.valueOf(i), container);
       } else {
         broker = new ZeebeBrokerContainer(brokerImageName);
-        nodeConfig.accept(broker);
-        brokerConfig.accept(broker);
       }
 
       configureBroker(broker, i);
@@ -457,8 +472,6 @@ public class ZeebeClusterBuilder {
                 .forBrokersCount(brokersCount)
                 .forPartitionsCount(partitionsCount)
                 .forReplicationFactor(replicationFactor));
-    nodeConfig.accept(gatewayContainer);
-    gatewayConfig.accept(gatewayContainer);
   }
 
   private void configureBroker(final ZeebeBrokerNode<?> broker, final int index) {
@@ -475,8 +488,6 @@ public class ZeebeClusterBuilder {
             .withEnv("ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR", String.valueOf(replicationFactor))
             .withEnv("ZEEBE_BROKER_CLUSTER_PARTITIONSCOUNT", String.valueOf(partitionsCount))
             .withStartupTimeout(Duration.ofMinutes((long) brokersCount + gatewaysCount));
-    nodeConfig.accept(broker);
-    brokerConfig.accept(broker);
   }
 
   private void configureBrokerInitialContactPoints() {
