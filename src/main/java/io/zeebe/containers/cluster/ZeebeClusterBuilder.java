@@ -22,13 +22,16 @@ import io.zeebe.containers.ZeebeBrokerNode;
 import io.zeebe.containers.ZeebeContainer;
 import io.zeebe.containers.ZeebeGatewayContainer;
 import io.zeebe.containers.ZeebeGatewayNode;
+import io.zeebe.containers.ZeebeNode;
 import io.zeebe.containers.ZeebeTopologyWaitStrategy;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 import org.testcontainers.containers.GenericContainer;
@@ -109,6 +112,10 @@ public class ZeebeClusterBuilder {
   private boolean useEmbeddedGateway = true;
   private DockerImageName gatewayImageName = getInstance().getDefaultDockerImage();
   private DockerImageName brokerImageName = getInstance().getDefaultDockerImage();
+
+  private Consumer<ZeebeNode<?>> nodeConfig = cfg -> {};
+  private Consumer<ZeebeBrokerNode<?>> brokerConfig = cfg -> {};
+  private Consumer<ZeebeGatewayNode<?>> gatewayConfig = cfg -> {};
 
   private final Map<String, ZeebeGatewayNode<? extends GenericContainer<?>>> gateways =
       new HashMap<>();
@@ -283,6 +290,51 @@ public class ZeebeClusterBuilder {
   }
 
   /**
+   * Sets the configuration function that will be executed in the {@link #build()} method on both
+   * brokers and gateways (embedded gateways included). NOTE: this configuration has the lowest
+   * priority, e.g. other configurations ({@link #gatewayConfig} or {@link #brokerConfig}) will
+   * override this configuration in case of conflicts.
+   *
+   * @param nodeCfgFunction the function that will be applied on all cluster nodes
+   * @return this builder instance for chaining
+   */
+  public ZeebeClusterBuilder withNodeConfig(final Consumer<ZeebeNode<?>> nodeCfgFunction) {
+    this.nodeConfig = nodeCfgFunction;
+    return this;
+  }
+
+  /**
+   * Sets the configuration function that will be executed in the {@link #build()} method on each
+   * gateway (including embedded gateways). NOTE: in case of conflicts with {@link #nodeConfig} this
+   * configuration will override {@link #nodeConfig}. NOTE: in case of conflicts with this
+   * configuration is an embedded gateway configuration and a broker configuration, broker
+   * configuration will override this configuration.
+   *
+   * @param gatewayCfgFunction the function that will be applied on all cluster gateways (embedded
+   *     ones included)
+   * @return this builder instance for chaining
+   */
+  public ZeebeClusterBuilder withGatewayConfig(
+      final Consumer<ZeebeGatewayNode<?>> gatewayCfgFunction) {
+    this.gatewayConfig = gatewayCfgFunction;
+    return this;
+  }
+
+  /**
+   * Sets the configuration function that will be executed in the {@link #build()} method on each
+   * broker. NOTE: in case of conflicts with {@link #nodeConfig} or {@link #gatewayConfig} this
+   * configuration will override them.
+   *
+   * @param brokerCfgFunction the function that will be applied on all cluster brokers
+   * @return this builder instance for chaining
+   */
+  public ZeebeClusterBuilder withBrokerConfig(
+      final Consumer<ZeebeBrokerNode<?>> brokerCfgFunction) {
+    this.brokerConfig = brokerCfgFunction;
+    return this;
+  }
+
+  /**
    * Builds a new Zeebe cluster. Will create {@link #brokersCount} brokers (accessible later via
    * {@link ZeebeCluster#getBrokers()}) and {@link #gatewaysCount} standalone gateways (accessible
    * later via {@link ZeebeCluster#getGateways()}).
@@ -313,7 +365,23 @@ public class ZeebeClusterBuilder {
     // is one
     createStandaloneGateways();
 
+    Stream.concat(brokers.values().stream(), gateways.values().stream())
+        .distinct()
+        .forEach(this::applyConfigFunctions);
+
     return new ZeebeCluster(network, name, gateways, brokers, replicationFactor, partitionsCount);
+  }
+
+  private void applyConfigFunctions(final ZeebeNode<?> node) {
+    nodeConfig.accept(node);
+
+    if (node instanceof ZeebeGatewayNode) {
+      gatewayConfig.accept((ZeebeGatewayNode<?>) node);
+    }
+
+    if (node instanceof ZeebeBrokerNode) {
+      brokerConfig.accept((ZeebeBrokerNode<?>) node);
+    }
   }
 
   private void validate() {
@@ -398,26 +466,28 @@ public class ZeebeClusterBuilder {
   }
 
   private void configureGateway(final ZeebeGatewayNode<?> gateway) {
-    gateway.withTopologyCheck(
-        new ZeebeTopologyWaitStrategy()
-            .forBrokersCount(brokersCount)
-            .forPartitionsCount(partitionsCount)
-            .forReplicationFactor(replicationFactor));
+    final ZeebeGatewayNode<?> gatewayContainer =
+        gateway.withTopologyCheck(
+            new ZeebeTopologyWaitStrategy()
+                .forBrokersCount(brokersCount)
+                .forPartitionsCount(partitionsCount)
+                .forReplicationFactor(replicationFactor));
   }
 
   private void configureBroker(final ZeebeBrokerNode<?> broker, final int index) {
     final String hostName = BROKER_NETWORK_ALIAS_PREFIX + index;
 
-    broker
-        .withNetwork(network)
-        .withNetworkAliases(hostName)
-        .withEnv("ZEEBE_BROKER_NETWORK_ADVERTISEDHOST", broker.getInternalHost())
-        .withEnv("ZEEBE_BROKER_CLUSTER_CLUSTERNAME", name)
-        .withEnv("ZEEBE_BROKER_CLUSTER_NODEID", String.valueOf(index))
-        .withEnv("ZEEBE_BROKER_CLUSTER_CLUSTERSIZE", String.valueOf(brokersCount))
-        .withEnv("ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR", String.valueOf(replicationFactor))
-        .withEnv("ZEEBE_BROKER_CLUSTER_PARTITIONSCOUNT", String.valueOf(partitionsCount))
-        .withStartupTimeout(Duration.ofMinutes((long) brokersCount + gatewaysCount));
+    final GenericContainer<?> brokerContainer =
+        broker
+            .withNetwork(network)
+            .withNetworkAliases(hostName)
+            .withEnv("ZEEBE_BROKER_NETWORK_ADVERTISEDHOST", broker.getInternalHost())
+            .withEnv("ZEEBE_BROKER_CLUSTER_CLUSTERNAME", name)
+            .withEnv("ZEEBE_BROKER_CLUSTER_NODEID", String.valueOf(index))
+            .withEnv("ZEEBE_BROKER_CLUSTER_CLUSTERSIZE", String.valueOf(brokersCount))
+            .withEnv("ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR", String.valueOf(replicationFactor))
+            .withEnv("ZEEBE_BROKER_CLUSTER_PARTITIONSCOUNT", String.valueOf(partitionsCount))
+            .withStartupTimeout(Duration.ofMinutes((long) brokersCount + gatewaysCount));
   }
 
   private void configureBrokerInitialContactPoints() {

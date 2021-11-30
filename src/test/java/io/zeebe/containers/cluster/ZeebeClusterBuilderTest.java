@@ -512,6 +512,249 @@ final class ZeebeClusterBuilderTest {
   }
 
   @Test
+  void shouldApplyBrokerConfigurationOnlyOnBrokers() {
+    // given
+    final String foreseeEnv = "IS_CONFIGURED_BY_BROKER_FUNCTION";
+    final ZeebeClusterBuilder builder =
+        new ZeebeClusterBuilder()
+            .withBrokerConfig(broker -> broker.addEnv(foreseeEnv, ""))
+            .withBrokersCount(1)
+            .withGatewaysCount(1)
+            .withEmbeddedGateway(false);
+
+    // when
+    final ZeebeCluster cluster = builder.build();
+
+    // then
+    assertThat(cluster.getBrokers())
+        .allSatisfy(
+            (integer, zeebeBrokerNode) ->
+                assertThat(zeebeBrokerNode.getEnvMap())
+                    .as(
+                        "Broker node: %s must have %s environment variable",
+                        zeebeBrokerNode, foreseeEnv)
+                    .containsKey(foreseeEnv));
+    assertThat(cluster.getGateways())
+        .allSatisfy(
+            (s, zeebeGatewayNode) ->
+                assertThat(zeebeGatewayNode.getEnvMap())
+                    .as(
+                        "Gateway node: %s must not have %s environment variable",
+                        zeebeGatewayNode, foreseeEnv)
+                    .doesNotContainKey(foreseeEnv));
+  }
+
+  @Test
+  void shouldApplyNodeConfigurationOnAllNodes() {
+    // given
+    final String foreseeEnv = "IS_CONFIGURED_BY_NODE_FUNCTION";
+    final ZeebeClusterBuilder builder =
+        new ZeebeClusterBuilder()
+            .withNodeConfig(node -> node.addEnv(foreseeEnv, ""))
+            .withBrokersCount(1)
+            .withGatewaysCount(1)
+            .withEmbeddedGateway(false);
+
+    // when
+    final ZeebeCluster cluster = builder.build();
+
+    // then
+    assertThat(cluster.getBrokers())
+        .allSatisfy(
+            (integer, zeebeBrokerNode) ->
+                assertThat(zeebeBrokerNode.getEnvMap())
+                    .as(
+                        "Broker node: %s must have %s environment variable",
+                        zeebeBrokerNode, foreseeEnv)
+                    .containsKey(foreseeEnv));
+    assertThat(cluster.getGateways())
+        .allSatisfy(
+            (integer, zeebeGatewayNode) ->
+                assertThat(zeebeGatewayNode.getEnvMap())
+                    .as(
+                        "Gateway node: %s must have %s environment variable",
+                        zeebeGatewayNode, foreseeEnv)
+                    .containsKey(foreseeEnv));
+  }
+
+  @Test
+  void shouldApplyGatewayConfigurationOnEmbeddedGateways() {
+    // given
+    final String foreseeEnv = "IS_CONFIGURED_BY_GATEWAY_FUNCTION";
+    final ZeebeClusterBuilder builder =
+        new ZeebeClusterBuilder()
+            .withGatewayConfig(gateway -> gateway.addEnv(foreseeEnv, ""))
+            .withBrokersCount(1)
+            .withGatewaysCount(1)
+            .withEmbeddedGateway(true);
+
+    // when
+    final ZeebeCluster cluster = builder.build();
+
+    // then
+    assertThat(cluster.getBrokers())
+        .allSatisfy(
+            (integer, zeebeBrokerNode) ->
+                assertThat(zeebeBrokerNode.getEnvMap())
+                    .as(
+                        "Broker node: %s must have %s environment variable",
+                        zeebeBrokerNode, foreseeEnv)
+                    .containsKey(foreseeEnv));
+    assertThat(cluster.getGateways())
+        .allSatisfy(
+            (s, zeebeGatewayNode) ->
+                assertThat(zeebeGatewayNode.getEnvMap())
+                    .as(
+                        "Gateway node: %s must have %s environment variable",
+                        zeebeGatewayNode, foreseeEnv)
+                    .containsKey(foreseeEnv));
+  }
+
+  @Test
+  void shouldApplyGatewayConfigurationOnlyOnGateways() {
+    // given
+    final String foreseeEnv = "IS_CONFIGURED_BY_GATEWAY_FUNCTION";
+    final ZeebeClusterBuilder builder =
+        new ZeebeClusterBuilder()
+            .withGatewayConfig(gateway -> gateway.addEnv(foreseeEnv, ""))
+            .withBrokersCount(1)
+            .withGatewaysCount(1)
+            .withEmbeddedGateway(false);
+
+    // when
+    final ZeebeCluster cluster = builder.build();
+
+    // then
+    assertThat(cluster.getBrokers())
+        .allSatisfy(
+            (integer, zeebeBrokerNode) ->
+                assertThat(zeebeBrokerNode.getEnvMap())
+                    .as(
+                        "Broker node: %s must not have %s environment variable",
+                        zeebeBrokerNode, foreseeEnv)
+                    .doesNotContainKey(foreseeEnv));
+    assertThat(cluster.getGateways())
+        .allSatisfy(
+            (s, zeebeGatewayNode) ->
+                assertThat(zeebeGatewayNode.getEnvMap())
+                    .as(
+                        "Gateway node: %s must have %s environment variable",
+                        zeebeGatewayNode, foreseeEnv)
+                    .containsKey(foreseeEnv));
+  }
+
+  @Test
+  void shouldBrokerConfigurationOverrideNodeConfiguration() {
+    // given
+    final String foreseeEnv = "IS_CONFIGURED";
+    final String nodeValue = "NODE";
+    final String brokerValue = "BROKER";
+
+    final ZeebeClusterBuilder builder =
+        new ZeebeClusterBuilder()
+            .withNodeConfig(node -> node.addEnv(foreseeEnv, nodeValue))
+            .withBrokerConfig(broker -> broker.addEnv(foreseeEnv, brokerValue))
+            .withBrokersCount(1)
+            .withGatewaysCount(1)
+            .withEmbeddedGateway(false);
+
+    // when
+    final ZeebeCluster cluster = builder.build();
+
+    // then
+    assertThat(cluster.getBrokers())
+        .allSatisfy(
+            (integer, zeebeBrokerNode) ->
+                assertThat(zeebeBrokerNode.getEnvMap())
+                    .as(
+                        "Broker node: %s must not have %s environment variable",
+                        zeebeBrokerNode, foreseeEnv)
+                    .containsEntry(foreseeEnv, brokerValue));
+    assertThat(cluster.getGateways())
+        .allSatisfy(
+            (s, zeebeGatewayNode) ->
+                assertThat(zeebeGatewayNode.getEnvMap())
+                    .as(
+                        "Gateway node: %s must have %s environment variable",
+                        zeebeGatewayNode, foreseeEnv)
+                    .containsEntry(foreseeEnv, nodeValue));
+  }
+
+  @Test
+  void shouldGatewayConfigurationOverrideNodeConfiguration() {
+    // given
+    final String foreseeEnv = "IS_CONFIGURED";
+    final String nodeValue = "NODE";
+    final String gatewayValue = "GATEWAY";
+
+    final ZeebeClusterBuilder builder =
+        new ZeebeClusterBuilder()
+            .withNodeConfig(node -> node.addEnv(foreseeEnv, nodeValue))
+            .withGatewayConfig(gateway -> gateway.addEnv(foreseeEnv, gatewayValue))
+            .withBrokersCount(1)
+            .withGatewaysCount(1)
+            .withEmbeddedGateway(false);
+
+    // when
+    final ZeebeCluster cluster = builder.build();
+
+    // then
+    assertThat(cluster.getBrokers())
+        .allSatisfy(
+            (integer, zeebeBrokerNode) ->
+                assertThat(zeebeBrokerNode.getEnvMap())
+                    .as(
+                        "Broker node: %s must not have %s environment variable",
+                        zeebeBrokerNode, foreseeEnv)
+                    .containsEntry(foreseeEnv, nodeValue));
+    assertThat(cluster.getGateways())
+        .allSatisfy(
+            (s, zeebeGatewayNode) ->
+                assertThat(zeebeGatewayNode.getEnvMap())
+                    .as(
+                        "Gateway node: %s must have %s environment variable",
+                        zeebeGatewayNode, foreseeEnv)
+                    .containsEntry(foreseeEnv, gatewayValue));
+  }
+
+  @Test
+  void shouldBrokerOverrideEmbeddedGatewayConfiguration() {
+    // given
+    final String foreseeEnv = "IS_CONFIGURED";
+    final String brokerValue = "BROKER";
+    final String gatewayValue = "GATEWAY";
+
+    final ZeebeClusterBuilder builder =
+        new ZeebeClusterBuilder()
+            .withBrokerConfig(broker -> broker.addEnv(foreseeEnv, brokerValue))
+            .withGatewayConfig(gateway -> gateway.addEnv(foreseeEnv, gatewayValue))
+            .withBrokersCount(1)
+            .withGatewaysCount(0)
+            .withEmbeddedGateway(true);
+
+    // when
+    final ZeebeCluster cluster = builder.build();
+
+    // then
+    assertThat(cluster.getBrokers())
+        .allSatisfy(
+            (integer, zeebeBrokerNode) ->
+                assertThat(zeebeBrokerNode.getEnvMap())
+                    .as(
+                        "Broker node: %s must not have %s environment variable",
+                        zeebeBrokerNode, foreseeEnv)
+                    .containsEntry(foreseeEnv, brokerValue));
+    assertThat(cluster.getGateways())
+        .allSatisfy(
+            (s, zeebeGatewayNode) ->
+                assertThat(zeebeGatewayNode.getEnvMap())
+                    .as(
+                        "Gateway node: %s must have %s environment variable",
+                        zeebeGatewayNode, foreseeEnv)
+                    .doesNotContainEntry(foreseeEnv, gatewayValue));
+  }
+
+  @Test
   void shouldSetImageNameForGateways() {
     // given
     final ZeebeClusterBuilder builder = new ZeebeClusterBuilder();
