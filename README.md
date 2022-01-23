@@ -33,6 +33,7 @@ use containers for your tests, as well as general prerequisites.
   - [Debugging](#debugging)
   - [Volumes and data](#volumes-and-data)
   - [Extracting data](#extracting-data)
+  - [Time traveling](#time-traveling)
 - [Tips](#tips)
   - [Tailing your container's logs during development](#tailing-your-containers-logs-during-development)
   - [Configuring GenericContainer specific properties with a Zeebe*Node interface](#configuring-genericcontainer-specific-properties-with-a-zeebenode-interface)
