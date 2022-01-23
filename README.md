@@ -718,6 +718,112 @@ final class ExtractDataLiveExampleTest {
 You can find more examples for this feature
 under [examples/archive](/src/test/java/io/zeebe/containers/examples/archive).
 
+## Time traveling
+
+Since version 1.3, Zeebe provides a coarse time traveling API via the actor clock actuator endpoint.
+While this actuator is enabled by default, the internal clock is itself immutable. The only thing
+you can do out of the box is get the current time as seen by Zeebe's actor framework.
+
+In order to test time based events - such as triggering a timer catch event from one of your
+deployed processes - you can start the node with a mutable clock. To do so, you need to set the
+configuration flag `zeebe.clock.controlled = true`. This can be done with Testcontainers by passing
+the following environment variable:
+
+```java
+package com.acme.zeebe;
+
+import io.zeebe.containers.ZeebeNode;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+final class SetupMutableClockExample {
+
+  private ZeebeNode<?> node; // make sure this value is instantiated
+
+  @BeforeEach
+  void beforeEach() {
+    node.withEnv("ZEEBE_CLOCK_CONTROLLED", "true");
+  }
+
+  // any subsequent tests can now mutate the clock
+  @Test
+  void shouldMutateTheClock() {}
+}
+```
+
+> NOTE: if you forget to mutate the clock, the actuator will return a 403 with an explicit error
+> message about the clock's immutability.
+
+Once the clock is mutable, you can then use the provided high level API,
+[ZeebeClock](/src/main/java/io/zeebe/containers/clock/ZeebeClock.java).
+
+Here's a basic example which will simply advance the broker's time:
+
+```java
+package io.zeebe.containers.clock;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import io.zeebe.containers.ZeebeBrokerContainer;
+import java.time.Duration;
+import java.time.Instant;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+@Execution(ExecutionMode.SAME_THREAD)
+@Testcontainers
+final class ZeebeClockTest {
+  @Container
+  private static final ZeebeBrokerContainer BROKER =
+    new ZeebeBrokerContainer().withEnv("ZEEBE_CLOCK_CONTROLLED", "true");
+
+  private final ZeebeClock clock = ZeebeClock.newDefaultClock(BROKER);
+
+  @AfterEach
+  void afterEach() {
+    ZeebeClock.newDefaultClock(BROKER).resetTime();
+  }
+
+  @Test
+  void shouldAddTime() {
+    // given
+    final Instant pinnedTime = clock.pinTime(Instant.now());
+    final Duration offset = Duration.ofDays(1);
+
+    // when
+    final Instant modifiedTime = clock.addTime(offset);
+
+    // then
+    final Instant expectedTime = pinnedTime.plus(offset);
+    assertThat(modifiedTime).isEqualTo(pinnedTime.plus(offset)).isEqualTo(expectedTime);
+  }
+}
+
+```
+
+You can find more examples for this feature
+under [examples/clock](/src/test/java/io/zeebe/containers/examples/clock).
+
+### Tips and limitations
+
+#### Reusing the same container
+
+If you wish to reuse the same container across multiple tests where you modify the time, make sure
+to include a trigger after each test (e.g. `@AfterEach` in Junit 5) to reset the clock
+(i.e. `ZeebeClock#resetTime()`). It's also recommended you ensure you run all your tests against
+that one node sequentially to avoid flaky tests.
+
+#### Embedded gateway issues
+
+Some requests will not play nice with time travel when you modify a broker's clock, if the request
+is going through that same broker's embedded gateway. For example, if you create a process instance
+and await its result (i.e. `#withResult()`), then advance the clock, the request will time out since
+the clock is shared between the broker and the embedded gateway.
+
 # Tips
 
 ## Tailing your container's logs during development
