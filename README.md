@@ -73,7 +73,7 @@ Add the project to your dependencies:
 <dependency>
   <groupId>io.zeebe</groupId>
   <artifactId>zeebe-test-container</artifactId>
-  <version>3.2.0</version>
+  <version>3.3.0</version>
 </dependency>
 ```
 
