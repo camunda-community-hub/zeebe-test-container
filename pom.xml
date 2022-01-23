@@ -72,7 +72,7 @@
     <plugin.version.dependency>3.2.0</plugin.version.dependency>
     <plugin.version.enforcer>3.0.0</plugin.version.enforcer>
     <plugin.version.gpg>3.0.1</plugin.version.gpg>
-    <plugin.version.jar>3.2.0</plugin.version.jar>
+    <plugin.version.jar>3.2.2</plugin.version.jar>
     <plugin.version.javadoc>3.3.1</plugin.version.javadoc>
     <plugin.version.revapi>0.14.6</plugin.version.revapi>
     <plugin.version.sonar>3.9.0.2155</plugin.version.sonar>
