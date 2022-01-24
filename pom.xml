@@ -71,6 +71,7 @@
     <plugin.version.checkstyle>3.1.2</plugin.version.checkstyle>
     <plugin.version.dependency>3.2.0</plugin.version.dependency>
     <plugin.version.enforcer>3.0.0</plugin.version.enforcer>
+    <plugin.version.google-format>1.7</plugin.version.google-format>
     <plugin.version.gpg>3.0.1</plugin.version.gpg>
     <plugin.version.jar>3.2.2</plugin.version.jar>
     <plugin.version.javadoc>3.3.1</plugin.version.javadoc>
@@ -245,12 +246,6 @@
     </dependency>
 
     <dependency>
-      <groupId>io.camunda</groupId>
-      <artifactId>zeebe-test-util</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
       <groupId>org.awaitility</groupId>
       <artifactId>awaitility</artifactId>
       <version>${version.awaitility}</version>
@@ -324,9 +319,8 @@
         <configuration>
           <java>
             <googleJavaFormat>
-              <version>1.11.0</version>
+              <version>${plugin.version.google-format}</version>
               <style>GOOGLE</style>
-              <reflowLongStrings>true</reflowLongStrings>
             </googleJavaFormat>
             <licenseHeader>
               <file>${project.basedir}/HEADER</file>
@@ -455,8 +449,17 @@
               <goal>enforce</goal>
             </goals>
             <configuration>
+              <!-- see more https://maven.apache.org/enforcer/enforcer-rules/index.html -->
               <rules>
                 <banDuplicatePomDependencyVersions/>
+                <requireJavaVersion>
+                  <version>[1.8,)</version>
+                </requireJavaVersion>
+                <requireMavenVersion>
+                  <version>[3.6,)</version>
+                </requireMavenVersion>
+                <requireReleaseDeps/>
+                <requireUpperBoundDeps/>
               </rules>
             </configuration>
           </execution>
