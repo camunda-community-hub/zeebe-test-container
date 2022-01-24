@@ -25,6 +25,7 @@ import java.time.Instant;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+/** Client specification for Zeebe's actor clock actuator. */
 @API(status = Status.INTERNAL)
 interface ZeebeClockClient {
   @RequestLine("GET /actuator/clock")

@@ -29,7 +29,7 @@ import org.apiguardian.api.API.Status;
 
 /** A utility class which can take an input stream and extract */
 @API(status = Status.INTERNAL)
-public final class TarExtractor {
+final class TarExtractor {
 
   /** Singleton instance of this utility class */
   public static final TarExtractor INSTANCE = new TarExtractor();

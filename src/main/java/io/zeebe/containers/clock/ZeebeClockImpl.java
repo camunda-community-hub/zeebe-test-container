@@ -32,8 +32,13 @@ import java.util.function.Function;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+/**
+ * The default {@link ZeebeClock} implementation which uses a Feign based client, {@link
+ * ZeebeClockClient}, to interact with some {@link io.zeebe.containers.ZeebeNode}'s actor clock
+ * actuator.
+ */
 @API(status = Status.INTERNAL)
-public final class ZeebeClockImpl implements ZeebeClock {
+final class ZeebeClockImpl implements ZeebeClock {
   private static final Slf4jLogger LOGGER = new Slf4jLogger(ZeebeClockImpl.class);
 
   private final ZeebeClockClient client;

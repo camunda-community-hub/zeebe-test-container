@@ -19,7 +19,14 @@ import feign.Request;
 import feign.RequestTemplate;
 import feign.Target;
 import io.zeebe.containers.ZeebeNode;
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
 
+/**
+ * A {@link Target} implementation for a {@link ZeebeClockClient} which targets a {@link
+ * ZeebeNode}'s actuator clock endpoint.
+ */
+@API(status = Status.INTERNAL)
 final class ZeebeClockTarget implements Target<ZeebeClockClient> {
   private final ZeebeNode<?> zeebe;
   private final String scheme;
