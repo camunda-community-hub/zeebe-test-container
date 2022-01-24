@@ -23,8 +23,8 @@ import io.camunda.zeebe.client.api.response.DeploymentEvent;
 import io.camunda.zeebe.client.api.response.ProcessInstanceEvent;
 import io.camunda.zeebe.model.bpmn.Bpmn;
 import io.camunda.zeebe.model.bpmn.BpmnModelInstance;
-import io.camunda.zeebe.test.util.asserts.TopologyAssert;
 import io.zeebe.containers.util.TestUtils;
+import io.zeebe.containers.util.TopologyAssert;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -166,7 +166,7 @@ class ZeebeBrokerNodeTest {
         .untilAsserted(
             () ->
                 TopologyAssert.assertThat(client.newTopologyRequest().send().join())
-                    .isComplete(1, 1));
+                    .isComplete(1, 1, 1));
   }
 
   private static Stream<Arguments> reuseDataTestCases() {

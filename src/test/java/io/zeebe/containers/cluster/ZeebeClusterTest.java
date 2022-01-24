@@ -19,8 +19,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.api.response.Topology;
-import io.camunda.zeebe.test.util.asserts.TopologyAssert;
 import io.zeebe.containers.ZeebeGatewayNode;
+import io.zeebe.containers.util.TopologyAssert;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -59,7 +59,7 @@ final class ZeebeClusterTest {
     TopologyAssert.assertThat(topology)
         .as("the topology is complete for a one broker, one partition cluster")
         .hasBrokersCount(1)
-        .isComplete(1, 1);
+        .isComplete(1, 1, 1);
   }
 
   @Test
@@ -93,7 +93,7 @@ final class ZeebeClusterTest {
         TopologyAssert.assertThat(topology)
             .as("the topology is complete with 2 partitions and 2 brokers")
             .hasBrokersCount(2)
-            .isComplete(2, 2);
+            .isComplete(2, 2, 2);
       }
     }
   }
@@ -125,7 +125,7 @@ final class ZeebeClusterTest {
       TopologyAssert.assertThat(topology)
           .as("the topology is complete for a one broker, one partition cluster")
           .hasBrokersCount(1)
-          .isComplete(1, 1);
+          .isComplete(1, 1, 1);
     }
   }
 
@@ -160,8 +160,8 @@ final class ZeebeClusterTest {
             .isEqualTo(1);
         TopologyAssert.assertThat(topology)
             .as("the topology is complete for a one broker, one partition cluster")
-            .hasBrokersCount(1)
-            .isComplete(1, 1);
+            .isComplete(1, 1, 1)
+            .hasBrokersCount(1);
       }
     }
   }
