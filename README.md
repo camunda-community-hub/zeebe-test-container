@@ -79,7 +79,7 @@ Add the project to your dependencies:
 ```
 
 ```groovy
-testImplementation 'io.zeebe:zeebe-test-container:3.2.0'
+testImplementation 'io.zeebe:zeebe-test-container:3.3.0'
 ```
 
 ### Requirements
