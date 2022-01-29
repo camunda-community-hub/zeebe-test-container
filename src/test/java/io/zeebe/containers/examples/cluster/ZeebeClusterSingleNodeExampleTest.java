@@ -24,12 +24,16 @@ import java.util.concurrent.TimeUnit;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
  * This example show cases how to create a simple test against a single node broker with embedded
  * gateway.
  */
+@Testcontainers
 class ZeebeClusterSingleNodeExampleTest {
+  @Container
   private final ZeebeCluster cluster =
       ZeebeCluster.builder()
           .withGatewaysCount(0)
@@ -43,10 +47,9 @@ class ZeebeClusterSingleNodeExampleTest {
   @Timeout(value = 5, unit = TimeUnit.MINUTES)
   void shouldConnectToZeebe() {
     // given
-    cluster.start();
+    final Topology topology;
 
     // when
-    final Topology topology;
     try (final ZeebeClient client = cluster.newClientBuilder().build()) {
       topology = client.newTopologyRequest().send().join(5, TimeUnit.SECONDS);
     }
