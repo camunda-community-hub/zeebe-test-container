@@ -25,13 +25,17 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
  * Showcases how you can create a test with a cluster of two brokers and one standalone gateway.
  * Configuration is kept to minimum, as the goal here is only to showcase how to connect the
  * different nodes together.
  */
+@Testcontainers
 class ZeebeClusterWithGatewayExampleTest {
+  @Container
   private final ZeebeCluster cluster =
       ZeebeCluster.builder()
           .withEmbeddedGateway(false)
@@ -41,19 +45,13 @@ class ZeebeClusterWithGatewayExampleTest {
           .withReplicationFactor(1)
           .build();
 
-  @AfterEach
-  void tearDown() {
-    cluster.stop();
-  }
-
   @Test
   @Timeout(value = 15, unit = TimeUnit.MINUTES)
   void shouldStartCluster() {
     // given
-    cluster.start();
+    final Topology topology;
 
     // when
-    final Topology topology;
     try (final ZeebeClient client = cluster.newClientBuilder().build()) {
       topology = client.newTopologyRequest().send().join(5, TimeUnit.SECONDS);
     }

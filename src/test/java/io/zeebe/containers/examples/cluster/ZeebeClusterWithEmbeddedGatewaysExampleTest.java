@@ -25,12 +25,16 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
  * This showcases how to start a cluster of brokers with embedded gateways, removing the need for a
  * standalone gateway container.
  */
+@Testcontainers
 class ZeebeClusterWithEmbeddedGatewaysExampleTest {
+  @Container
   private final ZeebeCluster cluster =
       ZeebeCluster.builder()
           .withGatewaysCount(0)
@@ -40,19 +44,13 @@ class ZeebeClusterWithEmbeddedGatewaysExampleTest {
           .withEmbeddedGateway(true)
           .build();
 
-  @AfterEach
-  void tearDown() {
-    cluster.stop();
-  }
-
   @Test
   @Timeout(value = 15, unit = TimeUnit.MINUTES)
   void shouldStartCluster() {
     // given
-    cluster.start();
+    final Topology topology;
 
     // when
-    final Topology topology;
     try (final ZeebeClient client = cluster.newClientBuilder().build()) {
       topology = client.newTopologyRequest().send().join(5, TimeUnit.SECONDS);
     }
