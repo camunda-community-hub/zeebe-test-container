@@ -10,7 +10,7 @@ closes #
 
 ## Pull Request Checklist
 
-- [ ] All commit messages match our [commit message guidelines](https://github.com/zeebe-io/zeebe/blob/develop/CONTRIBUTING.md#commit-message-guidelines)
-- [ ] The submitting code follows our [code style](https://github.com/zeebe-io/zeebe/wiki/Code-Style)
+- [ ] All commit messages match our [commit message guidelines](https://github.com/camunda-cloud/zeebe/blob/develop/CONTRIBUTING.md#commit-message-guidelines)
+- [ ] The submitting code follows our [code style](https://github.com/camunda-cloud/zeebe/wiki/Code-Style)
 - [ ] If submitting code, please run `mvn clean install -DskipTests` locally before committing
 - [ ] Ensure all PR checks are green
