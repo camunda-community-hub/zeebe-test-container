@@ -22,7 +22,6 @@ import io.zeebe.containers.cluster.ZeebeCluster;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.testcontainers.junit.jupiter.Container;
