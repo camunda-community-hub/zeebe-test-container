@@ -21,6 +21,7 @@ import io.zeebe.containers.ZeebeBrokerNode;
 import io.zeebe.containers.ZeebeGatewayNode;
 import io.zeebe.containers.ZeebeNode;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Stream;
@@ -96,6 +97,7 @@ public class ZeebeCluster implements Startable {
   private final String name;
   private final Map<String, ZeebeGatewayNode<? extends GenericContainer<?>>> gateways;
   private final Map<Integer, ZeebeBrokerNode<? extends GenericContainer<?>>> brokers;
+  private final Map<String, ZeebeNode<? extends GenericContainer<?>>> nodes;
   private final int replicationFactor;
   private final int partitionsCount;
 
@@ -122,6 +124,11 @@ public class ZeebeCluster implements Startable {
     this.brokers = Collections.unmodifiableMap(brokers);
     this.replicationFactor = replicationFactor;
     this.partitionsCount = partitionsCount;
+
+    final Map<String, ZeebeNode<? extends GenericContainer<?>>> combinedNodes = new HashMap<>();
+    brokers.forEach((key, value) -> combinedNodes.put(String.valueOf(key), value));
+    combinedNodes.putAll(gateways);
+    this.nodes = Collections.unmodifiableMap(combinedNodes);
   }
 
   /** @return a new cluster builder */
@@ -207,6 +214,10 @@ public class ZeebeCluster implements Startable {
    */
   public Map<Integer, ZeebeBrokerNode<? extends GenericContainer<?>>> getBrokers() {
     return brokers;
+  }
+
+  public Map<String, ZeebeNode<? extends GenericContainer<?>>> getNodes() {
+    return nodes;
   }
 
   /**

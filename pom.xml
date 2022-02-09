@@ -175,6 +175,25 @@
       <artifactId>feign-slf4j</artifactId>
     </dependency>
 
+    <!-- zeebe-process-test integration -->
+    <dependency>
+      <groupId>io.camunda</groupId>
+      <artifactId>zeebe-process-test-api</artifactId>
+      <version>1.3.4-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.camunda</groupId>
+      <artifactId>zeebe-protocol-jackson</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.camunda</groupId>
+      <artifactId>zeebe-process-test-extension</artifactId>
+      <version>1.3.4-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+
     <!-- required to deserialize the Clock's Instance interface -->
     <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>
