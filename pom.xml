@@ -82,6 +82,7 @@
 
     <!-- maven extensions -->
     <extension.version.os-maven-plugin>1.6.1</extension.version.os-maven-plugin>
+    <plugin.version.flatten>1.2.2</plugin.version.flatten>
   </properties>
 
   <dependencyManagement>
@@ -462,6 +463,36 @@
                 <requireUpperBoundDeps/>
               </rules>
             </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!--
+        generate a simplified POM; this is very useful for projects consuming
+        zeebe-test-container, as it will simplify dependency convergence for these projects
+      -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <version>${plugin.version.flatten}</version>
+        <configuration>
+          <flattenMode>ossrh</flattenMode>
+          <outputDirectory>${project.build.directory}</outputDirectory>
+        </configuration>
+        <executions>
+          <execution>
+            <id>flatten</id>
+            <goals>
+              <goal>flatten</goal>
+            </goals>
+            <phase>process-resources</phase>
+          </execution>
+          <execution>
+            <id>flatten.clean</id>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+            <phase>clean</phase>
           </execution>
         </executions>
       </plugin>
