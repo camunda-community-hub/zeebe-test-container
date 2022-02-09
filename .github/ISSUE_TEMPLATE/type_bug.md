@@ -1,4 +1,5 @@
 ---
+
 name: Bug report
 about: Create a report to help us improve
 title: ''
@@ -26,8 +27,7 @@ If possible add the full stacktrace or Zeebe log which contains the issue.
 </pre>
 </details>
 
-
 **Environment:**
- - OS: [e.g. Linux]
- - Docker version: [e.g. 19.03.5]
- - Zeebe Test Container version: [e.g. 0.22.1]
+- OS: [e.g. Linux]
+- Docker version: [e.g. 19.03.5]
+- Zeebe Test Container version: [e.g. 0.22.1]

@@ -1,4 +1,5 @@
 ---
+
 name: Documentation issue
 about: Improvements, additions, or modifications of the documentation
 title: ''

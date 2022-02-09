@@ -335,6 +335,13 @@
               <expandEmptyElements>false</expandEmptyElements>
             </sortPom>
           </pom>
+          <markdown>
+            <includes>
+              <include>**/*.md</include>
+            </includes>
+
+            <flexmark/>
+          </markdown>
         </configuration>
         <executions>
           <execution>
