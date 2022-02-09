@@ -269,10 +269,10 @@ The container is considered started if and only if:
    about the
    ports [here](https://docs.camunda.io/docs/components/zeebe/deployment-guide/operations/network-ports/))
    .
-1. The broker ready check returns a 204 (see more about this
+2. The broker ready check returns a 204 (see more about this
    check [here](https://docs.camunda.io/docs/components/zeebe/deployment-guide/operations/health/#ready-check))
    .
-1. The gateway topology is considered complete.
+3. The gateway topology is considered complete.
 
 > A topology is considered complete if there is a leader for all partitions.
 
@@ -291,7 +291,7 @@ The container is considered started if and only if:
    the
    ports [here](https://docs.camunda.io/docs/components/zeebe/deployment-guide/operations/network-ports/))
    .
-1. The broker ready check returns a 204 (see more about this
+2. The broker ready check returns a 204 (see more about this
    check [here](https://docs.camunda.io/docs/components/zeebe/deployment-guide/operations/health/#ready-check))
    .
 
@@ -311,7 +311,7 @@ The container is considered started if and only if:
 1. The cluster and gateway ports are open and accepting connections (read more about the
    ports [here](https://docs.camunda.io/docs/components/zeebe/deployment-guide/operations/network-ports/))
    .
-1. The gateway topology is considered complete.
+2. The gateway topology is considered complete.
 
 > A topology is considered complete if there is a leader for all partitions.
 
@@ -328,7 +328,7 @@ variables or via configuration file. You can find out more about it on the
 > Zeebe 0.23.x and upwards use Spring Boot for configuration - refer to their documentation on how
 > environment variables are mapped to configuration settings. You can read more about this
 > [here](https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-external-config)
-
+>
 > Testcontainers provide mechanisms through which
 > [environment variables can be injected](https://www.javadoc.io/doc/org.testcontainers/testcontainers/1.14.3/org/testcontainers/containers/GenericContainer.html#withEnv-java.lang.String-java.lang.String-),
 > or [configuration files mounted](https://www.testcontainers.org/features/files/). Refer to their
@@ -1004,26 +1004,28 @@ To work on an issue, follow the following steps:
 
 1. Check that a [GitHub issue][issues] exists for the task you want to work on. If one does not,
    create one.
-1. Checkout the `master` branch and pull the latest changes.
+2. Checkout the `master` branch and pull the latest changes.
+
    ```
    git checkout develop
    git pull
    ```
-1. Create a new branch with the naming scheme `issueId-description`.
+3. Create a new branch with the naming scheme `issueId-description`.
+
    ```
    git checkout -b 123-my-new-feature
    ```
-1. Follow
+4. Follow
    the [Google Java Format](https://github.com/google/google-java-format#intellij-android-studio-and-other-jetbrains-ides)
    and [Zeebe Code Style](https://github.com/zeebe-io/zeebe/wiki/Code-Style) while coding.
-1. Implement the required changes on your branch, and make sure to build and test your changes
+5. Implement the required changes on your branch, and make sure to build and test your changes
    locally before opening a pull requests for review.
-1. If you want to make use of the CI facilities before your feature is ready for review, feel free
+6. If you want to make use of the CI facilities before your feature is ready for review, feel free
    to open a draft PR.
-1. If you think you finished the issue please prepare the branch for reviewing. In general the
+7. If you think you finished the issue please prepare the branch for reviewing. In general the
    commits should be squashed into meaningful commits with a helpful message. This means cleanup/fix
    etc commits should be squashed into the related commit.
-1. Finally, be sure to check on the CI results and fix any reported errors.
+8. Finally, be sure to check on the CI results and fix any reported errors.
 
 ## Commit Message Guidelines
 
