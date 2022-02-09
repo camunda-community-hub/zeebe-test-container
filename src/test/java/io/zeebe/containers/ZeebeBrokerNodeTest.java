@@ -26,6 +26,8 @@ import io.camunda.zeebe.model.bpmn.BpmnModelInstance;
 import io.zeebe.containers.util.TestUtils;
 import io.zeebe.containers.util.TopologyAssert;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Arrays;
@@ -43,9 +45,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.shaded.okhttp3.OkHttpClient;
-import org.testcontainers.shaded.okhttp3.Request.Builder;
-import org.testcontainers.shaded.okhttp3.Response;
 
 class ZeebeBrokerNodeTest {
   @SuppressWarnings("unused")
@@ -55,23 +54,24 @@ class ZeebeBrokerNodeTest {
   void shouldBeReadyOnStart(final String testName, final ZeebeBrokerNode<?> node)
       throws IOException {
     // given
-    final Response response;
+    final int statusCode;
     try (final GenericContainer<?> container = node.self()) {
-      final OkHttpClient httpClient = new OkHttpClient();
-      // when
       container.start();
-      response =
-          httpClient
-              .newCall(
-                  new Builder()
-                      .get()
-                      .url(String.format("http://%s/ready", node.getExternalMonitoringAddress()))
-                      .build())
-              .execute();
+
+      // when
+      final URL monitoringUrl =
+          new URL(String.format("http://%s/ready", node.getExternalMonitoringAddress()));
+      final HttpURLConnection connection = (HttpURLConnection) monitoringUrl.openConnection();
+      try {
+        connection.connect();
+        statusCode = connection.getResponseCode();
+      } finally {
+        connection.disconnect();
+      }
     }
 
     // then
-    assertThat(response.code())
+    assertThat(statusCode)
         .as("the broker ready check should return 204 when the container is started")
         .isEqualTo(204);
   }
