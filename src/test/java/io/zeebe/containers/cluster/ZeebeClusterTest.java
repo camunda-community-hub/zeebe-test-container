@@ -24,8 +24,6 @@ import io.zeebe.containers.util.TopologyAssert;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 
 final class ZeebeClusterTest {
   private ZeebeCluster cluster;

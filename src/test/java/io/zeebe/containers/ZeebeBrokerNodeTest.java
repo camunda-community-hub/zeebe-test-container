@@ -24,6 +24,7 @@ import io.camunda.zeebe.client.api.response.ProcessInstanceEvent;
 import io.camunda.zeebe.model.bpmn.Bpmn;
 import io.camunda.zeebe.model.bpmn.BpmnModelInstance;
 import io.zeebe.containers.util.TestUtils;
+import io.zeebe.containers.util.TestcontainersSupport.DisabledIfTestcontainersCloud;
 import io.zeebe.containers.util.TopologyAssert;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -99,6 +100,7 @@ final class ZeebeBrokerNodeTest {
   @ParameterizedTest(name = "{0}")
   @MethodSource("reuseDataTestCases")
   @EnabledOnOs(LINUX)
+  @DisabledIfTestcontainersCloud
   void shouldReuseHostDataOnRestart(
       @SuppressWarnings("unused") final String testName,
       final BrokerNodeProvider brokerNodeProvider,
