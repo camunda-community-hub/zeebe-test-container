@@ -46,7 +46,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.testcontainers.containers.GenericContainer;
 
-class ZeebeBrokerNodeTest {
+final class ZeebeBrokerNodeTest {
+  @SuppressWarnings("unused")
   @Timeout(value = 5, unit = TimeUnit.MINUTES)
   @ParameterizedTest(name = "{0} should be ready on start")
   @MethodSource("nodeProvider")
@@ -112,7 +113,7 @@ class ZeebeBrokerNodeTest {
     broker.start();
     gateway.start();
 
-    try (final ZeebeClient client = ZeebeClientFactory.newZeebeClient(gateway)) {
+    try (final ZeebeClient client = TestUtils.newZeebeClient(gateway)) {
       // deploy a new process, which we can use on restart to assert that the data was correctly
       // reused
       final DeploymentEvent deployment = deploySampleProcess(client);
@@ -156,7 +157,11 @@ class ZeebeBrokerNodeTest {
   private DeploymentEvent deploySampleProcess(final ZeebeClient client) {
     final BpmnModelInstance sampleProcess =
         Bpmn.createExecutableProcess("process").startEvent().endEvent().done();
-    return client.newDeployCommand().addProcessModel(sampleProcess, "process.bpmn").send().join();
+    return client
+        .newDeployResourceCommand()
+        .addProcessModel(sampleProcess, "process.bpmn")
+        .send()
+        .join();
   }
 
   private void awaitUntilTopologyIsComplete(final ZeebeClient client) {

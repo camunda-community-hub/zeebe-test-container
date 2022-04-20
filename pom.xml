@@ -550,7 +550,7 @@
     <profile>
       <id>parallel-tests</id>
       <properties>
-        <forkCount>0.5C</forkCount>
+        <forkCount>1C</forkCount>
       </properties>
       <build>
         <plugins>
@@ -560,6 +560,12 @@
             <configuration>
               <forkCount>${forkCount}</forkCount>
               <reuseForks>true</reuseForks>
+              <properties>
+                <configurationParameters>junit.jupiter.execution.parallel.enabled = true
+                  junit.jupiter.execution.parallel.mode.default = concurrent
+                  junit.jupiter.execution.parallel.config.strategy = fixed
+                  junit.jupiter.execution.parallel.config.fixed.parallelism = 2</configurationParameters>
+              </properties>
             </configuration>
           </plugin>
         </plugins>

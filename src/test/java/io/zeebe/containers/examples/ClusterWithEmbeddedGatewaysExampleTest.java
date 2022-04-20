@@ -44,7 +44,7 @@ import org.testcontainers.lifecycle.Startables;
  * the partitioning scheme and is only necessary on the very first run. Nevertheless, this prevents
  * us from the using the extension, and the container's lifecycle must be managed separately.
  */
-class ClusterWithEmbeddedGatewaysExampleTest {
+final class ClusterWithEmbeddedGatewaysExampleTest {
   private final List<ZeebeContainer> containers =
       Arrays.asList(new ZeebeContainer(), new ZeebeContainer(), new ZeebeContainer());
   private final ZeebeContainer nodeZeroContainer = getConfiguredClusterBroker(0, containers);

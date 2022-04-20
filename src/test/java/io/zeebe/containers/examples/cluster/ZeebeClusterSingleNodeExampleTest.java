@@ -32,7 +32,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  * gateway.
  */
 @Testcontainers
-class ZeebeClusterSingleNodeExampleTest {
+final class ZeebeClusterSingleNodeExampleTest {
   @Container
   private final ZeebeCluster cluster =
       ZeebeCluster.builder()

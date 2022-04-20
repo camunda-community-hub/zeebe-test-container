@@ -25,12 +25,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.testcontainers.containers.SocatContainer;
 import org.testcontainers.utility.MountableFile;
 
-@Execution(ExecutionMode.CONCURRENT)
 final class ContainerArchiveBuilderTest {
 
   @Test

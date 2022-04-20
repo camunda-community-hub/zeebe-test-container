@@ -36,7 +36,7 @@ final class ExtractDataLiveExampleTest {
   @Container private final ZeebeBrokerContainer container = new ZeebeBrokerContainer();
 
   @Test
-  void shouldExtractData(@TempDir final Path tempDir) throws IOException {
+  void shouldExtractData(@TempDir final Path tempDir) {
     // given
     final ContainerArchive archive = ContainerArchive.builder().withContainer(container).build();
 

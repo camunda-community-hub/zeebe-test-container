@@ -15,10 +15,20 @@
  */
 package io.zeebe.containers.util;
 
+import com.github.dockerjava.api.model.Info;
+import io.camunda.zeebe.client.ZeebeClient;
+import io.zeebe.containers.ZeebeGatewayNode;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import org.junit.jupiter.api.condition.DisabledIf;
+import org.testcontainers.DockerClientFactory;
 
 public final class TestUtils {
   private TestUtils() {}
@@ -54,6 +64,14 @@ public final class TestUtils {
     return execCommand("id -u");
   }
 
+  /** Returns a client for the given gateway, using a plaintext connection. */
+  public static ZeebeClient newZeebeClient(final ZeebeGatewayNode<?> gateway) {
+    return ZeebeClient.newClientBuilder()
+        .usePlaintext()
+        .gatewayAddress(gateway.getExternalGatewayAddress())
+        .build();
+  }
+
   private static String execCommand(final String command) {
     try {
       final Process exec = Runtime.getRuntime().exec(command);
@@ -63,4 +81,27 @@ public final class TestUtils {
       throw new UncheckedIOException(e);
     }
   }
+
+  /**
+   * Returns whether tests run against Testcontainers Cloud or not by checking the server version.
+   *
+   * <p>This isn't perfect as it's clearly breaking implementation details, but it works for now.
+   */
+  public static boolean isCloudEnv() {
+    if (System.getenv().containsKey("TC_CLOUD_TOKEN")) {
+      return true;
+    }
+
+    final Info dockerInfo = DockerClientFactory.lazyClient().infoCmd().exec();
+    return dockerInfo.getServerVersion() != null
+        && dockerInfo.getServerVersion().endsWith("testcontainerscloud");
+  }
+
+  @DisabledIf(
+      value = "io.zeebe.containers.util.TestUtils#isCloudEnv",
+      disabledReason = "Testcontainers Cloud does not support mounting host files")
+  @Target({ElementType.TYPE, ElementType.METHOD})
+  @Retention(RetentionPolicy.RUNTIME)
+  @Documented
+  public @interface DisabledIfTestcontainersCloud {}
 }
