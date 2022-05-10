@@ -47,11 +47,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.testcontainers.containers.GenericContainer;
 
 class ZeebeBrokerNodeTest {
-  @SuppressWarnings("unused")
   @Timeout(value = 5, unit = TimeUnit.MINUTES)
   @ParameterizedTest(name = "{0} should be ready on start")
   @MethodSource("nodeProvider")
-  void shouldBeReadyOnStart(final String testName, final ZeebeBrokerNode<?> node)
+  void shouldBeReadyOnStart(
+      @SuppressWarnings("unused") final String testName, final ZeebeBrokerNode<?> node)
       throws IOException {
     // given
     final int statusCode;
@@ -76,10 +76,10 @@ class ZeebeBrokerNodeTest {
         .isEqualTo(204);
   }
 
-  @SuppressWarnings("unused")
   @ParameterizedTest(name = "{0} should expose all ports except gateway")
   @MethodSource("nodeProvider")
-  void shouldExposeAllPortsButGateway(final String testName, final ZeebeBrokerNode<?> node) {
+  void shouldExposeAllPortsButGateway(
+      @SuppressWarnings("unused") final String testName, final ZeebeBrokerNode<?> node) {
     // given
     final List<Integer> expectedPorts =
         Arrays.stream(ZeebePort.values()).map(ZeebePort::getPort).collect(Collectors.toList());
@@ -94,13 +94,12 @@ class ZeebeBrokerNodeTest {
         .containsAll(expectedPorts);
   }
 
-  @SuppressWarnings("unused")
   @Timeout(value = 5, unit = TimeUnit.MINUTES)
   @ParameterizedTest(name = "{0}")
   @MethodSource("reuseDataTestCases")
   @EnabledOnOs(LINUX)
   void shouldReuseHostDataOnRestart(
-      final String testName,
+      @SuppressWarnings("unused") final String testName,
       final BrokerNodeProvider brokerNodeProvider,
       final @TempDir Path dataDir) {
     // given

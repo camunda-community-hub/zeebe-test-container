@@ -466,28 +466,26 @@ public class ZeebeClusterBuilder {
   }
 
   private void configureGateway(final ZeebeGatewayNode<?> gateway) {
-    final ZeebeGatewayNode<?> gatewayContainer =
-        gateway.withTopologyCheck(
-            new ZeebeTopologyWaitStrategy()
-                .forBrokersCount(brokersCount)
-                .forPartitionsCount(partitionsCount)
-                .forReplicationFactor(replicationFactor));
+    gateway.withTopologyCheck(
+        new ZeebeTopologyWaitStrategy()
+            .forBrokersCount(brokersCount)
+            .forPartitionsCount(partitionsCount)
+            .forReplicationFactor(replicationFactor));
   }
 
   private void configureBroker(final ZeebeBrokerNode<?> broker, final int index) {
     final String hostName = BROKER_NETWORK_ALIAS_PREFIX + index;
 
-    final GenericContainer<?> brokerContainer =
-        broker
-            .withNetwork(network)
-            .withNetworkAliases(hostName)
-            .withEnv("ZEEBE_BROKER_NETWORK_ADVERTISEDHOST", broker.getInternalHost())
-            .withEnv("ZEEBE_BROKER_CLUSTER_CLUSTERNAME", name)
-            .withEnv("ZEEBE_BROKER_CLUSTER_NODEID", String.valueOf(index))
-            .withEnv("ZEEBE_BROKER_CLUSTER_CLUSTERSIZE", String.valueOf(brokersCount))
-            .withEnv("ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR", String.valueOf(replicationFactor))
-            .withEnv("ZEEBE_BROKER_CLUSTER_PARTITIONSCOUNT", String.valueOf(partitionsCount))
-            .withStartupTimeout(Duration.ofMinutes((long) brokersCount + gatewaysCount));
+    broker
+        .withNetwork(network)
+        .withNetworkAliases(hostName)
+        .withEnv("ZEEBE_BROKER_NETWORK_ADVERTISEDHOST", broker.getInternalHost())
+        .withEnv("ZEEBE_BROKER_CLUSTER_CLUSTERNAME", name)
+        .withEnv("ZEEBE_BROKER_CLUSTER_NODEID", String.valueOf(index))
+        .withEnv("ZEEBE_BROKER_CLUSTER_CLUSTERSIZE", String.valueOf(brokersCount))
+        .withEnv("ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR", String.valueOf(replicationFactor))
+        .withEnv("ZEEBE_BROKER_CLUSTER_PARTITIONSCOUNT", String.valueOf(partitionsCount))
+        .withStartupTimeout(Duration.ofMinutes((long) brokersCount + gatewaysCount));
   }
 
   private void configureBrokerInitialContactPoints() {
