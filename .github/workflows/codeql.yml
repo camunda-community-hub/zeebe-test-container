@@ -4,7 +4,13 @@ name: "CodeQL"
 on:
   push:
     branches: [ main ]
-  pull_request: { }
+    paths:
+      - 'src/**'
+      - 'pom.xml'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'pom.xml'
   schedule:
     - cron: '21 2 * * 1'
 
