@@ -65,7 +65,7 @@
     <version.revapi>0.26.1</version.revapi>
     <version.slf4j>1.7.36</version.slf4j>
     <version.testcontainers>1.17.1</version.testcontainers>
-    <version.zeebe>8.0.0</version.zeebe>
+    <version.zeebe>8.0.2</version.zeebe>
 
     <!-- plugin version -->
     <plugin.version.checkstyle>3.1.2</plugin.version.checkstyle>
