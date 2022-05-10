@@ -74,7 +74,7 @@
     <plugin.version.google-format>1.7</plugin.version.google-format>
     <plugin.version.gpg>3.0.1</plugin.version.gpg>
     <plugin.version.jar>3.2.2</plugin.version.jar>
-    <plugin.version.javadoc>3.3.1</plugin.version.javadoc>
+    <plugin.version.javadoc>3.4.0</plugin.version.javadoc>
     <plugin.version.revapi>0.14.6</plugin.version.revapi>
     <plugin.version.sonar>3.9.0.2155</plugin.version.sonar>
     <plugin.version.spotless>2.20.1</plugin.version.spotless>
