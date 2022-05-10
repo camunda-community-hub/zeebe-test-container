@@ -78,7 +78,7 @@
     <plugin.version.revapi>0.14.6</plugin.version.revapi>
     <plugin.version.sonar>3.9.0.2155</plugin.version.sonar>
     <plugin.version.spotless>2.22.4</plugin.version.spotless>
-    <plugin.version.surefire>3.0.0-M5</plugin.version.surefire>
+    <plugin.version.surefire>3.0.0-M6</plugin.version.surefire>
 
     <!-- maven extensions -->
     <extension.version.os-maven-plugin>1.6.1</extension.version.os-maven-plugin>
