@@ -82,7 +82,7 @@
 
     <!-- maven extensions -->
     <extension.version.os-maven-plugin>1.6.1</extension.version.os-maven-plugin>
-    <plugin.version.flatten>1.2.2</plugin.version.flatten>
+    <plugin.version.flatten>1.2.7</plugin.version.flatten>
   </properties>
 
   <dependencyManagement>
