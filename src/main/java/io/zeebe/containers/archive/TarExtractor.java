@@ -62,6 +62,14 @@ final class TarExtractor {
     }
 
     final Path entryPath = destination.resolve(entry.getName());
+    if (!entryPath.normalize().startsWith(destination)) {
+      throw new IllegalStateException(
+          String.format(
+              "Expected to extract %s from TAR archive to the destination folder %s, but it would "
+                  + "be extracted outside to %s; make sure no entry contains `..` or the likes in "
+                  + "their name",
+              entry.getName(), destination, entryPath));
+    }
 
     if (entry.isDirectory()) {
       Files.createDirectories(entryPath);
