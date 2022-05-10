@@ -233,7 +233,7 @@ public class ZeebeTopologyWaitStrategy extends AbstractWaitStrategy {
   }
 
   private ZeebeClient newZeebeClient(final WaitStrategyTarget waitStrategyTarget) {
-    final String gatewayHost = waitStrategyTarget.getContainerIpAddress();
+    final String gatewayHost = waitStrategyTarget.getHost();
     final int exposedGatewayPort = waitStrategyTarget.getMappedPort(gatewayPort);
     return clientBuilderProvider
         .get()

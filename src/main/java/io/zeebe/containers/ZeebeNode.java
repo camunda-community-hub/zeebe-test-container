@@ -30,6 +30,7 @@ import org.testcontainers.lifecycle.Startable;
  *
  * @param <T> the concrete type of the underlying container
  */
+@SuppressWarnings("unused")
 public interface ZeebeNode<T extends GenericContainer<T> & ZeebeNode<T>>
     extends Container<T>, WaitStrategyTarget, Startable {
 
@@ -94,9 +95,14 @@ public interface ZeebeNode<T extends GenericContainer<T> & ZeebeNode<T>>
     return getExternalAddress(ZeebePort.MONITORING.getPort());
   }
 
-  /** @return the hostname of this node as visible from a host outside of its docker network */
+  /**
+   * Returns the hostname of this node, such that it is visible to hosts from the outside of the
+   * Docker network.
+   *
+   * @return the hostname of this node
+   */
   default String getExternalHost() {
-    return self().getContainerIpAddress();
+    return self().getHost();
   }
 
   /**
@@ -143,7 +149,11 @@ public interface ZeebeNode<T extends GenericContainer<T> & ZeebeNode<T>>
     getDockerClient().stopContainerCmd(containerId).withTimeout((int) timeout.getSeconds()).exec();
   }
 
-  /** @return true if the container is already started, false otherwise */
+  /**
+   * Returns whether the container was started or not yet by checking if it was assigned an ID.
+   *
+   * @return true if the container is already started, false otherwise
+   */
   @API(status = Status.EXPERIMENTAL)
   default boolean isStarted() {
     return getContainerId() != null;
