@@ -41,9 +41,9 @@ import org.testcontainers.containers.GenericContainer;
  * }</pre>
  *
  * <pre>{@code
- * @Testcontainers
+ * {@literal @}Testcontainers
  * final class MyTest {
- *   @Container
+ *   {@literal @}Container
  *   private final ZeebeContainer = RemoteDebugger.configure(new ZeebeContainer())
  *       .withEnv("MY_ENV_VAR", "true");
  *
@@ -99,7 +99,7 @@ public final class RemoteDebugger {
    * @return the same container configured for debugging
    */
   public static <T extends GenericContainer<T>> T configure(
-      final T container, final int port, boolean suspend) {
+      final T container, final int port, final boolean suspend) {
     final String javaOpts = container.getEnvMap().getOrDefault("JAVA_OPTS", "");
     final char suspendFlag = suspend ? 'y' : 'n';
 
