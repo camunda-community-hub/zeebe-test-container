@@ -77,7 +77,7 @@
     <plugin.version.javadoc>3.4.0</plugin.version.javadoc>
     <plugin.version.revapi>0.14.6</plugin.version.revapi>
     <plugin.version.sonar>3.9.0.2155</plugin.version.sonar>
-    <plugin.version.spotless>2.22.4</plugin.version.spotless>
+    <plugin.version.spotless>2.22.5</plugin.version.spotless>
     <plugin.version.surefire>3.0.0-M6</plugin.version.surefire>
 
     <!-- maven extensions -->
