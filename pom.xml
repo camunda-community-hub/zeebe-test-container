@@ -64,7 +64,7 @@
     <version.mockito>4.5.1</version.mockito>
     <version.revapi>0.26.1</version.revapi>
     <version.slf4j>1.7.36</version.slf4j>
-    <version.testcontainers>1.17.1</version.testcontainers>
+    <version.testcontainers>1.17.2</version.testcontainers>
     <version.zeebe>8.0.2</version.zeebe>
 
     <!-- plugin version -->
