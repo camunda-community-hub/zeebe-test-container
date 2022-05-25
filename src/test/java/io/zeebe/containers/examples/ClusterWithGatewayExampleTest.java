@@ -31,6 +31,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.testcontainers.containers.Network;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.lifecycle.Startable;
 import org.testcontainers.lifecycle.Startables;
@@ -47,22 +48,25 @@ import org.testcontainers.lifecycle.Startables;
  * us from the using the extension, and the container's lifecycle must be managed separately.
  */
 final class ClusterWithGatewayExampleTest {
+  private final Network network = Network.newNetwork();
   private final List<ZeebeBrokerContainer> brokers =
       Arrays.asList(
           new ZeebeBrokerContainer(), new ZeebeBrokerContainer(), new ZeebeBrokerContainer());
   private final ZeebeBrokerContainer brokerZeroContainer = getConfiguredClusterBroker(0, brokers);
-  private final ZeebeBrokerContainer brokerOneContainer = getConfiguredClusterBroker(1, brokers);
-  private final ZeebeBrokerContainer brokerTwoContainer = getConfiguredClusterBroker(2, brokers);
   private final ZeebeGatewayContainer gatewayContainer =
       new ZeebeGatewayContainer()
           .withEnv(
               "ZEEBE_GATEWAY_CLUSTER_CONTACTPOINT", brokerZeroContainer.getInternalClusterAddress())
+          .withNetwork(network)
           .withTopologyCheck(
               new ZeebeTopologyWaitStrategy().forBrokersCount(3).forReplicationFactor(3));
+  private final ZeebeBrokerContainer brokerOneContainer = getConfiguredClusterBroker(1, brokers);
+  private final ZeebeBrokerContainer brokerTwoContainer = getConfiguredClusterBroker(2, brokers);
 
   @AfterEach
   void tearDown() {
     brokers.parallelStream().forEach(Startable::stop);
+    network.close();
   }
 
   @Test
@@ -110,6 +114,7 @@ final class ClusterWithGatewayExampleTest {
 
     return broker
         .withStartupTimeout(Duration.ofMinutes(5))
+        .withNetwork(network)
         .withEnv("ZEEBE_BROKER_CLUSTER_NODEID", String.valueOf(index))
         .withEnv("ZEEBE_BROKER_CLUSTER_CLUSTERSIZE", String.valueOf(clusterSize))
         .withEnv("ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR", String.valueOf(clusterSize))
