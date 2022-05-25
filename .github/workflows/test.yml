@@ -17,7 +17,7 @@ jobs:
     env:
       TC_CLOUD_TOKEN: ${{ secrets.TC_CLOUD_TOKEN }}
       TC_CLOUD_CONCURRENCY: 4
-    name: Test (Cloud) - core module
+    name: Test (Cloud) - core
     runs-on: ubuntu-latest
     steps:
       - name: Prepare Testcontainers Cloud agent
@@ -56,7 +56,7 @@ jobs:
           retention-days: 7
   # No need to set up the JDK 17 here as we're only building the core module
   core-local:
-    name: Test (Local)
+    name: Test (Local) - core
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -83,7 +83,7 @@ jobs:
           path: target/surefire-reports/
           retention-days: 7
   exporter:
-    name: Test (Exporter)
+    name: Test (Local) - exporter
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
