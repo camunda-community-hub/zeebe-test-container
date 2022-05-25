@@ -88,8 +88,8 @@ public interface ZeebeBrokerNode<T extends GenericContainer<T> & ZeebeBrokerNode
   }
 
   /**
-   * Injects an instance of {@link io.zeebe.containers.exporter.DebugExporter} into the container,
-   * which will push records out to http://host.testcontainers.internal:{@code port}/records.
+   * Injects an instance of the debug exporter into the container, which will push records out to
+   * http://host.testcontainers.internal:{@code port}/records.
    *
    * @param port the host port of the {@link io.zeebe.containers.exporter.DebugReceiver}
    * @return this container for chaining

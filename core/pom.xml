@@ -107,14 +107,6 @@
       <artifactId>jackson-databind</artifactId>
     </dependency>
 
-    <!-- Fake dependency on the exporter to ensure it's packaged beforehand -->
-    <dependency>
-      <groupId>io.zeebe</groupId>
-      <artifactId>zeebe-test-container-exporter</artifactId>
-      <scope>provided</scope>
-      <optional>true</optional>
-    </dependency>
-
     <!-- Test dependencies -->
 
     <dependency>
@@ -195,6 +187,14 @@
             <dep>io.zeebe:zeebe-test-container-exporter</dep>
           </ignoredUnusedDeclaredDependencies>
         </configuration>
+        <dependencies>
+          <!-- Fake dependency on the exporter to ensure it's packaged beforehand -->
+          <dependency>
+            <groupId>io.zeebe</groupId>
+            <artifactId>zeebe-test-container-exporter</artifactId>
+            <version>${project.version}</version>
+          </dependency>
+        </dependencies>
         <executions>
           <execution>
             <id>copy</id>
