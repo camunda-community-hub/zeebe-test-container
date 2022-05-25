@@ -23,6 +23,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.condition.DisabledIf;
 import org.testcontainers.DockerClientFactory;
 
@@ -51,5 +52,6 @@ public final class TestcontainersSupport {
   @Target({ElementType.TYPE, ElementType.METHOD})
   @Retention(RetentionPolicy.RUNTIME)
   @Documented
+  @Tag("local-test")
   public @interface DisabledIfTestcontainersCloud {}
 }

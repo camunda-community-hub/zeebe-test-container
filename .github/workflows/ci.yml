@@ -13,11 +13,11 @@ on:
       - 'revapi.json'
   workflow_dispatch: { }
 jobs:
-  build:
+  cloud:
     env:
       TC_CLOUD_TOKEN: ${{ secrets.TC_CLOUD_TOKEN }}
       TC_CLOUD_CONCURRENCY: 4
-    name: Build & Verify
+    name: Test (Cloud)
     runs-on: ubuntu-latest
     steps:
       - name: Prepare Testcontainers Cloud agent
@@ -42,6 +42,32 @@ jobs:
         timeout-minutes: 20
         run: >
           mvn -B -Pparallel-tests -DforkCount=2C -DskipChecks test
+      - name: Archive Test Results on Failure
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: test-results
+          path: target/surefire-reports/
+          retention-days: 7
+  local:
+    name: Test (Local)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 8
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Build
+        id: build
+        run: mvn -B -DskipTests clean verify
+      - name: Test
+        id: test
+        timeout-minutes: 20
+        run: >
+          mvn -B -DskipChecks -Plocal-test test
       - name: Archive Test Results on Failure
         uses: actions/upload-artifact@v3
         if: failure()
