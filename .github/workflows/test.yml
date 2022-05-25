@@ -50,6 +50,7 @@ jobs:
           mvn -B -Pparallel-tests -DforkCount=2C -DskipChecks -pl core test
       - name: Archive Test Results
         uses: actions/upload-artifact@v3
+        if: always()
         with:
           name: test-results
           path: target/surefire-reports/
@@ -78,6 +79,7 @@ jobs:
           mvn -B -DskipChecks -Plocal-test -pl core test
       - name: Archive Test Results
         uses: actions/upload-artifact@v3
+        if: always()
         with:
           name: test-results
           path: target/surefire-reports/
@@ -101,6 +103,7 @@ jobs:
           mvn -B -DskipChecks -pl exporter-test test
       - name: Archive Test Results
         uses: actions/upload-artifact@v3
+        if: always()
         with:
           name: test-results
           path: target/surefire-reports/
