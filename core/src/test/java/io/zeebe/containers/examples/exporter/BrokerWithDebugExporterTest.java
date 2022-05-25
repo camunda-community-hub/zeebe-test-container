@@ -26,25 +26,38 @@ import io.zeebe.containers.exporter.DebugReceiver;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 import org.assertj.core.groups.Tuple;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+/**
+ * An example of using the debug exporter to extract events from the Zeebe log. Here we will simply
+ * publish a message, which produces exactly two records (one command and one corresponding event).
+ *
+ * <p>The goal of the test is to showcase extracting the events, and not their correctness.
+ *
+ * <p>You will notice the test uses {@link Awaitility} - this is because a Zeebe broker, by design,
+ * is asynchronous. As such, it takes a variable amount of time between publishing the message until
+ * the records are exported. This is unfortunately necessary for now.
+ *
+ * <p>Also note that we start the {@link DebugReceiver} instance first, before the container. This
+ * is required as we want to grab a random port, and only after starting the server can we know what
+ * the port is exactly. If you wish to use a fix port, you can use {@link
+ * DebugReceiver#DebugReceiver(Consumer, int)}, and pass the fixed port to {@link
+ * io.zeebe.containers.ZeebeBrokerNode#withDebugExporter(int)}.
+ */
 @Testcontainers
 final class BrokerWithDebugExporterTest {
-  @Container private final ZeebeContainer container = new ZeebeContainer().withDebugExporter(8080);
-
   private final List<Record<?>> records = new CopyOnWriteArrayList<>();
-  private final DebugReceiver receiver = new DebugReceiver(records::add, 8080);
+  private final DebugReceiver receiver = new DebugReceiver(records::add).start();
 
-  @BeforeEach
-  void beforeEach() {
-    receiver.start();
-  }
+  @Container
+  private final ZeebeContainer container =
+      new ZeebeContainer().withDebugExporter(receiver.serverAddress().getPort());
 
   @AfterEach
   void afterEach() {

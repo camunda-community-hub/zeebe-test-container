@@ -62,9 +62,7 @@ public class ZeebeVolume implements AutoCloseable, ZeebeData {
     this.client = client;
   }
 
-  /**
-   * Returns the name of the volume
-   */
+  /** Returns the name of the volume */
   public String getName() {
     return name;
   }
@@ -81,7 +79,7 @@ public class ZeebeVolume implements AutoCloseable, ZeebeData {
 
   /**
    * Returns a pre-configured {@link Bind} which mounts this volume to the data folder of a Zeebe *
-   *     broker.
+   * broker.
    */
   public Bind asZeebeBind() {
     return asBind(ZeebeDefaults.getInstance().getDefaultDataPath());
@@ -151,9 +149,7 @@ public class ZeebeVolume implements AutoCloseable, ZeebeData {
     }
   }
 
-  /**
-   * Returns a new default managed volume
-   */
+  /** Returns a new default managed volume */
   public static ZeebeVolume newVolume() {
     return newVolume(UnaryOperator.identity());
   }

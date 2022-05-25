@@ -64,6 +64,7 @@ public interface ZeebeClock {
 
   /**
    * Returns the clock's current time
+   *
    * @throws ZeebeClockException if any error occur; inspect the cause to know more
    */
   Instant getCurrentTime();

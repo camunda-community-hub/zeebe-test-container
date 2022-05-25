@@ -35,6 +35,7 @@ use containers for your tests, as well as general prerequisites.
   - [Volumes and data](#volumes-and-data)
   - [Extracting data](#extracting-data)
   - [Time traveling](#time-traveling)
+  - [Debug exporter](#debug-exporter)
 - [Tips](#tips)
   - [Tailing your container's logs during development](#tailing-your-containers-logs-during-development)
   - [Configuring GenericContainer specific properties with a Zeebe*Node interface](#configuring-genericcontainer-specific-properties-with-a-zeebenode-interface)
@@ -818,6 +819,73 @@ is going through that same broker's embedded gateway. For example, if you create
 and await its result (i.e. `#withResult()`), then advance the clock, the request will time out since
 the clock is shared between the broker and the embedded gateway.
 
+## Debug exporter
+
+The module comes with a built-in, injectable debug exporter and receiver pair. This allows you to
+stream records out of a broker container into your local tests. You can use this to view the log,
+assert certain events are happening, etc. If you're an exporter author, you can use this to verify
+that your exporter is exporting the expected events as well.
+
+To use it, you must first start an instance of a `DebugReceiver`, which is a lightweight server
+binding to any `InetSocketAddress`. The safest way to construct one is to use the default
+constructor, `DebugReceiver(Consumer<Record<?>>)`, which will pick a random, available, local port
+to bind to. One receiver per cluster should be used, as receivers can also acknowledge records.
+
+Exported records will be streamed to the given consumer. This is done in a separate thread, thus you
+must ensure the consumer is thread-safe. Records are streamed in the order they come in, but will be
+sequenced relatively to their partition. This means, all records on partition `P` will be ordered
+by increasing position, but ordering between partitions is undefined (though it's roughly time
+based, i.e. as the records are exported by the brokers).
+
+Here is the smallest example usage:
+
+```java
+package com.acme;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import io.camunda.zeebe.protocol.record.Record;
+import io.zeebe.containers.ZeebeContainer;
+import io.zeebe.containers.exporter.DebugReceiver;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import org.junit.jupiter.api.Test;
+
+final class WithDebugExporterTest {
+  @Test
+  void shouldReadExportedRecords() {
+    final List<Record<?>> records = new CopyOnWriteArrayList<>();
+    try (final DebugReceiver receiver = new DebugReceiver(records::add).start()) {
+      final ZeebeContainer container =
+        new ZeebeContainer().withDebugExporter(receiver.serverAddress().getPort());
+
+      // ... send some commands that will publish some records.
+      // records are then streamed to the consumer, which in our case appends them to the records
+      // list.
+      assertThat(records).hasSize(1);
+    }
+  }
+}
+```
+
+You can view a longer example [here](/src/test/java/io/zeebe/containers/examples/exporter).
+
+### Acknowledging records
+
+The receiver can acknowledge records, such that Zeebe will mark them as having been successfully
+exported and will not re-export them (and may delete them).
+
+By default, records are _not_ acknowledged, and are never deleted. To acknowledge records, you can
+use the `DebugReceiver#acknowledge(int, long)` method, passing the partition ID and the highest
+acknowledged position for that partition.
+
+> If you wish records to be auto-acknowledged, you can simply set `Long.MAX_VALUE` as the position
+> for each known partition before any records are exported.
+
+There is one limitation, which is that the acknowledged position is the one returned by the server.
+This means, if you receive record 1, and then acknowledge that, only when receiving record 2 will
+the acknowledged position take effect.
+
 # Tips
 
 ## Tailing your container's logs during development
@@ -946,12 +1014,24 @@ you will need to sign the [Contributor License Agreement](https://cla-assistant.
 In order to build from source, you will need to install maven 3.6+. You can find more about it on
 the [maven homepage](https://maven.apache.org/users/index.html).
 
-The project targets Java 8 for compatibility purposes, and runs its build pipeline on Eclipse
-Temurin's Java 8 distribution. It will most likely work locally with other JDKs, but in case you
-run into build errors, you can try that distribution.
+To build the project, you will need a JDK 17 installed locally. Note however that the `core` module
+is targeting Java 8 for compatibility purposes, and as such the CI pipeline will run the tests for
+this module using Temurin JDK 8.
 
 Finally, you will need to [install Docker](https://docs.docker.com/get-docker/) on your local
 machine.
+
+### Modules
+
+The library is split into three modules:
+
+- `core`: the core library. It's artifact ID is `zeebe-test-container` for backwards compatibility.
+  This is what users will include in their project.
+- `exporter`: the debug exporter module. It will be packaged as a fat JAR and included as a resource
+  in the core module. It has to be a separate module as it targets Java 17, same as the
+  `zeebe-exporter-api` module it implements.
+- `exporter-test`: a module to test the integration between `DebugReceiver` and `DebugExporter`,
+  without having to run everything through an actual broker.
 
 ### Building
 
@@ -993,6 +1073,9 @@ are considered when enforcing backwards compatibility.
 If you wish to incubate a new feature, or if you're unsure about a new API type/method, please use
 the `EXPERIMENTAL` status for it. This will give us flexibility to test out new features and change
 them easily if we realize they need to be adapted.
+
+Note that this only applies to the `core/` module. All other modules are currently considered
+implementation details, and are not released anyway.
 
 ## Report issues or contact developers
 

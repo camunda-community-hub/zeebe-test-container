@@ -125,13 +125,13 @@ public final class DebugReceiver implements AutoCloseable {
    * @return the server's bind address
    * @throws IllegalStateException if the server was not yet started
    */
-  public synchronized SocketAddress serverAddress() {
+  public synchronized InetSocketAddress serverAddress() {
     if (!started || endpoint == null) {
       throw new IllegalStateException(
           "Cannot get server bind address until the receiver is opened");
     }
 
-    return endpoint.getAddress();
+    return (InetSocketAddress) endpoint.getAddress();
   }
 
   /**
@@ -154,9 +154,9 @@ public final class DebugReceiver implements AutoCloseable {
    * Opens the receiver, mapping the export and ack files into memory. The receiver cannot consume
    * nor acknowledge without being opened.
    */
-  public void start() {
+  public DebugReceiver start() {
     if (started) {
-      return;
+      return this;
     }
 
     try {
@@ -173,6 +173,8 @@ public final class DebugReceiver implements AutoCloseable {
       LOGGER.warn("Failed to open debug receiver", e);
       close();
     }
+
+    return this;
   }
 
   /**
