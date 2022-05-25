@@ -15,8 +15,10 @@
  */
 package io.zeebe.containers;
 
+import io.zeebe.containers.exporter.DebugExporterJar;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
+import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.GenericContainer;
 
 /**
@@ -82,6 +84,27 @@ public interface ZeebeBrokerNode<T extends GenericContainer<T> & ZeebeBrokerNode
   @API(status = Status.EXPERIMENTAL)
   default T withZeebeData(final ZeebeData data) {
     data.attach(self());
+    return self();
+  }
+
+  /**
+   * Injects an instance of {@link io.zeebe.containers.exporter.DebugExporter} into the container,
+   * which will push records out to http://host.testcontainers.internal:{@code port}/records.
+   *
+   * @param port the host port of the {@link io.zeebe.containers.exporter.DebugReceiver}
+   * @return this container for chaining
+   */
+  @API(status = Status.EXPERIMENTAL)
+  default T withDebugExporter(final int port) {
+    Testcontainers.exposeHostPorts(port);
+    withCopyToContainer(DebugExporterJar.get(), "/tmp/debug-exporter.jar")
+        .withEnv("ZEEBE_BROKER_EXPORTERS_DEBUG_JARPATH", "/tmp/debug-exporter.jar")
+        .withEnv(
+            "ZEEBE_BROKER_EXPORTERS_DEBUG_CLASSNAME", "io.zeebe.containers.exporter.DebugExporter")
+        .withEnv(
+            "ZEEBE_BROKER_EXPORTERS_DEBUG_ARGS_URL",
+            "http://host.testcontainers.internal:" + port + "/records");
+
     return self();
   }
 }
