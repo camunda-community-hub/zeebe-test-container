@@ -119,6 +119,14 @@
         <scope>import</scope>
       </dependency>
 
+      <dependency>
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${version.jackson}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
       <!-- dependencies entirely for convergence -->
       <dependency>
         <groupId>com.google.errorprone</groupId>
@@ -186,7 +194,6 @@
     <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>
       <artifactId>jackson-datatype-jsr310</artifactId>
-      <version>${version.jackson}</version>
     </dependency>
 
     <!-- mocking -->
