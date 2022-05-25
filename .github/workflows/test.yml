@@ -72,6 +72,7 @@ jobs:
           mvn -B -DskipChecks -DskipTests -pl core install
       - name: Test
         timeout-minutes: 20
+        # cannot run tests in parallel when using the local daemon
         run: >
           mvn -B -DskipChecks -Plocal-test -pl core test
       - name: Archive Test Results
