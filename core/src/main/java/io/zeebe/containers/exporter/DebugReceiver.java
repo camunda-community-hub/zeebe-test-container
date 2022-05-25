@@ -85,7 +85,7 @@ public final class DebugReceiver implements AutoCloseable {
    * @param address the address to bind to on start
    * @throws NullPointerException if any of the arguments are null
    */
-  public DebugReceiver(final Consumer<Record<?>> recordConsumer, final SocketAddress address) {
+  public DebugReceiver(final Consumer<Record<?>> recordConsumer, final InetSocketAddress address) {
     this(new RecordHandler(recordConsumer), address);
   }
 
@@ -96,7 +96,7 @@ public final class DebugReceiver implements AutoCloseable {
    * @param unboundAddress the address that the server will bind to
    * @throws NullPointerException if any of the arguments are null
    */
-  DebugReceiver(final RecordHandler recordHandler, final SocketAddress unboundAddress) {
+  DebugReceiver(final RecordHandler recordHandler, final InetSocketAddress unboundAddress) {
     this.unboundAddress = Objects.requireNonNull(unboundAddress, "must specify a bind address");
     this.recordHandler = Objects.requireNonNull(recordHandler, "must specify a record handler");
 
