@@ -22,19 +22,31 @@ import io.zeebe.containers.util.TestUtils;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.Network;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
 final class ZeebeGatewayContainerTest {
-  @Container private final ZeebeBrokerContainer brokerContainer = new ZeebeBrokerContainer();
+  private final Network network = Network.newNetwork();
+
+  @Container
+  private final ZeebeBrokerContainer brokerContainer =
+      new ZeebeBrokerContainer().withNetwork(network);
 
   @Container
   private final ZeebeGatewayContainer gatewayContainer =
       new ZeebeGatewayContainer()
+          .withNetwork(network)
           .withEnv(
               "ZEEBE_GATEWAY_CLUSTER_CONTACTPOINT", brokerContainer.getInternalClusterAddress());
+
+  @AfterEach
+  void afterEach() {
+    network.close();
+  }
 
   @Test
   void shouldConnectToBroker() {
