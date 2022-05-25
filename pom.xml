@@ -7,7 +7,7 @@
     <artifactId>community-hub-release-parent</artifactId>
     <version>1.2.2</version>
     <!-- do not remove empty tag - http://jira.codehaus.org/browse/MNG-4687 -->
-    <relativePath />
+    <relativePath/>
   </parent>
 
   <groupId>io.zeebe</groupId>
