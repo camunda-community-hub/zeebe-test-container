@@ -37,7 +37,7 @@ public enum ZeebePort {
   }
 
   /**
-   * @return returns the default port number for this port
+   * Returns returns the default port number for this port
    */
   public int getPort() {
     return port;

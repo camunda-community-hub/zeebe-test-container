@@ -125,7 +125,7 @@ public class ZeebeCluster implements Startable {
   }
 
   /**
-   * @return a new cluster builder
+   * Returns a new cluster builder
    */
   public static ZeebeClusterBuilder builder() {
     return new ZeebeClusterBuilder();
@@ -168,28 +168,28 @@ public class ZeebeCluster implements Startable {
   }
 
   /**
-   * @return the network over which all containers are communicating
+   * Returns the network over which all containers are communicating
    */
   public Network getNetwork() {
     return network;
   }
 
   /**
-   * @return the replication factor configured for the brokers
+   * Returns the replication factor configured for the brokers
    */
   public int getReplicationFactor() {
     return replicationFactor;
   }
 
   /**
-   * @return the partitions count configured for the brokers
+   * Returns the partitions count configured for the brokers
    */
   public int getPartitionsCount() {
     return partitionsCount;
   }
 
   /**
-   * @return the cluster name
+   * Returns the cluster name
    */
   public String getName() {
     return name;

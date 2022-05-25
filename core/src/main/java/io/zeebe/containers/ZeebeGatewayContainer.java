@@ -116,7 +116,7 @@ public class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContaine
   }
 
   /**
-   * @return the default topology check, available for overwriting
+   * Returns the default topology check, available for overwriting
    */
   public static ZeebeTopologyWaitStrategy newDefaultTopologyCheck() {
     return new ZeebeTopologyWaitStrategy().forBrokersCount(1);

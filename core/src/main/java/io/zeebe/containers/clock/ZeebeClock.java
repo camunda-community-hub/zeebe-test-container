@@ -63,7 +63,7 @@ public interface ZeebeClock {
   Instant addTime(final Duration offset);
 
   /**
-   * @return the clock's current time
+   * Returns the clock's current time
    * @throws ZeebeClockException if any error occur; inspect the cause to know more
    */
   Instant getCurrentTime();

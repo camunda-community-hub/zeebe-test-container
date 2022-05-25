@@ -38,14 +38,14 @@ public final class ZeebeDefaults {
   private ZeebeDefaults() {}
 
   /**
-   * @return the singleton instance
+   * Returns the singleton instance
    */
   public static ZeebeDefaults getInstance() {
     return Singleton.INSTANCE;
   }
 
   /**
-   * @return the default Zeebe docker image, without a tag
+   * Returns the default Zeebe docker image, without a tag
    */
   public String getDefaultImage() {
     return TestcontainersConfiguration.getInstance()
@@ -53,7 +53,7 @@ public final class ZeebeDefaults {
   }
 
   /**
-   * @return the default Zeebe docker image tag/version
+   * Returns the default Zeebe docker image tag/version
    */
   public String getDefaultVersion() {
     return TestcontainersConfiguration.getInstance()
@@ -61,14 +61,14 @@ public final class ZeebeDefaults {
   }
 
   /**
-   * @return the default Zeebe docker image
+   * Returns the default Zeebe docker image
    */
   public DockerImageName getDefaultDockerImage() {
     return DockerImageName.parse(getDefaultImage()).withTag(getDefaultVersion());
   }
 
   /**
-   * @return the default data directory of the container
+   * Returns the default data directory of the container
    */
   public String getDefaultDataPath() {
     return DEFAULT_ZEEBE_DATA_PATH;
