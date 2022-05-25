@@ -18,7 +18,7 @@ package io.zeebe.containers;
 import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.api.response.BrokerInfo;
 import io.camunda.zeebe.client.api.response.Topology;
-import io.zeebe.containers.util.TestUtils;
+import io.zeebe.containers.util.TestSupport;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.assertj.core.api.Assertions;
@@ -54,7 +54,7 @@ final class ZeebeGatewayContainerTest {
     final Topology topology;
 
     // when
-    try (final ZeebeClient client = TestUtils.newZeebeClient(gatewayContainer)) {
+    try (final ZeebeClient client = TestSupport.newZeebeClient(gatewayContainer)) {
       topology = client.newTopologyRequest().send().join(5, TimeUnit.SECONDS);
     }
 

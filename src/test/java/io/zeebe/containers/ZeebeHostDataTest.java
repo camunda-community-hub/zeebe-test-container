@@ -22,7 +22,7 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse.Mount;
 import com.github.dockerjava.api.model.Volume;
-import io.zeebe.containers.util.TestUtils;
+import io.zeebe.containers.util.TestSupport;
 import io.zeebe.containers.util.TestcontainersSupport.DisabledIfTestcontainersCloud;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -38,7 +38,7 @@ final class ZeebeHostDataTest {
   void shouldAttachToZeebeContainer(final @TempDir Path dataDir) {
     // given
     final DockerClient client = DockerClientFactory.lazyClient();
-    final String runAsUser = TestUtils.getRunAsUser();
+    final String runAsUser = TestSupport.getRunAsUser();
 
     // when
     final InspectContainerResponse response;
