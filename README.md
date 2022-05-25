@@ -1051,6 +1051,17 @@ Should you wish to only build without running the tests, you can run:
 mvn clean package
 ```
 
+## Testing
+
+Testing is done via GitHub actions, using two workflows:
+
+- [lint.yml](/.github/workflows/lint.yml): includes jobs which ensure code quality (e.g. static
+  analysis, linting, formatting, etc.)
+- [test.yml](/.github/workflows/test.yml): testing jobs for each module. For the `core` module,
+  there are two testing jobs, one using TestContainers Cloud, and one using the local Docker daemon.
+  This is due to a limitation of TestContainers Cloud, which does not work with host binds. Any tests
+  which need to run on the local job should be annotated with `@DisabledIfTestcontainersCloud`.
+
 ## Code style
 
 The project uses Spotless to apply consistent formatting and licensing to all project files. By
