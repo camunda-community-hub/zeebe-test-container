@@ -27,13 +27,6 @@ jobs:
       - name: Check
         id: check
         run: mvn -B -DskipTests verify
-      - name: Archive Test Results on Failure
-        uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: test-results
-          path: target/surefire-reports/
-          retention-days: 7
   cloud:
     env:
       TC_CLOUD_TOKEN: ${{ secrets.TC_CLOUD_TOKEN }}
@@ -63,9 +56,8 @@ jobs:
         timeout-minutes: 20
         run: >
           mvn -B -Pparallel-tests -DforkCount=2C -DskipChecks test
-      - name: Archive Test Results on Failure
+      - name: Archive Test Results
         uses: actions/upload-artifact@v3
-        if: failure()
         with:
           name: test-results
           path: target/surefire-reports/
@@ -89,9 +81,8 @@ jobs:
         timeout-minutes: 20
         run: >
           mvn -B -DskipChecks -Plocal-test test
-      - name: Archive Test Results on Failure
+      - name: Archive Test Results
         uses: actions/upload-artifact@v3
-        if: failure()
         with:
           name: test-results
           path: target/surefire-reports/
