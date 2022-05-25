@@ -54,6 +54,7 @@ jobs:
           name: test-results
           path: target/surefire-reports/
           retention-days: 7
+  # No need to set up the JDK 17 here as we're only building the core module
   core-local:
     name: Test (Local)
     runs-on: ubuntu-latest
