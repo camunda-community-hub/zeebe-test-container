@@ -11,12 +11,18 @@
   </parent>
 
   <groupId>io.zeebe</groupId>
-  <artifactId>zeebe-test-container</artifactId>
+  <artifactId>zeebe-test-container-root</artifactId>
   <version>3.4.1-SNAPSHOT</version>
-  <packaging>jar</packaging>
-  <name>Zeebe Test Container</name>
+  <packaging>pom</packaging>
+  <name>Zeebe Test Container Root</name>
   <url>https://github.com/zeebe-io/zeebe-test-container</url>
   <inceptionYear>2019</inceptionYear>
+
+  <modules>
+    <module>core</module>
+    <module>exporter</module>
+    <module>exporter-test</module>
+  </modules>
 
   <scm>
     <connection>scm:git:git@github.com:camunda-community-hub/zeebe-test-container.git</connection>
@@ -27,7 +33,7 @@
 
   <properties>
     <!-- release parent settings -->
-    <version.java>1.8</version.java>
+    <version.java>17</version.java>
     <nexus.snapshot.repository>https://artifacts.camunda.com/artifactory/zeebe-io-snapshots/</nexus.snapshot.repository>
     <nexus.release.repository>https://artifacts.camunda.com/artifactory/zeebe-io/</nexus.release.repository>
 
@@ -73,15 +79,17 @@
 
     <!-- plugin version -->
     <plugin.version.checkstyle>3.1.2</plugin.version.checkstyle>
+    <plugin.version.clean>3.1.0</plugin.version.clean>
     <plugin.version.dependency>3.3.0</plugin.version.dependency>
     <plugin.version.enforcer>3.0.0</plugin.version.enforcer>
     <plugin.version.flatten>1.2.7</plugin.version.flatten>
-    <plugin.version.google-format>1.7</plugin.version.google-format>
+    <plugin.version.google-format>1.15.0</plugin.version.google-format>
     <plugin.version.gpg>3.0.1</plugin.version.gpg>
     <plugin.version.jar>3.2.2</plugin.version.jar>
     <plugin.version.javadoc>3.4.0</plugin.version.javadoc>
+    <plugin.version.resources>3.2.0</plugin.version.resources>
     <plugin.version.revapi>0.14.6</plugin.version.revapi>
-    <plugin.version.sonar>3.9.0.2155</plugin.version.sonar>
+    <plugin.version.shade>3.3.0</plugin.version.shade>
     <plugin.version.spotless>2.22.5</plugin.version.spotless>
     <plugin.version.surefire>3.0.0-M6</plugin.version.surefire>
 
@@ -91,6 +99,26 @@
 
   <dependencyManagement>
     <dependencies>
+      <!-- Sibling modules -->
+      <dependency>
+        <groupId>io.zeebe</groupId>
+        <artifactId>zeebe-test-container</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.zeebe</groupId>
+        <artifactId>zeebe-test-container-exporter</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.zeebe</groupId>
+        <artifactId>zeebe-test-container-exporter-test</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <!-- Zeebe dependencies -->
       <dependency>
         <groupId>io.camunda</groupId>
         <artifactId>zeebe-bom</artifactId>
@@ -100,6 +128,13 @@
       </dependency>
 
       <dependency>
+        <groupId>io.camunda</groupId>
+        <artifactId>zeebe-protocol-jackson</artifactId>
+        <version>${version.zeebe}</version>
+      </dependency>
+
+      <!-- Testing engine -->
+      <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
         <version>${version.junit-jupiter}</version>
@@ -107,6 +142,7 @@
         <scope>import</scope>
       </dependency>
 
+      <!-- Core Testcontainers dependencies -->
       <dependency>
         <groupId>org.testcontainers</groupId>
         <artifactId>testcontainers-bom</artifactId>
@@ -116,6 +152,19 @@
       </dependency>
 
       <dependency>
+        <groupId>com.github.docker-java</groupId>
+        <artifactId>docker-java-api</artifactId>
+        <version>${version.docker}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.rnorth.duct-tape</groupId>
+        <artifactId>duct-tape</artifactId>
+        <version>${version.duct-tape}</version>
+      </dependency>
+
+      <!-- Easy HTTP clients, primarily for actuators -->
+      <dependency>
         <groupId>io.github.openfeign</groupId>
         <artifactId>feign-bom</artifactId>
         <version>${version.feign}</version>
@@ -123,6 +172,7 @@
         <scope>import</scope>
       </dependency>
 
+      <!-- General (de)serialization -->
       <dependency>
         <groupId>com.fasterxml.jackson</groupId>
         <artifactId>jackson-bom</artifactId>
@@ -131,6 +181,7 @@
         <scope>import</scope>
       </dependency>
 
+      <!-- REST API testing, primarily for the exporter/receiver -->
       <dependency>
         <groupId>io.rest-assured</groupId>
         <artifactId>rest-assured-bom</artifactId>
@@ -139,7 +190,89 @@
         <scope>import</scope>
       </dependency>
 
-      <!-- dependencies entirely for convergence -->
+      <!-- API compatibility guarantee annotations -->
+      <dependency>
+        <groupId>org.apiguardian</groupId>
+        <artifactId>apiguardian-api</artifactId>
+        <version>${version.apiguardian}</version>
+      </dependency>
+
+      <!-- Thin HTTP/1.1 server components -->
+      <dependency>
+        <groupId>org.apache.httpcomponents.core5</groupId>
+        <artifactId>httpcore5</artifactId>
+        <version>${version.httpcore5}</version>
+      </dependency>
+
+      <!-- various utilities -->
+      <dependency>
+        <groupId>org.agrona</groupId>
+        <artifactId>agrona</artifactId>
+        <version>${version.agrona}</version>
+      </dependency>
+
+      <!-- for TAR archives -->
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-compress</artifactId>
+        <version>${version.compress}</version>
+      </dependency>
+
+      <!-- mocking -->
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>${version.mockito}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-junit-jupiter</artifactId>
+        <version>${version.mockito}</version>
+      </dependency>
+
+      <!-- logging -->
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${version.slf4j}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>${version.slf4j}</version>
+      </dependency>
+
+      <!-- assertions -->
+      <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>${version.assertj}</version>
+      </dependency>
+
+      <!-- asynchronous assertions -->
+      <dependency>
+        <groupId>org.awaitility</groupId>
+        <artifactId>awaitility</artifactId>
+        <version>${version.awaitility}</version>
+      </dependency>
+
+      <!-- HTTP mock server, primarily used to test the debug exporter/receiver -->
+      <dependency>
+        <groupId>com.github.tomakehurst</groupId>
+        <artifactId>wiremock-jre8</artifactId>
+        <version>${version.wiremock}</version>
+        <exclusions>
+          <!-- fixes dependency convergence between this and testcontainers -> junit4 -->
+          <exclusion>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <!-- dependencies entirely for convergence; versions can be hardcoded here -->
       <dependency>
         <groupId>com.google.errorprone</groupId>
         <artifactId>error_prone_annotations</artifactId>
@@ -173,232 +306,9 @@
   </dependencyManagement>
 
   <dependencies>
-    <!-- Testcontainers specific libraries -->
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>testcontainers</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.github.docker-java</groupId>
-      <artifactId>docker-java-api</artifactId>
-      <version>${version.docker}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.rnorth.duct-tape</groupId>
-      <artifactId>duct-tape</artifactId>
-      <version>${version.duct-tape}</version>
-    </dependency>
-
-    <!-- logging -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>${version.slf4j}</version>
-    </dependency>
-
-    <!-- API compatibility guarantee annotations -->
-    <dependency>
-      <groupId>org.apiguardian</groupId>
-      <artifactId>apiguardian-api</artifactId>
-      <version>${version.apiguardian}</version>
-    </dependency>
-
-    <!-- Zeebe Client, used by the topology wait strategy -->
-    <dependency>
-      <groupId>io.camunda</groupId>
-      <artifactId>zeebe-client-java</artifactId>
-    </dependency>
-
-    <!-- Exporter API used for the Debug Exporter -->
-    <dependency>
-      <groupId>io.camunda</groupId>
-      <artifactId>zeebe-exporter-api</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>io.camunda</groupId>
-      <artifactId>zeebe-protocol</artifactId>
-    </dependency>
-
-    <!-- Deserialize records from JSON -->
-    <dependency>
-      <groupId>io.camunda</groupId>
-      <artifactId>zeebe-protocol-jackson</artifactId>
-      <version>${version.zeebe}</version>
-    </dependency>
-
-    <!-- Dynamic JAR creation -->
-    <dependency>
-      <groupId>org.ow2.asm</groupId>
-      <artifactId>asm</artifactId>
-      <version>${version.asm}</version>
-    </dependency>
-
-    <!-- Thin HTTP/1.1 server components -->
-    <dependency>
-      <groupId>org.apache.httpcomponents.core5</groupId>
-      <artifactId>httpcore5</artifactId>
-      <version>${version.httpcore5}</version>
-    </dependency>
-
-    <!-- various utilities -->
-    <dependency>
-      <groupId>org.agrona</groupId>
-      <artifactId>agrona</artifactId>
-      <version>${version.agrona}</version>
-    </dependency>
-
-    <!-- for TAR archives -->
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-compress</artifactId>
-      <version>${version.compress}</version>
-    </dependency>
-
-    <!-- for easy actuator clients -->
-    <dependency>
-      <groupId>io.github.openfeign</groupId>
-      <artifactId>feign-core</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>io.github.openfeign</groupId>
-      <artifactId>feign-jackson</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>io.github.openfeign</groupId>
-      <artifactId>feign-slf4j</artifactId>
-    </dependency>
-
-    <!-- required to deserialize the Clock's Instance interface -->
-    <dependency>
-      <groupId>com.fasterxml.jackson.datatype</groupId>
-      <artifactId>jackson-datatype-jsr310</artifactId>
-    </dependency>
-
-    <!-- General (de)serialization -->
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-annotations</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-    </dependency>
-
-    <!-- mocking -->
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>${version.mockito}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-junit-jupiter</artifactId>
-      <version>${version.mockito}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- test engine -->
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-params</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- testcontainers junit5 extensions -->
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- logging -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
-      <version>${version.slf4j}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- Zeebe libraries for testing -->
-    <dependency>
-      <groupId>io.camunda</groupId>
-      <artifactId>zeebe-bpmn-model</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>io.camunda</groupId>
-      <artifactId>zeebe-gateway-protocol-impl</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- assertions -->
-    <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-core</artifactId>
-      <version>${version.assertj}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.awaitility</groupId>
-      <artifactId>awaitility</artifactId>
-      <version>${version.awaitility}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- HTTP testing, mostly for the exporter -->
-    <dependency>
-      <groupId>io.rest-assured</groupId>
-      <artifactId>rest-assured</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>com.github.tomakehurst</groupId>
-      <artifactId>wiremock-jre8</artifactId>
-      <version>${version.wiremock}</version>
-      <scope>test</scope>
-      <exclusions>
-        <!-- fixes dependency convergence between this and testcontainers -> junit4 -->
-        <exclusion>
-          <groupId>org.hamcrest</groupId>
-          <artifactId>hamcrest-core</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <!-- TODO: replace all of these with zeebe-protocol-test-util on 8.1.0 -->
-    <dependency>
-      <groupId>io.github.classgraph</groupId>
-      <artifactId>classgraph</artifactId>
-      <version>4.8.143</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jeasy</groupId>
-      <artifactId>easy-random-core</artifactId>
-      <version>5.0.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -430,257 +340,326 @@
   </repositories>
 
   <build>
+    <pluginManagement>
+      <plugins>
+        <!-- compiler plugin -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${plugin.version.compiler}</version>
+          <configuration combine.children="append">
+            <!-- setting it to true unfortunately causes us to recompile every time -->
+            <useIncrementalCompilation>false</useIncrementalCompilation>
+          </configuration>
+        </plugin>
+
+        <!-- JAR packaging plugin -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>${plugin.version.jar}</version>
+          <configuration>
+            <useDefaultManifestFile>false</useDefaultManifestFile>
+          </configuration>
+        </plugin>
+
+        <!-- fix javadoc plugin version to 3.1.0 to fix module error -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>${plugin.version.javadoc}</version>
+          <configuration>
+            <source>${version.java}</source>
+          </configuration>
+        </plugin>
+
+        <!-- Licensing and formatting -->
+        <plugin>
+          <groupId>com.diffplug.spotless</groupId>
+          <artifactId>spotless-maven-plugin</artifactId>
+          <version>${plugin.version.spotless}</version>
+          <configuration>
+            <java>
+              <googleJavaFormat>
+                <version>${plugin.version.google-format}</version>
+                <style>GOOGLE</style>
+              </googleJavaFormat>
+              <licenseHeader>
+                <file>${maven.multiModuleProjectDirectory}/HEADER</file>
+              </licenseHeader>
+            </java>
+            <pom>
+              <includes>
+                <include>pom.xml</include>
+              </includes>
+              <sortPom>
+                <expandEmptyElements>false</expandEmptyElements>
+              </sortPom>
+            </pom>
+            <markdown>
+              <includes>
+                <include>**/*.md</include>
+              </includes>
+
+              <flexmark/>
+            </markdown>
+          </configuration>
+          <executions>
+            <execution>
+              <goals>
+                <goal>check</goal>
+              </goals>
+              <phase>validate</phase>
+            </execution>
+          </executions>
+        </plugin>
+
+        <!-- Linting -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+          <version>${plugin.version.checkstyle}</version>
+          <configuration>
+            <configLocation>check/.checkstyle.xml</configLocation>
+            <includeTestSourceDirectory>true</includeTestSourceDirectory>
+            <encoding>UTF-8</encoding>
+            <failOnViolation>true</failOnViolation>
+            <sourceDirectories>
+              <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+              <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
+            </sourceDirectories>
+          </configuration>
+          <!-- dependency on build tool to reference the checkstyle cfg -->
+          <dependencies>
+            <dependency>
+              <groupId>io.camunda</groupId>
+              <artifactId>zeebe-build-tools</artifactId>
+              <version>${version.zeebe}</version>
+            </dependency>
+            <dependency>
+              <groupId>com.puppycrawl.tools</groupId>
+              <artifactId>checkstyle</artifactId>
+              <version>${version.checkstyle}</version>
+            </dependency>
+          </dependencies>
+          <executions>
+            <execution>
+              <id>validate-java</id>
+              <goals>
+                <goal>check</goal>
+              </goals>
+              <phase>validate</phase>
+              <configuration/>
+            </execution>
+          </executions>
+        </plugin>
+
+        <!-- unit tests -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${plugin.version.surefire}</version>
+          <configuration>
+            <failIfNoTests>false</failIfNoTests>
+            <trimStackTrace>false</trimStackTrace>
+            <redirectTestOutputToFile>true</redirectTestOutputToFile>
+          </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.junit.jupiter</groupId>
+              <artifactId>junit-jupiter-engine</artifactId>
+              <version>${version.junit-jupiter}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>${plugin.version.clean}</version>
+        </plugin>
+
+        <!-- Uber JAR building -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>${plugin.version.shade}</version>
+        </plugin>
+
+        <!-- Resources Plugin -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>${plugin.version.resources}</version>
+        </plugin>
+
+        <!-- dependency analysis -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>${plugin.version.dependency}</version>
+          <executions>
+            <execution>
+              <id>analyze-dependencies</id>
+              <goals>
+                <goal>analyze-only</goal>
+              </goals>
+              <phase>verify</phase>
+              <configuration>
+                <failOnWarning>true</failOnWarning>
+                <outputXML>true</outputXML>
+                <!-- dependencies not directly used in all projects during tests -->
+                <ignoredUnusedDeclaredDependencies combine.children="append">
+                  <dep>org.slf4j:slf4j-simple</dep>
+                </ignoredUnusedDeclaredDependencies>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
+        <!-- compatibility checks/guard -->
+        <plugin>
+          <groupId>org.revapi</groupId>
+          <artifactId>revapi-maven-plugin</artifactId>
+          <version>${plugin.version.revapi}</version>
+          <configuration>
+            <checkDependencies>false</checkDependencies>
+            <expandProperties>true</expandProperties>
+            <analysisConfigurationFiles>
+              <configurationFile>
+                <path>${maven.multiModuleProjectDirectory}/revapi.json</path>
+              </configurationFile>
+            </analysisConfigurationFiles>
+            <oldVersion>RELEASE</oldVersion>
+          </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.revapi</groupId>
+              <artifactId>revapi-java</artifactId>
+              <version>${version.revapi}</version>
+            </dependency>
+          </dependencies>
+          <executions>
+            <execution>
+              <id>check</id>
+              <goals>
+                <goal>check</goal>
+              </goals>
+              <phase>verify</phase>
+            </execution>
+          </executions>
+        </plugin>
+
+        <!-- dependency rules enforcement -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>${plugin.version.enforcer}</version>
+          <executions>
+            <execution>
+              <id>enforce-unique-dependencies</id>
+              <goals>
+                <goal>enforce</goal>
+              </goals>
+              <configuration>
+                <!-- see more https://maven.apache.org/enforcer/enforcer-rules/index.html -->
+                <rules>
+                  <banDuplicatePomDependencyVersions/>
+                  <requireJavaVersion>
+                    <version>[1.8,)</version>
+                  </requireJavaVersion>
+                  <requireMavenVersion>
+                    <version>[3.6,)</version>
+                  </requireMavenVersion>
+                  <requireUpperBoundDeps/>
+                </rules>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
+        <!--
+          generate a simplified POM; this is very useful for projects consuming
+          zeebe-test-container, as it will simplify dependency convergence for these projects
+        -->
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>flatten-maven-plugin</artifactId>
+          <version>${plugin.version.flatten}</version>
+          <configuration>
+            <flattenMode>ossrh</flattenMode>
+          </configuration>
+          <executions>
+            <execution>
+              <id>flatten</id>
+              <goals>
+                <goal>flatten</goal>
+              </goals>
+              <phase>process-resources</phase>
+            </execution>
+            <execution>
+              <id>flatten.clean</id>
+              <goals>
+                <goal>clean</goal>
+              </goals>
+              <phase>clean</phase>
+            </execution>
+          </executions>
+        </plugin>
+
+      </plugins>
+    </pluginManagement>
+
     <plugins>
-      <!-- compiler plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <configuration combine.children="append">
-          <!-- setting it to true unfortunately causes us to recompile every time -->
-          <useIncrementalCompilation>false</useIncrementalCompilation>
-        </configuration>
       </plugin>
 
-      <!-- JAR packaging plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>${plugin.version.jar}</version>
-        <configuration>
-          <useDefaultManifestFile>false</useDefaultManifestFile>
-        </configuration>
       </plugin>
 
-      <!-- fix javadoc plugin version to 3.1.0 to fix module error -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>${plugin.version.javadoc}</version>
-        <configuration>
-          <source>${version.java}</source>
-        </configuration>
       </plugin>
 
-      <!-- Licensing and formatting -->
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
-        <version>${plugin.version.spotless}</version>
-        <configuration>
-          <java>
-            <googleJavaFormat>
-              <version>${plugin.version.google-format}</version>
-              <style>GOOGLE</style>
-            </googleJavaFormat>
-            <licenseHeader>
-              <file>${project.basedir}/HEADER</file>
-            </licenseHeader>
-          </java>
-          <pom>
-            <includes>
-              <include>pom.xml</include>
-            </includes>
-            <sortPom>
-              <expandEmptyElements>false</expandEmptyElements>
-            </sortPom>
-          </pom>
-          <markdown>
-            <includes>
-              <include>**/*.md</include>
-            </includes>
-
-            <flexmark/>
-          </markdown>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>check</goal>
-            </goals>
-            <phase>validate</phase>
-          </execution>
-        </executions>
       </plugin>
 
-      <!-- Linting -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>${plugin.version.checkstyle}</version>
-        <configuration>
-          <configLocation>check/.checkstyle.xml</configLocation>
-          <includeTestSourceDirectory>true</includeTestSourceDirectory>
-          <encoding>UTF-8</encoding>
-          <failOnViolation>true</failOnViolation>
-          <sourceDirectories>
-            <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
-            <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
-          </sourceDirectories>
-        </configuration>
-        <!-- dependency on build tool to reference the checkstyle cfg -->
-        <dependencies>
-          <dependency>
-            <groupId>io.camunda</groupId>
-            <artifactId>zeebe-build-tools</artifactId>
-            <version>${version.zeebe}</version>
-          </dependency>
-          <dependency>
-            <groupId>com.puppycrawl.tools</groupId>
-            <artifactId>checkstyle</artifactId>
-            <version>${version.checkstyle}</version>
-          </dependency>
-        </dependencies>
-        <executions>
-          <execution>
-            <id>validate-java</id>
-            <goals>
-              <goal>check</goal>
-            </goals>
-            <phase>validate</phase>
-            <configuration/>
-          </execution>
-        </executions>
       </plugin>
 
-      <!-- unit tests -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${plugin.version.surefire}</version>
-        <configuration>
-          <failIfNoTests>false</failIfNoTests>
-          <trimStackTrace>false</trimStackTrace>
-          <redirectTestOutputToFile>true</redirectTestOutputToFile>
-        </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>${version.junit-jupiter}</version>
-          </dependency>
-        </dependencies>
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>${plugin.version.dependency}</version>
-        <executions>
-          <execution>
-            <id>analyze-dependencies</id>
-            <goals>
-              <goal>analyze-only</goal>
-            </goals>
-            <phase>verify</phase>
-            <configuration>
-              <failOnWarning>true</failOnWarning>
-              <outputXML>true</outputXML>
-              <ignoreNonCompile>true</ignoreNonCompile>
-              <ignoredUsedUndeclaredDependencies>
-                <!-- TODO: can be removed once we can use zeebe-protocol-test-util 8.1 -->
-                <ignoredUsedUndeclaredDependency>io.camunda:zeebe-protocol-util</ignoredUsedUndeclaredDependency>
-              </ignoredUsedUndeclaredDependencies>
-              <ignoredNonTestScopedDependencies>
-                <!-- TODO: can be removed once we can use zeebe-protocol-test-util 8.1 -->
-                <ignoredNonTestScopedDependency>io.camunda:zeebe-protocol-util</ignoredNonTestScopedDependency>
-              </ignoredNonTestScopedDependencies>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
 
-      <!-- compatibility checks/guard -->
-      <plugin>
-        <groupId>org.revapi</groupId>
-        <artifactId>revapi-maven-plugin</artifactId>
-        <version>${plugin.version.revapi}</version>
-        <configuration>
-          <checkDependencies>false</checkDependencies>
-          <expandProperties>true</expandProperties>
-          <analysisConfigurationFiles>
-            <configurationFile>
-              <path>revapi.json</path>
-            </configurationFile>
-          </analysisConfigurationFiles>
-          <oldVersion>RELEASE</oldVersion>
-        </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.revapi</groupId>
-            <artifactId>revapi-java</artifactId>
-            <version>${version.revapi}</version>
-          </dependency>
-        </dependencies>
-        <executions>
-          <execution>
-            <id>check</id>
-            <goals>
-              <goal>check</goal>
-            </goals>
-            <phase>verify</phase>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- dependency rules enforcement -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>${plugin.version.enforcer}</version>
-        <executions>
-          <execution>
-            <id>enforce-unique-dependencies</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <!-- see more https://maven.apache.org/enforcer/enforcer-rules/index.html -->
-              <rules>
-                <banDuplicatePomDependencyVersions/>
-                <requireJavaVersion>
-                  <version>[1.8,)</version>
-                </requireJavaVersion>
-                <requireMavenVersion>
-                  <version>[3.6,)</version>
-                </requireMavenVersion>
-                <requireReleaseDeps/>
-                <requireUpperBoundDeps/>
-              </rules>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
 
-      <!--
-        generate a simplified POM; this is very useful for projects consuming
-        zeebe-test-container, as it will simplify dependency convergence for these projects
-      -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>flatten-maven-plugin</artifactId>
-        <version>${plugin.version.flatten}</version>
-        <configuration>
-          <flattenMode>ossrh</flattenMode>
-          <outputDirectory>${project.build.directory}</outputDirectory>
-        </configuration>
-        <executions>
-          <execution>
-            <id>flatten</id>
-            <goals>
-              <goal>flatten</goal>
-            </goals>
-            <phase>process-resources</phase>
-          </execution>
-          <execution>
-            <id>flatten.clean</id>
-            <goals>
-              <goal>clean</goal>
-            </goals>
-            <phase>clean</phase>
-          </execution>
-        </executions>
       </plugin>
 
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+      </plugin>
     </plugins>
   </build>
 

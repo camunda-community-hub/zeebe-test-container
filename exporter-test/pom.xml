@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>io.zeebe</groupId>
+    <artifactId>zeebe-test-container-root</artifactId>
+    <version>3.4.1-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>zeebe-test-container-exporter-test</artifactId>
+  <packaging>jar</packaging>
+  <name>Zeebe Test Container Exporter Tests</name>
+
+  <properties>
+    <!-- fix minimum JDK to 17, meaning the exporter is not compatible with Zeebe < 8.x -->
+    <version.java>17</version.java>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.zeebe</groupId>
+      <artifactId>zeebe-test-container</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.zeebe</groupId>
+      <artifactId>zeebe-test-container-exporter</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.camunda</groupId>
+      <artifactId>zeebe-exporter-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.camunda</groupId>
+      <artifactId>zeebe-protocol</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.tomakehurst</groupId>
+      <artifactId>wiremock-jre8</artifactId>
+      <version>${version.wiremock}</version>
+      <scope>test</scope>
+      <exclusions>
+        <!-- fixes dependency convergence between this and testcontainers -> junit4 -->
+        <exclusion>
+          <groupId>org.hamcrest</groupId>
+          <artifactId>hamcrest-core</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- TODO: replace all of these with zeebe-protocol-test-util on 8.1.0 -->
+    <dependency>
+      <groupId>io.github.classgraph</groupId>
+      <artifactId>classgraph</artifactId>
+      <version>4.8.146</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jeasy</groupId>
+      <artifactId>easy-random-core</artifactId>
+      <version>5.0.0</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- TODO: can be removed once we can use zeebe-protocol-test-util 8.1 -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <configuration>
+          <ignoredUsedUndeclaredDependencies>
+            <ignoredUsedUndeclaredDependency>io.camunda:zeebe-protocol-util</ignoredUsedUndeclaredDependency>
+          </ignoredUsedUndeclaredDependencies>
+          <ignoredNonTestScopedDependencies>
+            <ignoredNonTestScopedDependency>io.camunda:zeebe-protocol-util</ignoredNonTestScopedDependency>
+          </ignoredNonTestScopedDependencies>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

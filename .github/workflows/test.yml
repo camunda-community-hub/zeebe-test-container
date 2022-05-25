@@ -1,0 +1,101 @@
+name: Test
+on:
+  pull_request:
+    paths:
+      - '**/*.java'
+      - '**/pom.xml'
+      - 'revapi.json'
+  push:
+    branches: [ main ]
+    paths:
+      - '**/*.java'
+      - '**/pom.xml'
+      - 'revapi.json'
+  workflow_dispatch: { }
+jobs:
+  core-cloud:
+    env:
+      TC_CLOUD_TOKEN: ${{ secrets.TC_CLOUD_TOKEN }}
+      TC_CLOUD_CONCURRENCY: 4
+    name: Test (Cloud) - core module
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare Testcontainers Cloud agent
+        if: env.TC_CLOUD_TOKEN != ''
+        run: |
+          curl -L -o agent https://app.testcontainers.cloud/download/testcontainers-cloud-agent_linux_x86-64
+          chmod +x agent
+          ./agent &
+          ./agent wait
+      - uses: actions/checkout@v3
+      - name: Setup JDK 17 for exporter build
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Build & Copy exporter
+        run: >
+          mvn -B -T1C -DskipTests -DskipChecks install
+      - name: Set up JDK 8
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+      - name: Test
+        timeout-minutes: 20
+        run: >
+          mvn -B -Pparallel-tests -DforkCount=2C -DskipChecks -pl core test
+      - name: Archive Test Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: target/surefire-reports/
+          retention-days: 7
+  core-local:
+    name: Test (Local)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 8
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Build
+        run: >
+          mvn -B -DskipChecks -DskipTests -pl core install
+      - name: Test
+        timeout-minutes: 20
+        run: >
+          mvn -B -DskipChecks -Plocal-test -pl core test
+      - name: Archive Test Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: target/surefire-reports/
+          retention-days: 7
+  exporter:
+    name: Test (Exporter)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Build
+        run: mvn -B -DskipTests -DskipChecks install
+      - name: Test
+        timeout-minutes: 20
+        run: >
+          mvn -B -DskipChecks -pl exporter-test test
+      - name: Archive Test Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: target/surefire-reports/
+          retention-days: 7
