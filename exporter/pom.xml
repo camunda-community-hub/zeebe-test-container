@@ -16,6 +16,11 @@
   <properties>
     <!-- fix minimum JDK to 17, meaning the exporter is not compatible with Zeebe < 8.x -->
     <version.java>17</version.java>
+
+    <!-- skip deployment to nexus -->
+    <skip.central.release>true</skip.central.release>
+    <skipStaging>true</skipStaging>
+    <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
   </properties>
 
   <dependencies>

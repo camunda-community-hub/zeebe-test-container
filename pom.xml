@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.camunda</groupId>
-    <artifactId>camunda-release-parent</artifactId>
-    <version>3.9.1</version>
+    <groupId>org.camunda.community</groupId>
+    <artifactId>community-hub-release-parent</artifactId>
+    <version>1.2.2</version>
     <!-- do not remove empty tag - http://jira.codehaus.org/browse/MNG-4687 -->
-    <relativePath/>
+    <relativePath />
   </parent>
 
   <groupId>io.zeebe</groupId>
@@ -566,7 +566,7 @@
                 <rules>
                   <banDuplicatePomDependencyVersions/>
                   <requireJavaVersion>
-                    <version>[1.8,)</version>
+                    <version>[17,)</version>
                   </requireJavaVersion>
                   <requireMavenVersion>
                     <version>[3.6,)</version>

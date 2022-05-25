@@ -28,6 +28,8 @@ jobs:
           ./agent &
           ./agent wait
       - uses: actions/checkout@v3
+      # remove exports causing issues on JDK 8
+      - run: rm .mvn/jvm.config
       - name: Setup JDK 17 for exporter build
         uses: actions/setup-java@v3
         with:
@@ -57,6 +59,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        # remove exports causing issues on JDK 8
+      - run: rm .mvn/jvm.config
       - name: Set up JDK 8
         uses: actions/setup-java@v3
         with:
