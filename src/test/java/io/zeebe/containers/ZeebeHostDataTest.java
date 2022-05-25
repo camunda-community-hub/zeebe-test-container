@@ -16,24 +16,29 @@
 package io.zeebe.containers;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.condition.OS.LINUX;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse.Mount;
 import com.github.dockerjava.api.model.Volume;
-import io.zeebe.containers.util.TestUtils;
+import io.zeebe.containers.util.TestSupport;
+import io.zeebe.containers.util.TestcontainersSupport.DisabledIfTestcontainersCloud;
 import java.nio.file.Path;
 import java.util.Objects;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.io.TempDir;
 import org.testcontainers.DockerClientFactory;
 
+@EnabledOnOs(LINUX)
+@DisabledIfTestcontainersCloud
 final class ZeebeHostDataTest {
   @Test
   void shouldAttachToZeebeContainer(final @TempDir Path dataDir) {
     // given
     final DockerClient client = DockerClientFactory.lazyClient();
-    final String runAsUser = TestUtils.getRunAsUser();
+    final String runAsUser = TestSupport.getRunAsUser();
 
     // when
     final InspectContainerResponse response;

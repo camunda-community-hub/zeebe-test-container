@@ -21,16 +21,18 @@ import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.api.response.Topology;
 import io.zeebe.containers.ZeebeGatewayNode;
 import io.zeebe.containers.util.TopologyAssert;
-import java.util.Optional;
+import org.agrona.CloseHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.Network;
 
 final class ZeebeClusterTest {
+  private final Network network = Network.newNetwork();
   private ZeebeCluster cluster;
 
   @AfterEach
   void afterEach() {
-    Optional.ofNullable(cluster).ifPresent(ZeebeCluster::stop);
+    CloseHelper.quietCloseAll(cluster, network);
   }
 
   @Test
@@ -42,6 +44,7 @@ final class ZeebeClusterTest {
             .withReplicationFactor(1)
             .withPartitionsCount(1)
             .withBrokersCount(1)
+            .withNetwork(network)
             .build();
 
     // when
@@ -71,6 +74,7 @@ final class ZeebeClusterTest {
             .withReplicationFactor(2)
             .withPartitionsCount(2)
             .withBrokersCount(2)
+            .withNetwork(network)
             .build();
 
     // when
@@ -108,6 +112,7 @@ final class ZeebeClusterTest {
             .withPartitionsCount(1)
             .withBrokersCount(1)
             .withGatewaysCount(1)
+            .withNetwork(network)
             .build();
 
     // when
@@ -139,6 +144,7 @@ final class ZeebeClusterTest {
             .withPartitionsCount(1)
             .withBrokersCount(1)
             .withGatewaysCount(1)
+            .withNetwork(network)
             .build();
 
     // when

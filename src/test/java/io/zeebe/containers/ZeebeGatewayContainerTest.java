@@ -18,22 +18,35 @@ package io.zeebe.containers;
 import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.api.response.BrokerInfo;
 import io.camunda.zeebe.client.api.response.Topology;
+import io.zeebe.containers.util.TestSupport;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.Network;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
-class ZeebeGatewayContainerTest {
-  @Container private final ZeebeBrokerContainer brokerContainer = new ZeebeBrokerContainer();
+final class ZeebeGatewayContainerTest {
+  private final Network network = Network.newNetwork();
+
+  @Container
+  private final ZeebeBrokerContainer brokerContainer =
+      new ZeebeBrokerContainer().withNetwork(network);
 
   @Container
   private final ZeebeGatewayContainer gatewayContainer =
       new ZeebeGatewayContainer()
+          .withNetwork(network)
           .withEnv(
               "ZEEBE_GATEWAY_CLUSTER_CONTACTPOINT", brokerContainer.getInternalClusterAddress());
+
+  @AfterEach
+  void afterEach() {
+    network.close();
+  }
 
   @Test
   void shouldConnectToBroker() {
@@ -41,7 +54,7 @@ class ZeebeGatewayContainerTest {
     final Topology topology;
 
     // when
-    try (final ZeebeClient client = ZeebeClientFactory.newZeebeClient(gatewayContainer)) {
+    try (final ZeebeClient client = TestSupport.newZeebeClient(gatewayContainer)) {
       topology = client.newTopologyRequest().send().join(5, TimeUnit.SECONDS);
     }
 

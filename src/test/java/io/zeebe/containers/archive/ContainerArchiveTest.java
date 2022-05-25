@@ -29,11 +29,8 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.testcontainers.utility.MountableFile;
 
-@Execution(ExecutionMode.CONCURRENT)
 final class ContainerArchiveTest {
 
   @Test

@@ -30,6 +30,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.testcontainers.containers.Network;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.lifecycle.Startable;
 import org.testcontainers.lifecycle.Startables;
@@ -44,7 +45,8 @@ import org.testcontainers.lifecycle.Startables;
  * the partitioning scheme and is only necessary on the very first run. Nevertheless, this prevents
  * us from the using the extension, and the container's lifecycle must be managed separately.
  */
-class ClusterWithEmbeddedGatewaysExampleTest {
+final class ClusterWithEmbeddedGatewaysExampleTest {
+  private final Network network = Network.newNetwork();
   private final List<ZeebeContainer> containers =
       Arrays.asList(new ZeebeContainer(), new ZeebeContainer(), new ZeebeContainer());
   private final ZeebeContainer nodeZeroContainer = getConfiguredClusterBroker(0, containers);
@@ -54,6 +56,7 @@ class ClusterWithEmbeddedGatewaysExampleTest {
   @AfterEach
   void tearDown() {
     containers.parallelStream().forEach(Startable::stop);
+    network.close();
   }
 
   @Test
@@ -104,6 +107,7 @@ class ClusterWithEmbeddedGatewaysExampleTest {
                 .forBrokersCount(clusterSize)
                 .forReplicationFactor(clusterSize))
         .withStartupTimeout(Duration.ofMinutes(5))
+        .withNetwork(network)
         .withEnv("ZEEBE_BROKER_CLUSTER_NODEID", String.valueOf(index))
         .withEnv("ZEEBE_BROKER_CLUSTER_CLUSTERSIZE", String.valueOf(clusterSize))
         .withEnv("ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR", String.valueOf(clusterSize))

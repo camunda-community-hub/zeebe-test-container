@@ -23,7 +23,8 @@ import io.camunda.zeebe.client.api.response.DeploymentEvent;
 import io.camunda.zeebe.client.api.response.ProcessInstanceEvent;
 import io.camunda.zeebe.model.bpmn.Bpmn;
 import io.camunda.zeebe.model.bpmn.BpmnModelInstance;
-import io.zeebe.containers.util.TestUtils;
+import io.zeebe.containers.util.TestSupport;
+import io.zeebe.containers.util.TestcontainersSupport.DisabledIfTestcontainersCloud;
 import io.zeebe.containers.util.TopologyAssert;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -46,7 +47,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.testcontainers.containers.GenericContainer;
 
-class ZeebeBrokerNodeTest {
+final class ZeebeBrokerNodeTest {
+  @SuppressWarnings("unused")
   @Timeout(value = 5, unit = TimeUnit.MINUTES)
   @ParameterizedTest(name = "{0} should be ready on start")
   @MethodSource("nodeProvider")
@@ -98,6 +100,7 @@ class ZeebeBrokerNodeTest {
   @ParameterizedTest(name = "{0}")
   @MethodSource("reuseDataTestCases")
   @EnabledOnOs(LINUX)
+  @DisabledIfTestcontainersCloud
   void shouldReuseHostDataOnRestart(
       @SuppressWarnings("unused") final String testName,
       final BrokerNodeProvider brokerNodeProvider,
@@ -112,7 +115,7 @@ class ZeebeBrokerNodeTest {
     broker.start();
     gateway.start();
 
-    try (final ZeebeClient client = ZeebeClientFactory.newZeebeClient(gateway)) {
+    try (final ZeebeClient client = TestSupport.newZeebeClient(gateway)) {
       // deploy a new process, which we can use on restart to assert that the data was correctly
       // reused
       final DeploymentEvent deployment = deploySampleProcess(client);
@@ -140,7 +143,7 @@ class ZeebeBrokerNodeTest {
     // temporary directory at the end. Note that this is only necessary when not running the tests
     // as root
     final ZeebeHostData data = new ZeebeHostData(dataDir.toAbsolutePath().toString());
-    final String runAsUser = TestUtils.getRunAsUser();
+    final String runAsUser = TestSupport.getRunAsUser();
     broker
         .withZeebeData(data)
         .self()
@@ -156,7 +159,11 @@ class ZeebeBrokerNodeTest {
   private DeploymentEvent deploySampleProcess(final ZeebeClient client) {
     final BpmnModelInstance sampleProcess =
         Bpmn.createExecutableProcess("process").startEvent().endEvent().done();
-    return client.newDeployCommand().addProcessModel(sampleProcess, "process.bpmn").send().join();
+    return client
+        .newDeployResourceCommand()
+        .addProcessModel(sampleProcess, "process.bpmn")
+        .send()
+        .join();
   }
 
   private void awaitUntilTopologyIsComplete(final ZeebeClient client) {

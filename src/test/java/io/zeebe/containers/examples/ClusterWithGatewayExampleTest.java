@@ -31,6 +31,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.testcontainers.containers.Network;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.lifecycle.Startable;
 import org.testcontainers.lifecycle.Startables;
@@ -46,23 +47,26 @@ import org.testcontainers.lifecycle.Startables;
  * the partitioning scheme and is only necessary on the very first run. Nevertheless, this prevents
  * us from the using the extension, and the container's lifecycle must be managed separately.
  */
-class ClusterWithGatewayExampleTest {
+final class ClusterWithGatewayExampleTest {
+  private final Network network = Network.newNetwork();
   private final List<ZeebeBrokerContainer> brokers =
       Arrays.asList(
           new ZeebeBrokerContainer(), new ZeebeBrokerContainer(), new ZeebeBrokerContainer());
   private final ZeebeBrokerContainer brokerZeroContainer = getConfiguredClusterBroker(0, brokers);
-  private final ZeebeBrokerContainer brokerOneContainer = getConfiguredClusterBroker(1, brokers);
-  private final ZeebeBrokerContainer brokerTwoContainer = getConfiguredClusterBroker(2, brokers);
   private final ZeebeGatewayContainer gatewayContainer =
       new ZeebeGatewayContainer()
           .withEnv(
               "ZEEBE_GATEWAY_CLUSTER_CONTACTPOINT", brokerZeroContainer.getInternalClusterAddress())
+          .withNetwork(network)
           .withTopologyCheck(
               new ZeebeTopologyWaitStrategy().forBrokersCount(3).forReplicationFactor(3));
+  private final ZeebeBrokerContainer brokerOneContainer = getConfiguredClusterBroker(1, brokers);
+  private final ZeebeBrokerContainer brokerTwoContainer = getConfiguredClusterBroker(2, brokers);
 
   @AfterEach
   void tearDown() {
     brokers.parallelStream().forEach(Startable::stop);
+    network.close();
   }
 
   @Test
@@ -99,7 +103,7 @@ class ClusterWithGatewayExampleTest {
    * @param brokers all the brokers part of the cluster
    * @return the broker at index {@code index} in {@code brokers}, configured for clustering
    */
-  protected ZeebeBrokerContainer getConfiguredClusterBroker(
+  private ZeebeBrokerContainer getConfiguredClusterBroker(
       final int index, final List<ZeebeBrokerContainer> brokers) {
     final int clusterSize = brokers.size();
     final String initialContactPoints =
@@ -110,6 +114,7 @@ class ClusterWithGatewayExampleTest {
 
     return broker
         .withStartupTimeout(Duration.ofMinutes(5))
+        .withNetwork(network)
         .withEnv("ZEEBE_BROKER_CLUSTER_NODEID", String.valueOf(index))
         .withEnv("ZEEBE_BROKER_CLUSTER_CLUSTERSIZE", String.valueOf(clusterSize))
         .withEnv("ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR", String.valueOf(clusterSize))

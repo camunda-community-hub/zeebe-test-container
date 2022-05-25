@@ -37,7 +37,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  * verified. In most cases, this is what you're looking for.
  */
 @Testcontainers
-class SingleNodeTest {
+final class SingleNodeTest {
   @Container private final ZeebeContainer zeebeContainer = new ZeebeContainer();
 
   @Test

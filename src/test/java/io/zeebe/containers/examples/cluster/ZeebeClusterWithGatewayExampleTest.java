@@ -22,8 +22,10 @@ import io.zeebe.containers.cluster.ZeebeCluster;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.testcontainers.containers.Network;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -33,7 +35,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  * different nodes together.
  */
 @Testcontainers
-class ZeebeClusterWithGatewayExampleTest {
+final class ZeebeClusterWithGatewayExampleTest {
+  private final Network network = Network.newNetwork();
+
   @Container
   private final ZeebeCluster cluster =
       ZeebeCluster.builder()
@@ -42,7 +46,13 @@ class ZeebeClusterWithGatewayExampleTest {
           .withBrokersCount(1)
           .withPartitionsCount(1)
           .withReplicationFactor(1)
+          .withNetwork(network)
           .build();
+
+  @AfterEach
+  void afterEach() {
+    network.close();
+  }
 
   @Test
   @Timeout(value = 15, unit = TimeUnit.MINUTES)

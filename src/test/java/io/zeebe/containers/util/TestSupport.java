@@ -15,13 +15,15 @@
  */
 package io.zeebe.containers.util;
 
+import io.camunda.zeebe.client.ZeebeClient;
+import io.zeebe.containers.ZeebeGatewayNode;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 
-public final class TestUtils {
-  private TestUtils() {}
+public final class TestSupport {
+  private TestSupport() {}
 
   /**
    * Utility to get the current UID and GID such that a container can be run as that user.
@@ -52,6 +54,14 @@ public final class TestUtils {
    */
   public static String getUid() {
     return execCommand("id -u");
+  }
+
+  /** Returns a client for the given gateway, using a plaintext connection. */
+  public static ZeebeClient newZeebeClient(final ZeebeGatewayNode<?> gateway) {
+    return ZeebeClient.newClientBuilder()
+        .usePlaintext()
+        .gatewayAddress(gateway.getExternalGatewayAddress())
+        .build();
   }
 
   private static String execCommand(final String command) {
