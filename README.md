@@ -3,7 +3,7 @@
 [![](https://img.shields.io/badge/Community%20Extension-An%20open%20source%20community%20maintained%20project-FF4700)](https://github.com/camunda-community-hub/community)
 [![](https://img.shields.io/badge/Lifecycle-Incubating-blue)](https://github.com/Camunda-Community-Hub/community/blob/main/extension-lifecycle.md#incubating-)
 [![](https://img.shields.io/github/v/release/zeebe-io/zeebe-test-container?sort=semver)](https://github.com/zeebe-io/zeebe-test-container/releases/latest)
-[![Java CI](https://github.com/zeebe-io/zeebe-test-container/actions/workflows/ci.yml/badge.svg)](https://github.com/zeebe-io/zeebe-test-container/actions/workflows/ci.yml)
+[![Java CI](https://github.com/zeebe-io/zeebe-test-container/actions/workflows/ci.yml/badge.svg)](https://github.com/zeebe-io/zeebe-test-container/actions/workflows/ci.yml?branch=main)
 ![Compatible with: Camunda Platform 8](https://img.shields.io/badge/Compatible%20with-Camunda%20Platform%208-0072Ce)
 
 Easily test your application against a containerized, configurable Zeebe instance.
