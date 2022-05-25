@@ -252,7 +252,7 @@ final class ZeebeTopologyWaitStrategyTest {
     }
 
     @Override
-    public String getContainerIpAddress() {
+    public String getHost() {
       return "127.0.0.1";
     }
 
