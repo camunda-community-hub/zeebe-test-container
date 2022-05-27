@@ -24,7 +24,7 @@ jobs:
     uses: ./.github/workflows/lint.yml
     secrets: inherit
     with:
-      check-dependencies: ${{ github.event.action == 'pull_request' }}
+      check-dependencies: ${{ github.event_name == 'pull_request' }}
   test:
     name: Test
     uses: ./.github/workflows/test.yml

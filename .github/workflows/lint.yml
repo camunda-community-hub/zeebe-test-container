@@ -21,7 +21,6 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Check
-        id: check
         run: mvn -B -T1C -DskipTests verify
   analyze:
     name: CodeQL
