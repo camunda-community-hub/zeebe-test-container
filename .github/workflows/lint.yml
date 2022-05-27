@@ -43,6 +43,7 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
   dependency-review:
+    if: github.events.action == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout Repository'
