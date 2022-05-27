@@ -21,13 +21,7 @@ on:
 jobs:
   lint:
     name: Linting & Analysis
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/workflows/lint.yml
+    uses: ./.github/workflows/lint.yml
   test:
     name: Test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/workflows/test.yml
+    uses: ./.github/workflows/test.yml
