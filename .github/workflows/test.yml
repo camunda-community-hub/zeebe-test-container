@@ -1,7 +1,10 @@
 name: Test
 on:
   workflow_dispatch: { }
-  workflow_call: { }
+  workflow_call:
+    secrets:
+      TC_CLOUD_TOKEN:
+        required: true
 jobs:
   core-cloud:
     env:
@@ -11,7 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Prepare Testcontainers Cloud agent
-        if: env.TC_CLOUD_TOKEN != ''
         run: |
           curl -L -o agent https://app.testcontainers.cloud/download/testcontainers-cloud-agent_linux_x86-64
           chmod +x agent
@@ -42,26 +44,31 @@ jobs:
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: test-results
-          path: target/surefire-reports/
-          retention-days: 7
-  # No need to set up the JDK 17 here as we're only building the core module
+          name: cloud-core-test-results
+          path: "**/target/surefire-reports/**"
+          retention-days: 3
   core-local:
     name: Test (Local) - core
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        # remove exports causing issues on JDK 8
+      # remove exports causing issues on JDK 8
       - run: rm .mvn/jvm.config
+      - name: Setup JDK 17 for exporter build
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Build & Copy exporter
+        run: >
+          mvn -B -T1C -DskipTests -DskipChecks install
       - name: Set up JDK 8
         uses: actions/setup-java@v3
         with:
           java-version: '8'
           distribution: 'temurin'
           cache: 'maven'
-      - name: Build
-        run: >
-          mvn -B -DskipChecks -DskipTests -pl core install
       - name: Test
         timeout-minutes: 20
         # cannot run tests in parallel when using the local daemon
@@ -71,9 +78,9 @@ jobs:
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: test-results
-          path: target/surefire-reports/
-          retention-days: 7
+          name: local-core-test-results
+          path: "**/target/surefire-reports/**"
+          retention-days: 3
   exporter:
     name: Test (Local) - exporter
     runs-on: ubuntu-latest
@@ -95,6 +102,6 @@ jobs:
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: test-results
-          path: target/surefire-reports/
-          retention-days: 7
+          name: local-exporter-test-results
+          path: "**/target/surefire-reports/**"
+          retention-days: 3
