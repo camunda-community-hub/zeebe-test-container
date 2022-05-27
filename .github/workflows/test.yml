@@ -1,7 +1,10 @@
 name: Test
 on:
   workflow_dispatch: { }
-  workflow_call: { }
+  workflow_call:
+    secrets:
+      TC_CLOUD_TOKEN:
+        required: true
 jobs:
   core-cloud:
     env:
@@ -11,7 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Prepare Testcontainers Cloud agent
-        if: env.TC_CLOUD_TOKEN != ''
         run: |
           curl -L -o agent https://app.testcontainers.cloud/download/testcontainers-cloud-agent_linux_x86-64
           chmod +x agent
