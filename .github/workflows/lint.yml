@@ -1,7 +1,13 @@
 name: Linting & Analysis
 on:
   workflow_dispatch: { }
-  workflow_call: { }
+  workflow_call:
+    inputs:
+      check-dependencies:
+        description: 'Set to true to also check for dependencies'
+        default: false
+        required: false
+        type: boolean
 jobs:
   check:
     name: Check
@@ -43,7 +49,7 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
   dependency-review:
-    if: github.events.action == 'pull_request'
+    if: inputs.check-dependencies
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout Repository'
