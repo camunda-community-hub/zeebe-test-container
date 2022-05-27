@@ -1,6 +1,7 @@
 name: Linting & Analysis
 on:
   workflow_dispatch: { }
+  workflow_call: { }
 jobs:
   check:
     name: Check
