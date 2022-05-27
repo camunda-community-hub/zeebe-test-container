@@ -5,12 +5,18 @@ on:
       - '**/*.java'
       - '**/pom.xml'
       - 'revapi.json'
+      - '.github/workflows/ci.yml'
+      - '.github/workflows/test.yml'
+      - '.github/workflows/lint.yml'
   push:
     branches: [ main ]
     paths:
       - '**/*.java'
       - '**/pom.xml'
       - 'revapi.json'
+      - '.github/workflows/ci.yml'
+      - '.github/workflows/test.yml'
+      - '.github/workflows/lint.yml'
   workflow_dispatch: { }
 jobs:
   lint:
