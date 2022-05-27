@@ -1,49 +1,22 @@
-# If this workflow is triggered by a push to main, it
-#        deploys a SNAPSHOT
-# If this workflow is triggered by publishing a Release, it
-#        deploys a RELEASE with the selected version
-#        updates the project version by incrementing the patch version
-#        commits the version update change to the repository's default branch.
-name: Deploy artifacts with Maven
+name: Release
 on:
-  push:
-    branches: [ main ]
   release:
     types: [ published ]
   workflow_dispatch: { }
 jobs:
-  publish:
+  deploy:
+    name: Deploy artifacts
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit
+  release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'maven'
-          gpg-private-key: ${{ secrets.MAVEN_CENTRAL_GPG_SIGNING_KEY_SEC }}
-          gpg-passphrase: MAVEN_CENTRAL_GPG_PASSPHRASE
-      - name: Deploy SNAPSHOT / Release
-        uses: camunda-community-hub/community-action-maven-release@v1
-        with:
-          release-version: ${{ github.event.release.tag_name }}
-          release-profile: community-action-maven-release
-          nexus-usr: ${{ secrets.NEXUS_USR }}
-          nexus-psw: ${{ secrets.NEXUS_PSW }}
-          maven-usr: ${{ secrets.MAVEN_CENTRAL_DEPLOYMENT_USR }}
-          maven-psw: ${{ secrets.MAVEN_CENTRAL_DEPLOYMENT_PSW }}
-          maven-url: oss.sonatype.org
-          maven-gpg-passphrase: ${{ secrets.MAVEN_CENTRAL_GPG_SIGNING_KEY_PASSPHRASE }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-        id: release
-      - if: github.event.release
-        name: Attach artifacts to GitHub Release (Release only)
+      - name: Attach artifacts to GitHub Release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ${{ steps.release.outputs.artifacts_archive_path }}
-          asset_name: ${{ steps.release.outputs.artifacts_archive_path }}
+          asset_path: ${{ needs.deploy.outputs.artifacts_archive_path }}
+          asset_name: ${{ needs.deploy.outputs.artifacts_archive_path }}
           asset_content_type: application/zip

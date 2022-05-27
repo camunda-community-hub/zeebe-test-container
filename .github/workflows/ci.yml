@@ -22,7 +22,17 @@ jobs:
   lint:
     name: Linting & Analysis
     uses: ./.github/workflows/lint.yml
+    secrets: inherit
+    with:
+      check-dependencies: ${{ github.event_name == 'pull_request' }}
   test:
     name: Test
     uses: ./.github/workflows/test.yml
+    secrets: inherit
+  deploy:
+    # Only deploy SNAPSHOT if merging to main
+    if: github.ref == 'refs/heads/main'
+    name: Deploy SNAPSHOT
+    needs: [lint, test]
+    uses: ./.github/workflows/deploy.yml
     secrets: inherit

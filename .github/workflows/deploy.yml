@@ -1,0 +1,37 @@
+name: Deploy Maven artifacts
+on:
+  workflow_dispatch: { }
+  workflow_call:
+    outputs:
+      artifacts_archive_path:
+        description: "Path of the uploaded release artifacts"
+        value: ${{ jobs.deploy.outputs.artifacts_archive_path }}
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    outputs:
+      artifacts_archive_path: ${{ steps.release.outputs.artifacts_archive_path }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+          gpg-private-key: ${{ secrets.MAVEN_CENTRAL_GPG_SIGNING_KEY_SEC }}
+          gpg-passphrase: MAVEN_CENTRAL_GPG_PASSPHRASE
+      - name: Deploy SNAPSHOT / Release
+        id: release
+        uses: camunda-community-hub/community-action-maven-release@v1
+        with:
+          release-version: ${{ github.event.release.tag_name }}
+          release-profile: community-action-maven-release
+          nexus-usr: ${{ secrets.NEXUS_USR }}
+          nexus-psw: ${{ secrets.NEXUS_PSW }}
+          maven-usr: ${{ secrets.MAVEN_CENTRAL_DEPLOYMENT_USR }}
+          maven-psw: ${{ secrets.MAVEN_CENTRAL_DEPLOYMENT_PSW }}
+          maven-url: oss.sonatype.org
+          maven-gpg-passphrase: ${{ secrets.MAVEN_CENTRAL_GPG_SIGNING_KEY_PASSPHRASE }}
+          maven-additional-options: -DskipChecks -DskipTests
+          github-token: ${{ secrets.GITHUB_TOKEN }}
