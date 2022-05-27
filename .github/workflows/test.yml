@@ -45,23 +45,28 @@ jobs:
           name: test-results
           path: "**/target/surefire-reports/**"
           retention-days: 3
-  # No need to set up the JDK 17 here as we're only building the core module
   core-local:
     name: Test (Local) - core
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        # remove exports causing issues on JDK 8
+      # remove exports causing issues on JDK 8
       - run: rm .mvn/jvm.config
+      - name: Setup JDK 17 for exporter build
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Build & Copy exporter
+        run: >
+          mvn -B -T1C -DskipTests -DskipChecks install
       - name: Set up JDK 8
         uses: actions/setup-java@v3
         with:
           java-version: '8'
           distribution: 'temurin'
           cache: 'maven'
-      - name: Build
-        run: >
-          mvn -B -DskipChecks -DskipTests -pl core install
       - name: Test
         timeout-minutes: 20
         # cannot run tests in parallel when using the local daemon
