@@ -133,7 +133,7 @@ final class ZeebeTopologyWaitStrategyTest {
 
     // then
     Mockito.verify(builder, Mockito.timeout(5000).atLeastOnce())
-        .gatewayAddress(target.getContainerIpAddress() + ":" + target.mappedPort);
+        .gatewayAddress(target.getHost() + ":" + target.mappedPort);
   }
 
   @ParameterizedTest(name = "should timeout on incomplete topology when {0}")
