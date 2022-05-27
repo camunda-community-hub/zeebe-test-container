@@ -1,0 +1,25 @@
+name: Continuous Integration
+on:
+  pull_request:
+    paths:
+      - '**/*.java'
+      - '**/pom.xml'
+      - 'revapi.json'
+  push:
+    branches: [ main ]
+    paths:
+      - '**/*.java'
+      - '**/pom.xml'
+      - 'revapi.json'
+  workflow_dispatch: { }
+jobs:
+  lint:
+    name: Linting & Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/workflows/lint.yml
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+        - uses: ./.github/workflows/test.yml

@@ -1,16 +1,5 @@
 name: Test
 on:
-  pull_request:
-    paths:
-      - '**/*.java'
-      - '**/pom.xml'
-      - 'revapi.json'
-  push:
-    branches: [ main ]
-    paths:
-      - '**/*.java'
-      - '**/pom.xml'
-      - 'revapi.json'
   workflow_dispatch: { }
 jobs:
   core-cloud:
