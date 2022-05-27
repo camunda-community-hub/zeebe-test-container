@@ -43,8 +43,8 @@ jobs:
         if: always()
         with:
           name: test-results
-          path: target/surefire-reports/
-          retention-days: 7
+          path: "**/target/surefire-reports/**"
+          retention-days: 3
   # No need to set up the JDK 17 here as we're only building the core module
   core-local:
     name: Test (Local) - core
@@ -72,8 +72,8 @@ jobs:
         if: always()
         with:
           name: test-results
-          path: target/surefire-reports/
-          retention-days: 7
+          path: "**/target/surefire-reports/**"
+          retention-days: 3
   exporter:
     name: Test (Local) - exporter
     runs-on: ubuntu-latest
@@ -96,5 +96,5 @@ jobs:
         if: always()
         with:
           name: test-results
-          path: target/surefire-reports/
-          retention-days: 7
+          path: "**/target/surefire-reports/**"
+          retention-days: 3
