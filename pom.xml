@@ -90,7 +90,7 @@
     <plugin.version.resources>3.2.0</plugin.version.resources>
     <plugin.version.revapi>0.14.6</plugin.version.revapi>
     <plugin.version.shade>3.3.0</plugin.version.shade>
-    <plugin.version.spotless>2.22.5</plugin.version.spotless>
+    <plugin.version.spotless>2.22.8</plugin.version.spotless>
     <plugin.version.surefire>3.0.0-M6</plugin.version.surefire>
 
     <!-- maven extensions -->
