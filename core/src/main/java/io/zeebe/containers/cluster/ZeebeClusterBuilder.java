@@ -29,9 +29,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 import org.testcontainers.containers.GenericContainer;
@@ -114,8 +114,8 @@ public class ZeebeClusterBuilder {
   private DockerImageName brokerImageName = getInstance().getDefaultDockerImage();
 
   private Consumer<ZeebeNode<?>> nodeConfig = cfg -> {};
-  private Consumer<ZeebeBrokerNode<?>> brokerConfig = cfg -> {};
-  private Consumer<ZeebeGatewayNode<?>> gatewayConfig = cfg -> {};
+  private BiConsumer<Integer, ZeebeBrokerNode<?>> brokerConfig = (id, cfg) -> {};
+  private BiConsumer<String, ZeebeGatewayNode<?>> gatewayConfig = (memberId, cfg) -> {};
 
   private final Map<String, ZeebeGatewayNode<? extends GenericContainer<?>>> gateways =
       new HashMap<>();
@@ -305,10 +305,34 @@ public class ZeebeClusterBuilder {
 
   /**
    * Sets the configuration function that will be executed in the {@link #build()} method on each
-   * gateway (including embedded gateways). NOTE: in case of conflicts with {@link #nodeConfig} this
-   * configuration will override {@link #nodeConfig}. NOTE: in case of conflicts with this
-   * configuration is an embedded gateway configuration and a broker configuration, broker
-   * configuration will override this configuration.
+   * gateway (including embedded gateways). The first argument of is the member ID of the gateway,
+   * and the second argument is the gateway container itself.
+   *
+   * <p>NOTE: in case of conflicts with {@link #nodeConfig} this configuration will override {@link
+   * #nodeConfig}.
+   *
+   * <p>NOTE: in case of conflicts with this configuration is an embedded gateway configuration and
+   * a broker configuration, broker configuration will override this configuration.
+   *
+   * @param gatewayCfgFunction the function that will be applied on all cluster gateways (embedded
+   *     ones included)
+   * @return this builder instance for chaining
+   */
+  public ZeebeClusterBuilder withGatewayConfig(
+      final BiConsumer<String, ZeebeGatewayNode<?>> gatewayCfgFunction) {
+    this.gatewayConfig = gatewayCfgFunction;
+    return this;
+  }
+
+  /**
+   * Sets the configuration function that will be executed in the {@link #build()} method on each
+   * gateway (including embedded gateways).
+   *
+   * <p>NOTE: in case of conflicts with {@link #nodeConfig} this configuration will override {@link
+   * #nodeConfig}.
+   *
+   * <p>NOTE: in case of conflicts with this configuration is an embedded gateway configuration and
+   * a broker configuration, broker configuration will override this configuration.
    *
    * @param gatewayCfgFunction the function that will be applied on all cluster gateways (embedded
    *     ones included)
@@ -316,13 +340,32 @@ public class ZeebeClusterBuilder {
    */
   public ZeebeClusterBuilder withGatewayConfig(
       final Consumer<ZeebeGatewayNode<?>> gatewayCfgFunction) {
-    this.gatewayConfig = gatewayCfgFunction;
+    this.gatewayConfig = (memberId, gateway) -> gatewayCfgFunction.accept(gateway);
     return this;
   }
 
   /**
    * Sets the configuration function that will be executed in the {@link #build()} method on each
-   * broker. NOTE: in case of conflicts with {@link #nodeConfig} or {@link #gatewayConfig} this
+   * broker. The first argument is the broker ID, and the second argument is the broker container
+   * itself.
+   *
+   * <p>NOTE: in case of conflicts with {@link #nodeConfig} or {@link #gatewayConfig} this
+   * configuration will override them.
+   *
+   * @param brokerCfgFunction the function that will be applied on all cluster brokers
+   * @return this builder instance for chaining
+   */
+  public ZeebeClusterBuilder withBrokerConfig(
+      final BiConsumer<Integer, ZeebeBrokerNode<?>> brokerCfgFunction) {
+    this.brokerConfig = brokerCfgFunction;
+    return this;
+  }
+
+  /**
+   * Sets the configuration function that will be executed in the {@link #build()} method on each
+   * broker.
+   *
+   * <p>NOTE: in case of conflicts with {@link #nodeConfig} or {@link #gatewayConfig} this
    * configuration will override them.
    *
    * @param brokerCfgFunction the function that will be applied on all cluster brokers
@@ -330,7 +373,7 @@ public class ZeebeClusterBuilder {
    */
   public ZeebeClusterBuilder withBrokerConfig(
       final Consumer<ZeebeBrokerNode<?>> brokerCfgFunction) {
-    this.brokerConfig = brokerCfgFunction;
+    this.brokerConfig = (id, broker) -> brokerCfgFunction.accept(broker);
     return this;
   }
 
@@ -365,22 +408,28 @@ public class ZeebeClusterBuilder {
     // is one
     createStandaloneGateways();
 
-    Stream.concat(brokers.values().stream(), gateways.values().stream())
-        .distinct()
-        .forEach(this::applyConfigFunctions);
+    // apply free-form configuration functions
+    brokers.forEach(this::applyConfigFunctions);
+    gateways.forEach(
+        (memberId, gateway) -> {
+          // skip brokers/embedded gateways
+          if (!(gateway instanceof ZeebeBrokerNode<?>)) {
+            applyConfigFunctions(memberId, gateway);
+          }
+        });
 
     return new ZeebeCluster(network, name, gateways, brokers, replicationFactor, partitionsCount);
   }
 
-  private void applyConfigFunctions(final ZeebeNode<?> node) {
+  private void applyConfigFunctions(final Object id, final ZeebeNode<?> node) {
     nodeConfig.accept(node);
 
     if (node instanceof ZeebeGatewayNode) {
-      gatewayConfig.accept((ZeebeGatewayNode<?>) node);
+      gatewayConfig.accept(String.valueOf(id), (ZeebeGatewayNode<?>) node);
     }
 
     if (node instanceof ZeebeBrokerNode) {
-      brokerConfig.accept((ZeebeBrokerNode<?>) node);
+      brokerConfig.accept((Integer) id, (ZeebeBrokerNode<?>) node);
     }
   }
 
@@ -437,6 +486,7 @@ public class ZeebeClusterBuilder {
     final ThreadLocalRandom random = ThreadLocalRandom.current();
     for (int i = 0; i < gatewaysCount; i++) {
       final String memberId = GATEWAY_NETWORK_ALIAS_PREFIX + i;
+      //noinspection resource
       final ZeebeGatewayContainer gateway = createStandaloneGateway(memberId);
       gateway.withStartupTimeout(Duration.ofMinutes((long) gatewaysCount + brokersCount));
 

@@ -25,7 +25,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// TODO: replace this with io.camunda.zeebe:zeebe-exporter-test:8.1.0-alpha2 when available
+// TODO: replace this with io.camunda.zeebe:zeebe-exporter-test:8.1.0 when available
 final class TestExporterApi {
   private static final Logger LOGGER = LoggerFactory.getLogger(TestExporterApi.class);
 

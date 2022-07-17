@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import net.jcip.annotations.ThreadSafe;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.HttpProcessors;
@@ -44,6 +45,7 @@ import org.slf4j.LoggerFactory;
  * <p>See {@link RecordHandler} for documentation about the /records endpoint.
  */
 @API(status = Status.EXPERIMENTAL)
+@ThreadSafe
 public final class DebugReceiver implements AutoCloseable {
   private static final Logger LOGGER = LoggerFactory.getLogger(DebugReceiver.class);
 

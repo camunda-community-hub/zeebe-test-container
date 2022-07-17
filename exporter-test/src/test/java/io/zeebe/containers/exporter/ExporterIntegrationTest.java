@@ -59,7 +59,7 @@ final class ExporterIntegrationTest {
     private final DebugExporter exporter = new DebugExporter();
 
     @BeforeEach
-    void beforeEach() throws Exception {
+    void beforeEach() {
       context.getConfiguration().getArguments().put("url", receiver.recordsEndpoint().toString());
 
       exporter.configure(context);

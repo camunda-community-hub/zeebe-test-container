@@ -25,13 +25,13 @@ import io.zeebe.containers.ZeebeNode;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.Container;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.utility.DockerImageName;
 
+@SuppressWarnings("resource")
 final class ZeebeClusterBuilderTest {
   @Test
   void shouldThrowIllegalArgumentIfBrokersCountIsNegative() {
@@ -517,7 +517,7 @@ final class ZeebeClusterBuilderTest {
     final String foreseeEnv = "IS_CONFIGURED_BY_BROKER_FUNCTION";
     final ZeebeClusterBuilder builder =
         new ZeebeClusterBuilder()
-            .withBrokerConfig(broker -> broker.addEnv(foreseeEnv, ""))
+            .withBrokerConfig((id, broker) -> broker.addEnv(foreseeEnv, String.valueOf(id)))
             .withBrokersCount(1)
             .withGatewaysCount(1)
             .withEmbeddedGateway(false);
@@ -528,15 +528,15 @@ final class ZeebeClusterBuilderTest {
     // then
     assertThat(cluster.getBrokers())
         .allSatisfy(
-            (integer, zeebeBrokerNode) ->
+            (id, zeebeBrokerNode) ->
                 assertThat(zeebeBrokerNode.getEnvMap())
                     .as(
                         "Broker node: %s must have %s environment variable",
                         zeebeBrokerNode, foreseeEnv)
-                    .containsKey(foreseeEnv));
+                    .containsEntry(foreseeEnv, String.valueOf(id)));
     assertThat(cluster.getGateways())
         .allSatisfy(
-            (s, zeebeGatewayNode) ->
+            (memberId, zeebeGatewayNode) ->
                 assertThat(zeebeGatewayNode.getEnvMap())
                     .as(
                         "Gateway node: %s must not have %s environment variable",
@@ -583,7 +583,7 @@ final class ZeebeClusterBuilderTest {
     final String foreseeEnv = "IS_CONFIGURED_BY_GATEWAY_FUNCTION";
     final ZeebeClusterBuilder builder =
         new ZeebeClusterBuilder()
-            .withGatewayConfig(gateway -> gateway.addEnv(foreseeEnv, ""))
+            .withGatewayConfig((memberId, gateway) -> gateway.addEnv(foreseeEnv, memberId))
             .withBrokersCount(1)
             .withGatewaysCount(1)
             .withEmbeddedGateway(true);
@@ -594,20 +594,20 @@ final class ZeebeClusterBuilderTest {
     // then
     assertThat(cluster.getBrokers())
         .allSatisfy(
-            (integer, zeebeBrokerNode) ->
+            (id, zeebeBrokerNode) ->
                 assertThat(zeebeBrokerNode.getEnvMap())
                     .as(
                         "Broker node: %s must have %s environment variable",
                         zeebeBrokerNode, foreseeEnv)
-                    .containsKey(foreseeEnv));
+                    .containsEntry(foreseeEnv, String.valueOf(id)));
     assertThat(cluster.getGateways())
         .allSatisfy(
-            (s, zeebeGatewayNode) ->
+            (memberId, zeebeGatewayNode) ->
                 assertThat(zeebeGatewayNode.getEnvMap())
                     .as(
                         "Gateway node: %s must have %s environment variable",
                         zeebeGatewayNode, foreseeEnv)
-                    .containsKey(foreseeEnv));
+                    .containsEntry(foreseeEnv, memberId));
   }
 
   @Test
@@ -616,7 +616,7 @@ final class ZeebeClusterBuilderTest {
     final String foreseeEnv = "IS_CONFIGURED_BY_GATEWAY_FUNCTION";
     final ZeebeClusterBuilder builder =
         new ZeebeClusterBuilder()
-            .withGatewayConfig(gateway -> gateway.addEnv(foreseeEnv, ""))
+            .withGatewayConfig((memberId, gateway) -> gateway.addEnv(foreseeEnv, memberId))
             .withBrokersCount(1)
             .withGatewaysCount(1)
             .withEmbeddedGateway(false);
@@ -627,7 +627,7 @@ final class ZeebeClusterBuilderTest {
     // then
     assertThat(cluster.getBrokers())
         .allSatisfy(
-            (integer, zeebeBrokerNode) ->
+            (id, zeebeBrokerNode) ->
                 assertThat(zeebeBrokerNode.getEnvMap())
                     .as(
                         "Broker node: %s must not have %s environment variable",
@@ -635,12 +635,12 @@ final class ZeebeClusterBuilderTest {
                     .doesNotContainKey(foreseeEnv));
     assertThat(cluster.getGateways())
         .allSatisfy(
-            (s, zeebeGatewayNode) ->
+            (memberId, zeebeGatewayNode) ->
                 assertThat(zeebeGatewayNode.getEnvMap())
                     .as(
                         "Gateway node: %s must have %s environment variable",
                         zeebeGatewayNode, foreseeEnv)
-                    .containsKey(foreseeEnv));
+                    .containsEntry(foreseeEnv, memberId));
   }
 
   @Test
@@ -818,12 +818,6 @@ final class ZeebeClusterBuilderTest {
         .singleElement()
         .satisfies(
             gatewayEntry -> verifyZeebeHasImageName(gatewayEntry.getValue(), zeebeDockerImage));
-  }
-
-  private Condition<ZeebeNode<? extends GenericContainer<?>>> zeebeImageHasImageName(
-      final String imageName) {
-    return new Condition<>(
-        node -> node.getDockerImageName().equals(imageName), "Image Name Condition");
   }
 
   private void verifyZeebeHasImageName(
