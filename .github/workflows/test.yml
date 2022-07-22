@@ -81,6 +81,47 @@ jobs:
           name: local-core-test-results
           path: "**/target/surefire-reports/**"
           retention-days: 3
+  engine:
+    env:
+      TC_CLOUD_TOKEN: ${{ secrets.TC_CLOUD_TOKEN }}
+      TC_CLOUD_CONCURRENCY: 4
+    name: Test (Cloud) - engine
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare Testcontainers Cloud agent
+        run: |
+          curl -L -o agent https://app.testcontainers.cloud/download/testcontainers-cloud-agent_linux_x86-64
+          chmod +x agent
+          ./agent &
+          ./agent wait
+      - uses: actions/checkout@v3
+      # remove exports causing issues on JDK 8
+      - run: rm .mvn/jvm.config
+      - name: Setup JDK 17 for exporter build
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Build & Copy exporter
+        run: >
+          mvn -B -T1C -DskipTests -DskipChecks install
+      - name: Set up JDK 8
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+      - name: Test
+        timeout-minutes: 20
+        run: >
+          mvn -B -Pparallel-tests -DforkCount=2C -DskipChecks -pl engine test
+      - name: Archive Test Results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: cloud-core-test-results
+          path: "**/target/surefire-reports/**"
+          retention-days: 3
   exporter:
     name: Test (Local) - exporter
     runs-on: ubuntu-latest
