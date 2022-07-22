@@ -71,14 +71,20 @@ final class RecordHandler implements AsyncServerRequestHandler<Message<HttpReque
       new ObjectMapper().registerModule(new ZeebeProtocolModule());
 
   private final Consumer<Record<?>> recordConsumer;
+  private final boolean autoAcknowledge;
   private final Map<Integer, Long> positions = new HashMap<>();
 
   RecordHandler(final Consumer<Record<?>> recordConsumer) {
+    this(recordConsumer, true);
+  }
+
+  RecordHandler(final Consumer<Record<?>> recordConsumer, final boolean autoAcknowledge) {
     this.recordConsumer = Objects.requireNonNull(recordConsumer, "must specify a record consumer");
+    this.autoAcknowledge = autoAcknowledge;
   }
 
   void acknowledge(final int partitionId, final long position) {
-    positions.put(partitionId, position);
+    positions.merge(partitionId, position, Math::max);
   }
 
   @Override
@@ -122,7 +128,13 @@ final class RecordHandler implements AsyncServerRequestHandler<Message<HttpReque
       return;
     }
 
-    records.forEach(recordConsumer);
+    for (final Record<?> record : records) {
+      recordConsumer.accept(record);
+
+      if (autoAcknowledge) {
+        acknowledge(record.getPartitionId(), record.getPosition());
+      }
+    }
 
     final int partitionId = records.get(0).getPartitionId();
     final AsyncResponseProducer responseProducer = createSuccessfulResponse(partitionId);
