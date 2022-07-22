@@ -83,12 +83,12 @@ Add the project to your dependencies:
 <dependency>
   <groupId>io.zeebe</groupId>
   <artifactId>zeebe-test-container</artifactId>
-  <version>4.0.0</version>
+  <version>3.5.0</version>
 </dependency>
 ```
 
 ```groovy
-testImplementation 'io.zeebe:zeebe-test-container:4.0.0'
+testImplementation 'io.zeebe:zeebe-test-container:3.5.0'
 ```
 
 ### Requirements
