@@ -36,6 +36,7 @@ use containers for your tests, as well as general prerequisites.
   - [Extracting data](#extracting-data)
   - [Time traveling](#time-traveling)
   - [Debug exporter](#debug-exporter)
+  - [Zeebe Test Process Compatibility](#zeebe-test-process-compatibility)
 - [Tips](#tips)
   - [Tailing your container's logs during development](#tailing-your-containers-logs-during-development)
   - [Configuring GenericContainer specific properties with a Zeebe*Node interface](#configuring-genericcontainer-specific-properties-with-a-zeebenode-interface)
@@ -66,6 +67,12 @@ Version 1.x and 2.x is compatible with the following Zeebe versions:
 Version 3.x is compatible with the following Zeebe versions:
 
 - 1.x
+- 8.0
+
+Version 4.x is compatible with the following Zeebe versions:
+
+- 1.x
+- 8.x
 
 ## Installation
 
@@ -76,12 +83,12 @@ Add the project to your dependencies:
 <dependency>
   <groupId>io.zeebe</groupId>
   <artifactId>zeebe-test-container</artifactId>
-  <version>3.3.0</version>
+  <version>4.0.0</version>
 </dependency>
 ```
 
 ```groovy
-testImplementation 'io.zeebe:zeebe-test-container:3.3.0'
+testImplementation 'io.zeebe:zeebe-test-container:4.0.0'
 ```
 
 ### Requirements
@@ -332,14 +339,15 @@ variables or via configuration file. You can find out more about it on the
 > [here](https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-external-config)
 >
 > Testcontainers provide mechanisms through which
-> [environment variables can be injected](https://www.javadoc.io/doc/org.testcontainers/testcontainers/1.14.3/org/testcontainers/containers/GenericContainer.html#withEnv-java.lang.String-java.lang.String-),
+> [environment variables can be injected](https://www.javadoc.io/doc/org.testcontainers/testcontainers/1.14.3/org/testcontainers/containers/GenericContainer.html#withEnv-java.lang.String-java.lang.String-)
+> ,
 > or [configuration files mounted](https://www.testcontainers.org/features/files/). Refer to their
 > documentation for more.
 
 ## Examples
 
 A series of examples are included as part of the tests, see
-[test/java/io/zeebe/containers/examples](/src/test/java/io/zeebe/containers/examples).
+[test/java/io/zeebe/containers/examples](/core/src/test/java/io/zeebe/containers/examples).
 
 > Note that these are written for junit5.
 
@@ -463,12 +471,13 @@ class ZeebeClusterWithGatewayExampleTest {
 ```
 
 You can find more examples by looking at the
-[test/java/io/zeebe/containers/examples/cluster](/src/test/java/io/zeebe/containers/examples/cluster)
+[test/java/io/zeebe/containers/examples/cluster](/core/src/test/java/io/zeebe/containers/examples/cluster)
 package.
 
 ### Cluster startup time
 
-There are some caveat as well. For example, if you want to create a large cluster with many brokers and need to increase the
+There are some caveat as well. For example, if you want to create a large cluster with many brokers
+and need to increase the
 startup time:
 
 ```java
@@ -488,15 +497,15 @@ class ZeebeHugeClusterTest {
 
   @Container
   private final ZeebeCluster cluster =
-      ZeebeCluster.builder()
-          .withEmbeddedGateway(false)
-          .withGatewaysCount(3)
-          .withBrokersCount(6)
-          .withPartitionsCount(6)
-          .withReplicationFactor(3)
-          // configure each container to have a high start up time as they get started in parallel
-          .withNodeConfig(node -> node.self().withStartupTimeout(Duration.ofMinutes(5)))
-          .build();
+    ZeebeCluster.builder()
+      .withEmbeddedGateway(false)
+      .withGatewaysCount(3)
+      .withBrokersCount(6)
+      .withPartitionsCount(6)
+      .withReplicationFactor(3)
+      // configure each container to have a high start up time as they get started in parallel
+      .withNodeConfig(node -> node.self().withStartupTimeout(Duration.ofMinutes(5)))
+      .build();
 
   @Test
   @Timeout(value = 30, unit = TimeUnit.MINUTES)
@@ -509,7 +518,8 @@ class ZeebeHugeClusterTest {
 ## Debugging
 
 There might be cases where you want to debug a container you just started in one of your tests. You
-can use the [RemoteDebugger](/src/main/java/io/zeebe/containers/util/RemoteDebugger.java) utility
+can use the [RemoteDebugger](/core/src/main/java/io/zeebe/containers/util/RemoteDebugger.java)
+utility
 for this. By default, it will start your container and attach a debugging agent to it on port 5005.
 The container startup is then suspended until a debugger attaches to it.
 
@@ -653,7 +663,7 @@ final class VolumeExampleTest {
 ```
 
 You can see a more complete
-example [here](/src/test/java/io/zeebe/containers/examples/ReusableVolumeExampleTest.java).
+example [here](/core/src/test/java/io/zeebe/containers/examples/ReusableVolumeExampleTest.java).
 
 ## Extracting data
 
@@ -664,7 +674,7 @@ regenerating that data.
 
 There are two main interfaces for this. If you want to extract the data from a running container,
 you can directly
-use [ContainerArchive](/src/main/java/io/zeebe/containers/archive/ContainerArchive.java). This
+use [ContainerArchive](/core/src/main/java/io/zeebe/containers/archive/ContainerArchive.java). This
 represents a reference to a zipped, TAR file on a given container, which can be extracted to a local
 path.
 
@@ -711,7 +721,7 @@ final class ExtractDataLiveExampleTest {
 > is.
 
 You can find more examples for this feature
-under [examples/archive](/src/test/java/io/zeebe/containers/examples/archive).
+under [examples/archive](/core/src/test/java/io/zeebe/containers/examples/archive).
 
 ## Time traveling
 
@@ -742,7 +752,8 @@ final class SetupMutableClockExample {
 
   // any subsequent tests can now mutate the clock
   @Test
-  void shouldMutateTheClock() {}
+  void shouldMutateTheClock() {
+  }
 }
 ```
 
@@ -750,7 +761,7 @@ final class SetupMutableClockExample {
 > message about the clock's immutability.
 
 Once the clock is mutable, you can then use the provided high level API,
-[ZeebeClock](/src/main/java/io/zeebe/containers/clock/ZeebeClock.java).
+[ZeebeClock](/core/src/main/java/io/zeebe/containers/clock/ZeebeClock.java).
 
 Here's a basic example which will simply advance the broker's time:
 
@@ -772,6 +783,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Execution(ExecutionMode.SAME_THREAD)
 @Testcontainers
 final class ZeebeClockTest {
+
   @Container
   private static final ZeebeBrokerContainer BROKER =
     new ZeebeBrokerContainer().withEnv("ZEEBE_CLOCK_CONTROLLED", "true");
@@ -801,7 +813,7 @@ final class ZeebeClockTest {
 ```
 
 You can find more examples for this feature
-under [examples/clock](/src/test/java/io/zeebe/containers/examples/clock).
+under [examples/clock](/core/src/test/java/io/zeebe/containers/examples/clock).
 
 ### Tips and limitations
 
@@ -852,6 +864,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.junit.jupiter.api.Test;
 
 final class WithDebugExporterTest {
+
   @Test
   void shouldReadExportedRecords() {
     final List<Record<?>> records = new CopyOnWriteArrayList<>();
@@ -868,7 +881,7 @@ final class WithDebugExporterTest {
 }
 ```
 
-You can view a longer example [here](/src/test/java/io/zeebe/containers/examples/exporter).
+You can view a longer example [here](/core/src/test/java/io/zeebe/containers/examples/exporter).
 
 ### Acknowledging records
 
@@ -885,6 +898,103 @@ acknowledged position for that partition.
 There is one limitation, which is that the acknowledged position is the one returned by the server.
 This means, if you receive record 1, and then acknowledge that, only when receiving record 2 will
 the acknowledged position take effect.
+
+## Zeebe Test Process Compatibility
+
+It's possible to use a container or cluster as the backing engine when working
+with [zeebe-process-test](https://github.com/camunda/zeebe-process-test). This will let you reuse
+all the assertions you are used to, while running integration tests using one or more actual
+Zeebe instances.
+
+The usage differs a little from normal `zeebe-process-test` usage. Whereas there you would use the
+`@ZeebeProcessTest` annotation as your Junit 5 extension, here we stick with the standard
+Testcontainers annotations, i.e. the combination of `@Testcontainers` and `@Container`. Doing so
+means you keep using familiar tools to manage the lifecycle of your containers, and it lets us be
+more flexible when it comes to customizing said containers.
+
+To illustrate, here is a minimal example which deploys a process definition, creates an instance,
+and waits for its completion:
+
+```java
+package com.acme;
+
+import io.camunda.zeebe.client.ZeebeClient;
+import io.camunda.zeebe.client.api.response.ProcessInstanceEvent;
+import io.camunda.zeebe.model.bpmn.Bpmn;
+import io.camunda.zeebe.model.bpmn.BpmnModelInstance;
+import io.camunda.zeebe.process.test.assertions.BpmnAssert;
+import io.zeebe.containers.ZeebeContainer;
+import io.zeebe.containers.engine.ContainerEngine;
+import java.time.Duration;
+import java.util.concurrent.TimeoutException;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+@Testcontainers
+final class ExampleTest {
+
+  @Container
+  private final ContainerEngine engine = ContainerEngine.createDefault();
+
+  @Test
+  void shouldCompleteProcessInstance() {
+    // given
+    final BpmnModelInstance processModel =
+      Bpmn.createExecutableProcess("process").startEvent().endEvent().done();
+    final ProcessInstanceEvent processInstance;
+
+    // when
+    try (final ZeebeClient client = engine.createClient()) {
+      client.newDeployResourceCommand().addProcessModel(processModel, "process.bpmn").send().join();
+      processInstance =
+        client.newCreateInstanceCommand().bpmnProcessId("process").latestVersion().send().join();
+    }
+
+    // then
+    engine.waitForIdleState(Duration.ofSeconds(5));
+    BpmnAssert.assertThat(processInstance).isStarted().isCompleted();
+  }
+}
+```
+
+As you can see, you can keep writing your tests the exact same way as you would with
+`zeebe-process-test`, the only difference is in the creation of the `ZeebeTestEngine`.
+
+You can look
+at [ContainerEngine](/engine/src/main/java/io/zeebe/containers/engine/ContainerEngine.java) for an
+explanation of how it differs from the normal
+`ZeebeTestEngine`, and for hints on how to build customized engines. There are also
+some [examples](/engine/src/test/java/io/zeebe/containers/engine/examples) which hopefully
+illustrate how to use this with all the customization options.
+
+### Caveats
+
+#### Idle/busy state
+
+The bundled, stripped down engine available with `zeebe-process-test` allows for much tighter
+integration with the assertions, such that it can accurately report if it is idle or busy. When
+running with a real Zeebe instance, this is hidden from us.
+
+Instead, we define idle to mean that no records are exported by the debug exporter for a certain
+period of time (the `ContainerEngineBuilder#withIdlePeriod` configuration). The idle state is
+defined over all partitions, not only a single partition.
+
+Similarly, we define a busy state as at least one record was exported during the timeout period.
+
+### Awaitility issues
+
+If you wish to wrap your `BpmnAssert` calls with `Awaitility` for resilience, note that `BpmnAssert`
+sets the record stream source as a thread local. Since `Awaitility`, by default, polls on different
+threads, you may run into issues where no record stream source is found, or the wrong record stream
+source is used.
+
+To properly use it, make sure to either configure `Awaility#pollInSameThread`, or in your callback,
+overwrite the thread local stream source with `BpmnAssert#initRecordStreamSource`. This latter is
+not recommended if you run your tests in parallel, however, as you may affect other tests.
 
 # Tips
 
@@ -1027,6 +1137,8 @@ The library is split into three modules:
 
 - `core`: the core library. It's artifact ID is `zeebe-test-container` for backwards compatibility.
   This is what users will include in their project.
+- `engine`: the implementation of `ZeebeTestEngine`, the compatibility layer between this library
+  and [Zeebe Process Test](https://github.com/camunda/zeebe-process-test).
 - `exporter`: the debug exporter module. It will be packaged as a fat JAR and included as a resource
   in the core module. It has to be a separate module as it targets Java 17, same as the
   `zeebe-exporter-api` module it implements.
@@ -1059,7 +1171,8 @@ Testing is done via GitHub actions, using two workflows:
   analysis, linting, formatting, etc.)
 - [test.yml](/.github/workflows/test.yml): testing jobs for each module. For the `core` module,
   there are two testing jobs, one using TestContainers Cloud, and one using the local Docker daemon.
-  This is due to a limitation of TestContainers Cloud, which does not work with host binds. Any tests
+  This is due to a limitation of TestContainers Cloud, which does not work with host binds. Any
+  tests
   which need to run on the local job should be annotated with `@DisabledIfTestcontainersCloud`.
 
 ## Code style
