@@ -5,7 +5,7 @@
   <parent>
     <groupId>io.zeebe</groupId>
     <artifactId>zeebe-test-container-root</artifactId>
-    <version>3.4.1-SNAPSHOT</version>
+    <version>3.5.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -107,12 +107,18 @@
       <artifactId>jackson-databind</artifactId>
     </dependency>
 
-    <!-- Test dependencies -->
-
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>net.jcip</groupId>
+      <artifactId>jcip-annotations</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Test dependencies -->
 
     <dependency>
       <groupId>org.mockito</groupId>
@@ -201,6 +207,7 @@
             <goals>
               <goal>copy</goal>
             </goals>
+            <!-- TODO: set to package, and run the relevant tests as integration tests -->
             <phase>generate-resources</phase>
             <configuration>
               <artifactItems>

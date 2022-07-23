@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import net.jcip.annotations.ThreadSafe;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.HttpProcessors;
@@ -44,6 +45,7 @@ import org.slf4j.LoggerFactory;
  * <p>See {@link RecordHandler} for documentation about the /records endpoint.
  */
 @API(status = Status.EXPERIMENTAL)
+@ThreadSafe
 public final class DebugReceiver implements AutoCloseable {
   private static final Logger LOGGER = LoggerFactory.getLogger(DebugReceiver.class);
 
@@ -66,6 +68,18 @@ public final class DebugReceiver implements AutoCloseable {
   }
 
   /**
+   * A debug receiver which binds to localhost using a random available port on start, forwarding
+   * all records to the given consumer.
+   *
+   * @param recordConsumer a consumer called every time a record is received
+   * @param autoAcknowledge if true, will automatically acknowledge all records
+   * @throws NullPointerException if any {@code recordConsumer} is null
+   */
+  public DebugReceiver(final Consumer<Record<?>> recordConsumer, final boolean autoAcknowledge) {
+    this(recordConsumer, 0, autoAcknowledge);
+  }
+
+  /**
    * A debug receiver which binds to localhost using the given port on start, forwarding all records
    * * to the given consumer.
    *
@@ -74,7 +88,21 @@ public final class DebugReceiver implements AutoCloseable {
    * @throws NullPointerException if any {@code recordConsumer} is null
    */
   public DebugReceiver(final Consumer<Record<?>> recordConsumer, final int port) {
-    this(recordConsumer, new InetSocketAddress("localhost", port));
+    this(recordConsumer, port, true);
+  }
+
+  /**
+   * A debug receiver which binds to localhost using the given port on start, forwarding all records
+   * * to the given consumer.
+   *
+   * @param recordConsumer a consumer called every time a record is received
+   * @param port the port to bind to; can be 0 to grab a random port
+   * @param autoAcknowledge if true, will automatically acknowledge all records
+   * @throws NullPointerException if any {@code recordConsumer} is null
+   */
+  public DebugReceiver(
+      final Consumer<Record<?>> recordConsumer, final int port, final boolean autoAcknowledge) {
+    this(recordConsumer, new InetSocketAddress("localhost", port), autoAcknowledge);
   }
 
   /**
@@ -86,7 +114,24 @@ public final class DebugReceiver implements AutoCloseable {
    * @throws NullPointerException if any of the arguments are null
    */
   public DebugReceiver(final Consumer<Record<?>> recordConsumer, final InetSocketAddress address) {
-    this(new RecordHandler(recordConsumer), address);
+    this(recordConsumer, address, true);
+  }
+
+  /**
+   * A debug receiver which binds to {@code address} on start, and forwards all record to the {@code
+   * recordConsumer}, and also automatically acknowledges all exported records, marking them for
+   * deletion in Zeebe (assuming no other exporters are defined).
+   *
+   * @param recordConsumer the consumer which will receive records
+   * @param address the address to bind to on start
+   * @param autoAcknowledge if true, will automatically acknowledge all records
+   * @throws NullPointerException if any of the arguments are null
+   */
+  public DebugReceiver(
+      final Consumer<Record<?>> recordConsumer,
+      final InetSocketAddress address,
+      final boolean autoAcknowledge) {
+    this(new RecordHandler(recordConsumer, autoAcknowledge), address);
   }
 
   /**
