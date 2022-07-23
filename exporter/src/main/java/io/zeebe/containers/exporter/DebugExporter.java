@@ -95,11 +95,10 @@ public final class DebugExporter implements Exporter {
 
     try {
       pushRecord(record);
+    } catch (final InterruptedException e) {
+      Thread.currentThread().interrupt();
+      LangUtil.rethrowUnchecked(e);
     } catch (final Exception e) {
-      if (e instanceof InterruptedException) {
-        Thread.currentThread().interrupt();
-      }
-
       LangUtil.rethrowUnchecked(e);
     }
 

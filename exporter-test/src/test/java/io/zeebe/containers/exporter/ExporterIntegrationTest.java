@@ -32,7 +32,7 @@ final class ExporterIntegrationTest {
   private final ProtocolFactory recordFactory = new ProtocolFactory();
 
   private final List<Record<?>> exportedRecords = new CopyOnWriteArrayList<>();
-  private final DebugReceiver receiver = new DebugReceiver(exportedRecords::add, 0);
+  private final DebugReceiver receiver = new DebugReceiver(exportedRecords::add, 0, false);
 
   @BeforeEach
   void beforeEach() {
@@ -59,7 +59,7 @@ final class ExporterIntegrationTest {
     private final DebugExporter exporter = new DebugExporter();
 
     @BeforeEach
-    void beforeEach() throws Exception {
+    void beforeEach() {
       context.getConfiguration().getArguments().put("url", receiver.recordsEndpoint().toString());
 
       exporter.configure(context);

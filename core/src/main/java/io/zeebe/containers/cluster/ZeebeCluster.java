@@ -21,6 +21,7 @@ import io.zeebe.containers.ZeebeBrokerNode;
 import io.zeebe.containers.ZeebeGatewayNode;
 import io.zeebe.containers.ZeebeNode;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Stream;
@@ -37,7 +38,7 @@ import org.testcontainers.lifecycle.Startables;
 /**
  * A convenience class representing a one or more containers that form a Zeebe cluster.
  *
- * <p>It's recommended to use the {@link ZeebeClientBuilder} to build one.
+ * <p>It's recommended to use the {@link ZeebeClusterBuilder} to build one.
  *
  * <p>As the cluster is not started automatically, the containers can still be modified/configured
  * beforehand. Be aware however that the replication factor and the partitions count cannot be
@@ -210,6 +211,19 @@ public class ZeebeCluster implements Startable {
   }
 
   /**
+   * Returns a map of all nodes in the cluster, where the keys are the member IDs (for brokers, the
+   * node ID), and the values are the containers.
+   *
+   * @return the nodes of this cluster
+   */
+  public Map<String, ZeebeNode<? extends GenericContainer<?>>> getNodes() {
+    final Map<String, ZeebeNode<? extends GenericContainer<?>>> nodes = new HashMap<>(gateways);
+    brokers.forEach((id, node) -> nodes.put(String.valueOf(id), node));
+
+    return nodes;
+  }
+
+  /**
    * Builds a new client builder by picking a random gateway started gateway for it and disabling
    * transport security.
    *
@@ -217,19 +231,29 @@ public class ZeebeCluster implements Startable {
    * @throws NoSuchElementException if there are no started gateways
    */
   public ZeebeClientBuilder newClientBuilder() {
-    final ZeebeGatewayNode<?> gateway =
-        gateways.values().stream()
-            .filter(ZeebeNode::isStarted)
-            .findAny()
-            .orElseThrow(
-                () ->
-                    new NoSuchElementException(
-                        "Expected at least one gateway for the client to connect to, but there is"
-                            + " none"));
+    final ZeebeGatewayNode<?> gateway = getAvailableGateway();
 
     return ZeebeClient.newClientBuilder()
         .gatewayAddress(gateway.getExternalGatewayAddress())
         .usePlaintext();
+  }
+
+  /**
+   * Returns the first gateway which can accept requests from a Zeebe client.
+   *
+   * @return a gateway ready to accept requests
+   * @throws NoSuchElementException if there are no such gateways (e.g. none are started, or they
+   *     are dead, etc.)
+   */
+  public ZeebeGatewayNode<? extends GenericContainer<?>> getAvailableGateway() {
+    return gateways.values().stream()
+        .filter(ZeebeNode::isStarted)
+        .findAny()
+        .orElseThrow(
+            () ->
+                new NoSuchElementException(
+                    "Expected at least one gateway for the client to connect to, but there is"
+                        + " none"));
   }
 
   private Stream<? extends GenericContainer<?>> getGatewayContainers() {

@@ -80,7 +80,8 @@ public final class TopologyAssert extends AbstractObjectAssert<TopologyAssert, T
     isNotNull();
 
     if (actual.getClusterSize() != clusterSize) {
-      throw failure("Expected cluster size to be <%d> but was <%d>", clusterSize, clusterSize);
+      throw failure(
+          "Expected cluster size to be <%d> but was <%d>", clusterSize, actual.getClusterSize());
     }
 
     return myself;

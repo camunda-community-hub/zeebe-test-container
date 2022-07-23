@@ -97,6 +97,8 @@ public interface ZeebeBrokerNode<T extends GenericContainer<T> & ZeebeBrokerNode
   @API(status = Status.EXPERIMENTAL)
   default T withDebugExporter(final int port) {
     Testcontainers.exposeHostPorts(port);
+
+    //noinspection resource
     withCopyToContainer(
             MountableFile.forClasspathResource("debug-exporter.jar"), "/tmp/debug-exporter.jar")
         .withEnv("ZEEBE_BROKER_EXPORTERS_DEBUG_JARPATH", "/tmp/debug-exporter.jar")
