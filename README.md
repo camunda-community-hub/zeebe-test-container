@@ -67,11 +67,6 @@ Version 1.x and 2.x is compatible with the following Zeebe versions:
 Version 3.x is compatible with the following Zeebe versions:
 
 - 1.x
-- 8.0
-
-Version 4.x is compatible with the following Zeebe versions:
-
-- 1.x
 - 8.x
 
 ## Installation
