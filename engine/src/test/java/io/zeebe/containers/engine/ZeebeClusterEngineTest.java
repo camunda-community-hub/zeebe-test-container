@@ -77,7 +77,8 @@ final class ZeebeClusterEngineTest {
     }
 
     // then
-    final FinalCommandStep<?> request = client.newTopologyRequest().requestTimeout(Duration.ofSeconds(2));
+    final FinalCommandStep<?> request =
+        client.newTopologyRequest().requestTimeout(Duration.ofSeconds(2));
     assertThat((Future<?>) request.send()).failsWithin(Duration.ofSeconds(3));
     assertThat(cluster.getNodes().values()).allMatch(node -> !node.isRunning());
     assertThatCode(() -> testServerConnection(receiverAddress))

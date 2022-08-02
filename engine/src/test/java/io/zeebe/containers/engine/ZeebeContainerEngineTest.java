@@ -58,7 +58,8 @@ final class ZeebeContainerEngineTest {
     }
 
     // then
-    final FinalCommandStep<?> request = client.newTopologyRequest().requestTimeout(Duration.ofSeconds(2));
+    final FinalCommandStep<?> request =
+        client.newTopologyRequest().requestTimeout(Duration.ofSeconds(2));
     assertThat((Future<?>) request.send()).failsWithin(Duration.ofSeconds(3));
     assertThat(container.isStarted()).isFalse();
     assertThatCode(() -> testServerConnection(receiverAddress))
