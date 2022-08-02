@@ -36,7 +36,7 @@ use containers for your tests, as well as general prerequisites.
   - [Extracting data](#extracting-data)
   - [Time traveling](#time-traveling)
   - [Debug exporter](#debug-exporter)
-  - [Zeebe Test Process Compatibility](#zeebe-test-process-compatibility)
+  - [Zeebe Process Test Compatibility](#zeebe-process-test-compatibility)
 - [Tips](#tips)
   - [Tailing your container's logs during development](#tailing-your-containers-logs-during-development)
   - [Configuring GenericContainer specific properties with a Zeebe*Node interface](#configuring-genericcontainer-specific-properties-with-a-zeebenode-interface)
@@ -894,7 +894,7 @@ There is one limitation, which is that the acknowledged position is the one retu
 This means, if you receive record 1, and then acknowledge that, only when receiving record 2 will
 the acknowledged position take effect.
 
-## Zeebe Test Process Compatibility
+## Zeebe Process Test Compatibility
 
 It's possible to use a container or cluster as the backing engine when working
 with [zeebe-process-test](https://github.com/camunda/zeebe-process-test). This will let you reuse
