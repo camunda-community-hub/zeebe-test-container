@@ -901,6 +901,27 @@ with [zeebe-process-test](https://github.com/camunda/zeebe-process-test). This w
 all the assertions you are used to, while running integration tests using one or more actual
 Zeebe instances.
 
+### Usage
+
+In order to use it, you will need to add the following dependency to your project:
+
+Maven:
+
+```xml
+
+<dependency>
+  <groupId>io.zeebe</groupId>
+  <artifactId>zeebe-test-container-engine</artifactId>
+  <version>3.5.0</version>
+</dependency>
+```
+
+Gradle:
+
+```groovy
+testImplementation 'io.zeebe:zeebe-test-container-engine:3.5.0'
+```
+
 The usage differs a little from normal `zeebe-process-test` usage. Whereas there you would use the
 `@ZeebeProcessTest` annotation as your Junit 5 extension, here we stick with the standard
 Testcontainers annotations, i.e. the combination of `@Testcontainers` and `@Container`. Doing so
@@ -965,6 +986,16 @@ explanation of how it differs from the normal
 `ZeebeTestEngine`, and for hints on how to build customized engines. There are also
 some [examples](/engine/src/test/java/io/zeebe/containers/engine/examples) which hopefully
 illustrate how to use this with all the customization options.
+
+### Reference
+
+The integration is done by leveraging a few other experimental features. When you create a container
+engine, the underlying containers are automatically configured to have a
+[controllable clock](#time-traveling) and to export their records using the
+[debug exporter](#debug-exporter).
+
+**This means when configuring the containers manually, do not disable or override these two
+features.**
 
 ### Caveats
 
