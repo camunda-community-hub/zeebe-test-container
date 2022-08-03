@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.within;
 import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.api.command.FinalCommandStep;
 import io.camunda.zeebe.protocol.record.Record;
+import io.grpc.StatusRuntimeException;
 import io.zeebe.containers.ZeebeGatewayNode;
 import io.zeebe.containers.clock.ZeebeClock;
 import io.zeebe.containers.cluster.ZeebeCluster;
@@ -37,8 +38,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.stream.Collectors;
 import org.agrona.CloseHelper;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -77,9 +80,15 @@ final class ZeebeClusterEngineTest {
     }
 
     // then
-    final FinalCommandStep<?> request =
-        client.newTopologyRequest().requestTimeout(Duration.ofSeconds(2));
-    assertThat((Future<?>) request.send()).failsWithin(Duration.ofSeconds(3));
+    Awaitility.await("until the client is fully shutdown")
+        .atMost(Duration.ofSeconds(10))
+        .untilAsserted(
+            () -> {
+              final FinalCommandStep<?> request = client.newTopologyRequest();
+              assertThatCode(request::send)
+                  .isInstanceOf(StatusRuntimeException.class)
+                  .hasRootCauseInstanceOf(RejectedExecutionException.class);
+            });
     assertThat(cluster.getNodes().values()).allMatch(node -> !node.isRunning());
     assertThatCode(() -> testServerConnection(receiverAddress))
         .isInstanceOf(ConnectException.class);
