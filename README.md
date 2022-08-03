@@ -1230,14 +1230,14 @@ implementation details, and are not released anyway.
 ## Report issues or contact developers
 
 Work on Zeebe Test Container is done entirely through the Github repository. If you want to report a
-bug or request a new feature feel free to open a new issue on [GitHub][issues].
+bug or request a new feature feel free to open a new issue on [GitHub issues](https://github.com/camunda-community-hub/zeebe-test-container/issues).
 
 ## Create a Pull Request
 
 To work on an issue, follow the following steps:
 
-1. Check that a [GitHub issue][issues] exists for the task you want to work on. If one does not,
-   create one.
+1. Ensure that an [issue](https://github.com/camunda-community-hub/zeebe-test-container/issues) exists for the task you want to work on. 
+   If one does not, create one.
 2. Checkout the `master` branch and pull the latest changes.
 
    ```
