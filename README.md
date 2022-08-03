@@ -12,6 +12,7 @@ Please refer to [testcontainers.org](https://testcontainers.org) for general doc
 use containers for your tests, as well as general prerequisites.
 
 - [Zeebe Test Container](#zeebe-test-container)
+  - [When to use this project?](#when-to-use-this-project)
   - [Supported Zeebe versions](#supported-zeebe-versions)
   - [Installation](#installation)
     - [Requirements](#requirements)
@@ -52,6 +53,30 @@ use containers for your tests, as well as general prerequisites.
   - [Create a Pull Request](#create-a-pull-request)
   - [Commit Message Guidelines](#commit-message-guidelines)
   - [Contributor License Agreement](#contributor-license-agreement)
+
+## When to use this project?
+
+In most cases, you probably do not need to use this project, and instead want to
+use [zeebe-process-test](https://github.com/camunda/zeebe-process-test).
+
+`zeebe-process-test` is built to allow you to write unit and integration tests of your
+BPMN process definitions, DMN models, and how they interact together with your workers. It provides
+a stripped down Zeebe engine, one which fully supports the same BPMN and DMN features as
+Zeebe, but without the administrative capabilities and other advanced features (e.g. multiple
+partitions, backups, rebalancing, monitoring, etc.)
+
+If all you want to do is test the correctness of your BPMN process definitions or DMN models, and
+how they interact with your workers, then stick with `zeebe-process-test`. However, if you want to
+do any of the following, the `zeebe-test-container` is the right tool:
+
+- write acceptance/integration tests for Zeebe itself
+- write acceptance/integration tests for a Zeebe gateway interceptor
+- write acceptance/integration tests for a Zeebe exporter
+- write automated acceptance tests that use advanced features (e.g. parallelism across multiple
+  partitions, automated rebalancing of leadership, chaos/resilience tests, etc.)
+
+**This tool is not made for load testing, as you will most likely not achieve the same level of
+performance as you would in a production deployment.**
 
 ## Supported Zeebe versions
 
@@ -1230,13 +1255,15 @@ implementation details, and are not released anyway.
 ## Report issues or contact developers
 
 Work on Zeebe Test Container is done entirely through the Github repository. If you want to report a
-bug or request a new feature feel free to open a new issue on [GitHub issues](https://github.com/camunda-community-hub/zeebe-test-container/issues).
+bug or request a new feature feel free to open a new issue
+on [GitHub issues](https://github.com/camunda-community-hub/zeebe-test-container/issues).
 
 ## Create a Pull Request
 
 To work on an issue, follow the following steps:
 
-1. Ensure that an [issue](https://github.com/camunda-community-hub/zeebe-test-container/issues) exists for the task you want to work on. 
+1. Ensure that an [issue](https://github.com/camunda-community-hub/zeebe-test-container/issues)
+   exists for the task you want to work on.
    If one does not, create one.
 2. Checkout the `master` branch and pull the latest changes.
 
