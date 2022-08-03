@@ -22,7 +22,6 @@ import static org.assertj.core.api.Assertions.within;
 import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.api.command.FinalCommandStep;
 import io.camunda.zeebe.protocol.record.Record;
-import io.grpc.StatusRuntimeException;
 import io.zeebe.containers.ZeebeGatewayNode;
 import io.zeebe.containers.clock.ZeebeClock;
 import io.zeebe.containers.cluster.ZeebeCluster;
@@ -86,7 +85,6 @@ final class ZeebeClusterEngineTest {
             () -> {
               final FinalCommandStep<?> request = client.newTopologyRequest();
               assertThatCode(request::send)
-                  .isInstanceOf(StatusRuntimeException.class)
                   .hasRootCauseInstanceOf(RejectedExecutionException.class);
             });
     assertThat(cluster.getNodes().values()).allMatch(node -> !node.isRunning());
