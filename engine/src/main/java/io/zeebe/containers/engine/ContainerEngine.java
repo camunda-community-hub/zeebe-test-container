@@ -165,6 +165,15 @@ public interface ContainerEngine extends Startable, ZeebeTestEngine {
     Builder withAutoAcknowledge(final boolean acknowledge);
 
     /**
+     * Pre-assigns the port to use for the debug receive, i.e. the socket used to receive exported
+     * records from the container(s). By default, this is 0, i.e. a random port.
+     *
+     * @param port the port to assign to the receiver
+     * @return itself for chaining
+     */
+    Builder withDebugReceiverPort(final int port);
+
+    /**
      * Builds a {@link ContainerEngine} based on the configuration. If nothing else was called, will
      * build an engine using a default {@link io.zeebe.containers.ZeebeContainer}, an idle period of
      * 1 second, and a grace period of 0.
