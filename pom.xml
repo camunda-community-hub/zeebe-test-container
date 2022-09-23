@@ -12,7 +12,7 @@
 
   <groupId>io.zeebe</groupId>
   <artifactId>zeebe-test-container-root</artifactId>
-  <version>3.5.1-SNAPSHOT</version>
+  <version>3.5.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Zeebe Test Container Root</name>
   <url>https://github.com/zeebe-io/zeebe-test-container</url>
