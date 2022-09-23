@@ -42,6 +42,7 @@ final class ContainerEngineBuilder implements Builder {
   private Duration idlePeriod;
   private Duration gracePeriod;
   private boolean autoAcknowledge;
+  private int debugReceiverPort;
 
   @Override
   public <T extends GenericContainer<T> & ZeebeGatewayNode<T> & ZeebeBrokerNode<T>>
@@ -99,7 +100,13 @@ final class ContainerEngineBuilder implements Builder {
     return this;
   }
 
-  @SuppressWarnings("unchecked")
+  @Override
+  public Builder withDebugReceiverPort(final int debugReceiverPort) {
+    this.debugReceiverPort = debugReceiverPort;
+    return this;
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
   public ContainerEngine build() {
     final Duration listGracePeriod = Optional.ofNullable(gracePeriod).orElse(DEFAULT_GRACE_PERIOD);
@@ -107,7 +114,9 @@ final class ContainerEngineBuilder implements Builder {
     final InfiniteList<Record<?>> records = new InfiniteList<>(listGracePeriod);
     final DebugReceiverStream recordStream =
         new DebugReceiverStream(
-            records, new DebugReceiver(records::add, autoAcknowledge), receiveIdlePeriod);
+            records,
+            new DebugReceiver(records::add, debugReceiverPort, autoAcknowledge),
+            receiveIdlePeriod);
 
     try {
       if (container != null) {
