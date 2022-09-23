@@ -20,6 +20,7 @@ import io.camunda.zeebe.process.test.assertions.ProcessInstanceAssert;
 import io.zeebe.containers.ZeebeBrokerNode;
 import io.zeebe.containers.ZeebeGatewayNode;
 import io.zeebe.containers.cluster.ZeebeCluster;
+import io.zeebe.containers.exporter.DebugReceiver;
 import java.time.Duration;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
@@ -35,19 +36,6 @@ import org.testcontainers.lifecycle.Startable;
  */
 @API(status = Status.EXPERIMENTAL)
 public interface ContainerEngine extends Startable, ZeebeTestEngine {
-
-  /**
-   * Marks all records with a position less than {@code position} on partition with ID {@code
-   * partitionId} as acknowledged, meaning they can now be deleted from Zeebe.
-   *
-   * <p>Note that this is not a synchronous operation, but instead will take effect when the next
-   * record is exported. See {@link io.zeebe.containers.exporter.DebugReceiver#acknowledge(int,
-   * long)} for more.
-   *
-   * @param partitionId the ID of the partition on which to acknowledge
-   * @param position the position up to which they should be acknowledged
-   */
-  void acknowledge(final int partitionId, final long position);
 
   /**
    * Returns a default builder. Calling {@link Builder#build()} on a fresh builder will return a
@@ -69,6 +57,19 @@ public interface ContainerEngine extends Startable, ZeebeTestEngine {
   static ContainerEngine createDefault() {
     return builder().build();
   }
+
+  /**
+   * Marks all records with a position less than {@code position} on partition with ID {@code
+   * partitionId} as acknowledged, meaning they can now be deleted from Zeebe.
+   *
+   * <p>Note that this is not a synchronous operation, but instead will take effect when the next
+   * record is exported. See {@link io.zeebe.containers.exporter.DebugReceiver#acknowledge(int,
+   * long)} for more.
+   *
+   * @param partitionId the ID of the partition on which to acknowledge
+   * @param position the position up to which they should be acknowledged
+   */
+  void acknowledge(final int partitionId, final long position);
 
   /**
    * A helper class to build {@link ContainerEngine} instances. A fresh, non-configured builder will
@@ -170,8 +171,20 @@ public interface ContainerEngine extends Startable, ZeebeTestEngine {
      *
      * @param port the port to assign to the receiver
      * @return itself for chaining
+     * @deprecated since 3.5.2, will be removed in 3.7.0; use {@link
+     *     #withDebugReceiver(DebugReceiver)} instead
      */
+    @Deprecated
     Builder withDebugReceiverPort(final int port);
+
+    /**
+     * The pre-configured {@link DebugReceiver} instance to use. Useful if you want to pre-assign
+     * ports or have fine-grained control over the acknowledgment process.
+     *
+     * @param receiver the debug receiver to use
+     * @return itself for chaining
+     */
+    Builder withDebugReceiver(final DebugReceiver receiver);
 
     /**
      * Builds a {@link ContainerEngine} based on the configuration. If nothing else was called, will

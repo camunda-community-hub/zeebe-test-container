@@ -43,6 +43,7 @@ final class ContainerEngineBuilder implements Builder {
   private Duration gracePeriod;
   private boolean autoAcknowledge;
   private int debugReceiverPort;
+  private DebugReceiver debugReceiver;
 
   @Override
   public <T extends GenericContainer<T> & ZeebeGatewayNode<T> & ZeebeBrokerNode<T>>
@@ -102,7 +103,20 @@ final class ContainerEngineBuilder implements Builder {
 
   @Override
   public Builder withDebugReceiverPort(final int debugReceiverPort) {
+    if (debugReceiverPort < 0) {
+      throw new IllegalArgumentException(
+          String.format(
+              "Debug receiver port must be greater than or equal to 0, but %d was given",
+              debugReceiverPort));
+    }
+
     this.debugReceiverPort = debugReceiverPort;
+    return this;
+  }
+
+  @Override
+  public Builder withDebugReceiver(final DebugReceiver debugReceiver) {
+    this.debugReceiver = Objects.requireNonNull(debugReceiver, "must specify a debug receiver");
     return this;
   }
 
@@ -112,11 +126,11 @@ final class ContainerEngineBuilder implements Builder {
     final Duration listGracePeriod = Optional.ofNullable(gracePeriod).orElse(DEFAULT_GRACE_PERIOD);
     final Duration receiveIdlePeriod = Optional.ofNullable(idlePeriod).orElse(DEFAULT_IDLE_PERIOD);
     final InfiniteList<Record<?>> records = new InfiniteList<>(listGracePeriod);
+    final DebugReceiver receiver =
+        Optional.ofNullable(debugReceiver)
+            .orElse(new DebugReceiver(records::add, debugReceiverPort, autoAcknowledge));
     final DebugReceiverStream recordStream =
-        new DebugReceiverStream(
-            records,
-            new DebugReceiver(records::add, debugReceiverPort, autoAcknowledge),
-            receiveIdlePeriod);
+        new DebugReceiverStream(records, receiver, receiveIdlePeriod);
 
     try {
       if (container != null) {
