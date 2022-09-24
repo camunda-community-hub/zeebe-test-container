@@ -21,11 +21,12 @@ import io.zeebe.containers.ZeebeBrokerNode;
 import io.zeebe.containers.ZeebeGatewayNode;
 import io.zeebe.containers.cluster.ZeebeCluster;
 import io.zeebe.containers.exporter.DebugReceiver;
-import java.time.Duration;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.lifecycle.Startable;
+
+import java.time.Duration;
 
 /**
  * A {@link ContainerEngine} is a {@link ZeebeTestEngine} implementation which wraps a container or
@@ -162,7 +163,9 @@ public interface ContainerEngine extends Startable, ZeebeTestEngine {
      *
      * @param acknowledge whether to automatically acknowledge exported records or not
      * @return itself for chaining
+     * @deprecated since 3.5.2, will be removed in 3.7.0; use {@link #withDebugReceiver(DebugReceiver)} instead
      */
+    @Deprecated
     Builder withAutoAcknowledge(final boolean acknowledge);
 
     /**
