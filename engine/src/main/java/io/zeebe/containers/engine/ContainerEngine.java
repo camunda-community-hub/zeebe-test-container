@@ -21,12 +21,11 @@ import io.zeebe.containers.ZeebeBrokerNode;
 import io.zeebe.containers.ZeebeGatewayNode;
 import io.zeebe.containers.cluster.ZeebeCluster;
 import io.zeebe.containers.exporter.DebugReceiver;
+import java.time.Duration;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.lifecycle.Startable;
-
-import java.time.Duration;
 
 /**
  * A {@link ContainerEngine} is a {@link ZeebeTestEngine} implementation which wraps a container or
