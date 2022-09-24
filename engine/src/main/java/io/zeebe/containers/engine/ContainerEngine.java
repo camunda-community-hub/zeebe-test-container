@@ -162,7 +162,8 @@ public interface ContainerEngine extends Startable, ZeebeTestEngine {
      *
      * @param acknowledge whether to automatically acknowledge exported records or not
      * @return itself for chaining
-     * @deprecated since 3.5.2, will be removed in 3.7.0; use {@link #withDebugReceiver(DebugReceiver)} instead
+     * @deprecated since 3.5.2, will be removed in 3.7.0; use {@link
+     *     #withDebugReceiver(DebugReceiver)} instead
      */
     @Deprecated
     Builder withAutoAcknowledge(final boolean acknowledge);
