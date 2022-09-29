@@ -15,9 +15,9 @@
  */
 package io.zeebe.containers;
 
+import io.zeebe.containers.util.HostPortForwarder;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
-import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.MountableFile;
 
@@ -88,15 +88,14 @@ public interface ZeebeBrokerNode<T extends GenericContainer<T> & ZeebeBrokerNode
   }
 
   /**
-   * Injects an instance of the debug exporter into the container, which will push records out to
-   * http://host.testcontainers.internal:{@code port}/records.
+   * Injects an instance of the debug exporter into the container.
    *
    * @param port the host port of the {@link io.zeebe.containers.exporter.DebugReceiver}
    * @return this container for chaining
    */
   @API(status = Status.EXPERIMENTAL)
   default T withDebugExporter(final int port) {
-    Testcontainers.exposeHostPorts(port);
+    final int containerPort = HostPortForwarder.forwardHostPort(port, 5);
 
     //noinspection resource
     withCopyToContainer(
@@ -106,7 +105,7 @@ public interface ZeebeBrokerNode<T extends GenericContainer<T> & ZeebeBrokerNode
             "ZEEBE_BROKER_EXPORTERS_DEBUG_CLASSNAME", "io.zeebe.containers.exporter.DebugExporter")
         .withEnv(
             "ZEEBE_BROKER_EXPORTERS_DEBUG_ARGS_URL",
-            "http://host.testcontainers.internal:" + port + "/records");
+            "http://host.testcontainers.internal:" + containerPort + "/records");
 
     return self();
   }
