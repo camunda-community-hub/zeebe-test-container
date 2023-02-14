@@ -17,10 +17,11 @@ package io.zeebe.containers.exporter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.camunda.zeebe.exporter.test.ExporterTestContext;
+import io.camunda.zeebe.exporter.test.ExporterTestController;
 import io.camunda.zeebe.protocol.record.Record;
 import io.camunda.zeebe.protocol.record.RecordValue;
-import io.zeebe.containers.exporter.TestExporterApi.TestContext;
-import io.zeebe.containers.exporter.TestExporterApi.TestController;
+import io.camunda.zeebe.test.broker.protocol.ProtocolFactory;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -30,7 +31,6 @@ import org.junit.jupiter.api.Test;
 
 final class ExporterIntegrationTest {
   private final ProtocolFactory recordFactory = new ProtocolFactory();
-
   private final List<Record<?>> exportedRecords = new CopyOnWriteArrayList<>();
   private final DebugReceiver receiver = new DebugReceiver(exportedRecords::add, 0, false);
 
@@ -40,8 +40,8 @@ final class ExporterIntegrationTest {
   }
 
   private static final class Partition {
-    private final TestController controller = new TestController();
-    private final TestContext context = new TestContext();
+    private final ExporterTestController controller = new ExporterTestController();
+    private final ExporterTestContext context = new ExporterTestContext();
     private final DebugExporter exporter = new DebugExporter();
 
     private void prepare(final String endpoint) throws Exception {
@@ -54,8 +54,8 @@ final class ExporterIntegrationTest {
 
   @Nested
   final class SinglePartitionTest {
-    private final TestController controller = new TestController();
-    private final TestContext context = new TestContext();
+    private final ExporterTestController controller = new ExporterTestController();
+    private final ExporterTestContext context = new ExporterTestContext();
     private final DebugExporter exporter = new DebugExporter();
 
     @BeforeEach
@@ -92,7 +92,7 @@ final class ExporterIntegrationTest {
       exporter.export(record);
 
       // then
-      assertThat(controller.position()).isEqualTo(30L);
+      assertThat(controller.getPosition()).isEqualTo(30L);
     }
   }
 
@@ -138,8 +138,8 @@ final class ExporterIntegrationTest {
       partitionTwo.exporter.export(partTwoRecord);
 
       // then
-      assertThat(partitionOne.controller.position()).isEqualTo(30L);
-      assertThat(partitionTwo.controller.position()).isEqualTo(35L);
+      assertThat(partitionOne.controller.getPosition()).isEqualTo(30L);
+      assertThat(partitionTwo.controller.getPosition()).isEqualTo(35L);
     }
   }
 }
