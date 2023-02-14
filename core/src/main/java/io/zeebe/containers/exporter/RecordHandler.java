@@ -74,10 +74,6 @@ final class RecordHandler implements AsyncServerRequestHandler<Message<HttpReque
   private final boolean autoAcknowledge;
   private final Map<Integer, Long> positions = new HashMap<>();
 
-  RecordHandler(final Consumer<Record<?>> recordConsumer) {
-    this(recordConsumer, true);
-  }
-
   RecordHandler(final Consumer<Record<?>> recordConsumer, final boolean autoAcknowledge) {
     this.recordConsumer = Objects.requireNonNull(recordConsumer, "must specify a record consumer");
     this.autoAcknowledge = autoAcknowledge;

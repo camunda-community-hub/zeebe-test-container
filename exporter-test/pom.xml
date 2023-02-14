@@ -38,12 +38,6 @@
 
     <dependency>
       <groupId>io.camunda</groupId>
-      <artifactId>zeebe-exporter-api</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>io.camunda</groupId>
       <artifactId>zeebe-protocol</artifactId>
       <scope>test</scope>
     </dependency>
@@ -86,22 +80,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <!-- TODO: can be removed once we can use zeebe-protocol-test-util 8.1 -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <configuration>
-          <ignoredUsedUndeclaredDependencies>
-            <ignoredUsedUndeclaredDependency>io.camunda:zeebe-protocol-util</ignoredUsedUndeclaredDependency>
-          </ignoredUsedUndeclaredDependencies>
-          <ignoredNonTestScopedDependencies>
-            <ignoredNonTestScopedDependency>io.camunda:zeebe-protocol-util</ignoredNonTestScopedDependency>
-          </ignoredNonTestScopedDependencies>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>

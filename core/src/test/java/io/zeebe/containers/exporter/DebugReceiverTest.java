@@ -18,14 +18,8 @@ package io.zeebe.containers.exporter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
-import io.camunda.zeebe.protocol.record.ImmutableRecord;
 import io.camunda.zeebe.protocol.record.Record;
-import io.camunda.zeebe.protocol.record.RecordType;
-import io.camunda.zeebe.protocol.record.RecordValue;
-import io.camunda.zeebe.protocol.record.RejectionType;
-import io.camunda.zeebe.protocol.record.ValueType;
-import io.camunda.zeebe.protocol.record.intent.ErrorIntent;
-import io.camunda.zeebe.protocol.record.value.ImmutableErrorRecordValue;
+import io.camunda.zeebe.test.broker.protocol.ProtocolFactory;
 import io.restassured.RestAssured;
 import java.io.IOException;
 import java.net.ConnectException;
@@ -42,6 +36,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 final class DebugReceiverTest {
+  private final ProtocolFactory recordFactory = new ProtocolFactory();
+
   /**
    * Iterates over all local ports from 1024 to 65535 until it finds a free port, and binds to it.
    * The bound socket is returned, and the caller should make sure to unbind it when needs be.
@@ -62,30 +58,7 @@ final class DebugReceiverTest {
         "Could not find an unused port to bind localhost at between 1024 and 65535");
   }
 
-  // TODO: replace with ProtocolFactory once protocol-test-util 8.1.0 is released
-  private ImmutableRecord.Builder<?> generateRecord() {
-    final RecordValue value =
-        ImmutableErrorRecordValue.builder()
-            .withErrorEventPosition(1)
-            .withExceptionMessage("exception")
-            .withProcessInstanceKey(2)
-            .withStacktrace("stacktrace")
-            .build();
-    return ImmutableRecord.builder()
-        .withPartitionId(1)
-        .withKey(1)
-        .withTimestamp(System.currentTimeMillis())
-        .withRecordType(RecordType.EVENT)
-        .withPosition(2)
-        .withRejectionReason("")
-        .withValueType(ValueType.ERROR)
-        .withSourceRecordPosition(1L)
-        .withRejectionType(RejectionType.NOT_FOUND)
-        .withBrokerVersion("8.0.1")
-        .withIntent(ErrorIntent.CREATED)
-        .withValue(value);
-  }
-
+  @SuppressWarnings("resource")
   @Nested
   final class EndpointTest {
     @Test
@@ -95,7 +68,7 @@ final class DebugReceiverTest {
 
         // when
         receiver.start();
-        final InetSocketAddress serverAddress = (InetSocketAddress) receiver.serverAddress();
+        final InetSocketAddress serverAddress = receiver.serverAddress();
 
         // then
         assertThat(serverAddress.getHostName()).isEqualTo("localhost");
@@ -138,6 +111,7 @@ final class DebugReceiverTest {
     }
   }
 
+  @SuppressWarnings("resource")
   @Nested
   final class LifecycleTest {
     @Test
@@ -221,8 +195,8 @@ final class DebugReceiverTest {
     @Test
     void shouldAcknowledgePosition() {
       // given
-      final Record<?> record = generateRecord().build();
-      try (final DebugReceiver receiver = new DebugReceiver(r -> {})) {
+      final Record<?> record = recordFactory.generateRecord(b -> b.withPartitionId(1));
+      try (final DebugReceiver receiver = new DebugReceiver(r -> {}, false)) {
         receiver.start();
 
         // when
@@ -258,7 +232,7 @@ final class DebugReceiverTest {
       final List<Record<?>> consumedRecords = new CopyOnWriteArrayList<>();
       final List<Record<?>> records =
           LongStream.range(0, 10)
-              .mapToObj(i -> generateRecord().withKey(i).build())
+              .mapToObj(i -> recordFactory.generateRecord(b -> b.withKey(i)))
               .collect(Collectors.toList());
       try (final DebugReceiver receiver = new DebugReceiver(consumedRecords::add)) {
         receiver.start();
