@@ -24,12 +24,14 @@ import com.github.tomakehurst.wiremock.http.Body;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
+import io.camunda.zeebe.exporter.test.ExporterTestConfiguration;
 import io.camunda.zeebe.exporter.test.ExporterTestContext;
 import io.camunda.zeebe.exporter.test.ExporterTestController;
 import io.camunda.zeebe.protocol.record.Record;
 import io.camunda.zeebe.test.broker.protocol.ProtocolFactory;
 import java.net.ConnectException;
 import java.util.Collections;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -43,7 +45,8 @@ final class DebugExporterTest {
   @Test
   void shouldValidateURL() {
     // given
-    context.getConfiguration().getArguments().put("url", "not a URI");
+    context.setConfiguration(
+        new ExporterTestConfiguration<>("debug", Map.of("url", "not a URI"), Config::of));
 
     // when - then
     assertThatCode(() -> exporter.configure(context)).isInstanceOf(IllegalArgumentException.class);
@@ -54,7 +57,9 @@ final class DebugExporterTest {
     @Test
     void shouldNotFailOnOpenWithoutServer() {
       // given
-      context.getConfiguration().getArguments().put("url", "http://localhost:9200/records");
+      context.setConfiguration(
+          new ExporterTestConfiguration<>(
+              "debug", Map.of("url", "http://localhost:9200/records"), Config::of));
       exporter.configure(context);
 
       // when - then
@@ -65,7 +70,9 @@ final class DebugExporterTest {
     void shouldRetryWhenNoServer() {
       // given
       final Record<?> record = recordFactory.generateRecord();
-      context.getConfiguration().getArguments().put("url", "http://localhost:9200/records");
+      context.setConfiguration(
+          new ExporterTestConfiguration<>(
+              "debug", Map.of("url", "http://localhost:9200/records"), Config::of));
       exporter.configure(context);
       exporter.open(controller);
 
@@ -79,10 +86,9 @@ final class DebugExporterTest {
   final class ServerTest {
     @BeforeEach
     void beforeEach(final WireMockRuntimeInfo serverInfo) {
-      context
-          .getConfiguration()
-          .getArguments()
-          .put("url", serverInfo.getHttpBaseUrl() + "/records");
+      context.setConfiguration(
+          new ExporterTestConfiguration<>(
+              "debug", Map.of("url", serverInfo.getHttpBaseUrl() + "/records"), Config::of));
       exporter.configure(context);
       exporter.open(controller);
     }

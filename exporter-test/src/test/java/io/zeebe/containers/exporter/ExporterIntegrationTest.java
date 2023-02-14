@@ -17,12 +17,14 @@ package io.zeebe.containers.exporter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.camunda.zeebe.exporter.test.ExporterTestConfiguration;
 import io.camunda.zeebe.exporter.test.ExporterTestContext;
 import io.camunda.zeebe.exporter.test.ExporterTestController;
 import io.camunda.zeebe.protocol.record.Record;
 import io.camunda.zeebe.protocol.record.RecordValue;
 import io.camunda.zeebe.test.broker.protocol.ProtocolFactory;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,8 +46,9 @@ final class ExporterIntegrationTest {
     private final ExporterTestContext context = new ExporterTestContext();
     private final DebugExporter exporter = new DebugExporter();
 
-    private void prepare(final String endpoint) throws Exception {
-      context.getConfiguration().getArguments().put("url", endpoint);
+    private void prepare(final String endpoint) {
+      context.setConfiguration(
+          new ExporterTestConfiguration<>("debug", Map.of("url", endpoint), Config::of));
 
       exporter.configure(context);
       exporter.open(controller);
@@ -60,7 +63,9 @@ final class ExporterIntegrationTest {
 
     @BeforeEach
     void beforeEach() {
-      context.getConfiguration().getArguments().put("url", receiver.recordsEndpoint().toString());
+      context.setConfiguration(
+          new ExporterTestConfiguration<>(
+              "debug", Map.of("url", receiver.recordsEndpoint().toString()), Config::of));
 
       exporter.configure(context);
       exporter.open(controller);
