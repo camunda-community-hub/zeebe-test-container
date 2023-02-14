@@ -24,7 +24,10 @@ import com.github.tomakehurst.wiremock.http.Body;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
+import io.camunda.zeebe.exporter.test.ExporterTestContext;
+import io.camunda.zeebe.exporter.test.ExporterTestController;
 import io.camunda.zeebe.protocol.record.Record;
+import io.camunda.zeebe.test.broker.protocol.ProtocolFactory;
 import java.net.ConnectException;
 import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,8 +36,8 @@ import org.junit.jupiter.api.Test;
 
 final class DebugExporterTest {
   private final ProtocolFactory recordFactory = new ProtocolFactory();
-  private final TestExporterApi.TestContext context = new TestExporterApi.TestContext();
-  private final TestExporterApi.TestController controller = new TestExporterApi.TestController();
+  private final ExporterTestContext context = new ExporterTestContext();
+  private final ExporterTestController controller = new ExporterTestController();
   private final DebugExporter exporter = new DebugExporter();
 
   @Test
@@ -105,7 +108,9 @@ final class DebugExporterTest {
       exporter.export(record);
 
       // then
-      assertThat(controller.position()).as("acknowledged position has not changed").isEqualTo(10L);
+      assertThat(controller.getPosition())
+          .as("acknowledged position has not changed")
+          .isEqualTo(10L);
     }
 
     @Test
@@ -122,7 +127,7 @@ final class DebugExporterTest {
       exporter.export(record);
 
       // then
-      assertThat(controller.position()).isEqualTo(20L);
+      assertThat(controller.getPosition()).isEqualTo(20L);
     }
 
     @Test
