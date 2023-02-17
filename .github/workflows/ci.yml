@@ -19,6 +19,7 @@ on:
       - '.github/workflows/test.yml'
       - '.github/workflows/lint.yml'
   workflow_dispatch: { }
+  merge_group: { }
 
 concurrency:
   # add a sub-key using the run ID whenever this is called via workflow dispatch (i.e. manually by a user); in that
