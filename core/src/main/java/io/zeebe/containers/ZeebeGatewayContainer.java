@@ -91,6 +91,11 @@ public class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContaine
     applyDefaultConfiguration();
   }
 
+  /** Returns the default topology check, available for overwriting */
+  public static ZeebeTopologyWaitStrategy newDefaultTopologyCheck() {
+    return new ZeebeTopologyWaitStrategy().forBrokersCount(1);
+  }
+
   @Override
   public ZeebeGatewayContainer withTopologyCheck(final ZeebeTopologyWaitStrategy topologyCheck) {
     return waitingFor(
@@ -112,11 +117,9 @@ public class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContaine
         .withEnv("ZEEBE_GATEWAY_CLUSTER_HOST", getInternalHost())
         .withEnv("ZEEBE_STANDALONE_GATEWAY", "true")
         .withStartupTimeout(DEFAULT_STARTUP_TIMEOUT)
-        .addExposedPorts(ZeebePort.GATEWAY.getPort(), ZeebePort.INTERNAL.getPort());
-  }
-
-  /** Returns the default topology check, available for overwriting */
-  public static ZeebeTopologyWaitStrategy newDefaultTopologyCheck() {
-    return new ZeebeTopologyWaitStrategy().forBrokersCount(1);
+        .addExposedPorts(
+            ZeebePort.GATEWAY.getPort(),
+            ZeebePort.INTERNAL.getPort(),
+            ZeebePort.MONITORING.getPort());
   }
 }
