@@ -115,6 +115,9 @@ testImplementation 'io.zeebe:zeebe-test-container:3.5.0'
 
 Zeebe Test Container is built for Java 8+, and will not work on lower Java versions.
 
+> You will need Java 17+ for development purposes, however, as many of our tests rely on shared
+> Zeebe libraries which are built for Java 17+.
+
 Additionally, you will need to comply with all the Testcontainers requirements, as defined
 [here](https://www.testcontainers.org/#prerequisites).
 
@@ -1175,9 +1178,9 @@ you will need to sign the [Contributor License Agreement](https://cla-assistant.
 In order to build from source, you will need to install maven 3.6+. You can find more about it on
 the [maven homepage](https://maven.apache.org/users/index.html).
 
-To build the project, you will need a JDK 17 installed locally. Note however that the `core` module
-is targeting Java 8 for compatibility purposes, and as such the CI pipeline will run the tests for
-this module using Temurin JDK 8.
+To build the project, you will need a JDK 17 installed locally. Note however that the `core` and `engine` modules
+are targeting Java 8 for compatibility purposes, and we must ensure that we maintain compatibility.
+To do this, the CI pipeline will run the tests using Java 8.
 
 Finally, you will need to [install Docker](https://docs.docker.com/get-docker/) on your local
 machine.
