@@ -39,7 +39,7 @@ jobs:
       - name: Test
         timeout-minutes: 20
         run: >
-          mvn -B -Pparallel-tests -DforkCount=2C -DskipChecks -pl core test
+          mvn -B -Pparallel-tests -DforkCount=2C -DskipChecks -pl core verify
       - name: Archive Test Results
         uses: actions/upload-artifact@v3
         if: always()
@@ -73,7 +73,7 @@ jobs:
         timeout-minutes: 20
         # cannot run tests in parallel when using the local daemon
         run: >
-          mvn -B -DskipChecks -Plocal-test -pl core test
+          mvn -B -DskipChecks -Plocal-test -pl core verify
       - name: Archive Test Results
         uses: actions/upload-artifact@v3
         if: always()
@@ -114,7 +114,7 @@ jobs:
       - name: Test
         timeout-minutes: 20
         run: >
-          mvn -B -Pparallel-tests -DforkCount=2C -DskipChecks -pl engine test
+          mvn -B -Pparallel-tests -DforkCount=2C -DskipChecks -pl engine verify
       - name: Archive Test Results
         uses: actions/upload-artifact@v3
         if: always()
@@ -138,7 +138,7 @@ jobs:
       - name: Test
         timeout-minutes: 20
         run: >
-          mvn -B -DskipChecks -pl exporter-test test
+          mvn -B -DskipChecks -pl exporter-test verify
       - name: Archive Test Results
         uses: actions/upload-artifact@v3
         if: always()
