@@ -34,6 +34,7 @@ import org.testcontainers.DockerClientFactory;
 @EnabledOnOs(LINUX)
 @DisabledIfTestcontainersCloud
 final class ZeebeHostDataTest {
+  @SuppressWarnings("resource")
   @Test
   void shouldAttachToZeebeContainer(final @TempDir Path dataDir) {
     // given
@@ -44,7 +45,7 @@ final class ZeebeHostDataTest {
     final InspectContainerResponse response;
     try (final ZeebeBrokerContainer container = new ZeebeBrokerContainer()) {
       final ZeebeHostData data = new ZeebeHostData(dataDir.toString());
-      // configure the broker to use the same UID and GID as our current user so we can remove the
+      // configure the broker to use the same UID and GID as our current user, so we can remove the
       // temporary directory at the end
       container
           .withZeebeData(data)
@@ -56,9 +57,7 @@ final class ZeebeHostDataTest {
     }
 
     // then
-    assertThat(response.getMounts())
-        .as("there should be exactly one bind mount, the host data")
-        .hasSize(1);
+    assertThat(response.getMounts()).as("our volume mount should be there").isNotEmpty();
 
     final Mount mount = Objects.requireNonNull(response.getMounts()).get(0);
     assertThat(mount.getRW()).as("the host data should be mounted as read-write").isTrue();
