@@ -63,8 +63,10 @@ final class ZeebeHostDataTest {
             .filter(m -> m.getDestination() == null)
             .filter(m -> containerPath.equals(m.getDestination().getPath()))
             .findFirst()
-            .orElse(null);
-    assertThat(mount).as("our volume mount should be there").isNotNull();
+            .orElseThrow(
+                () ->
+                    new AssertionError(
+                        "No mounts for data volume found in: " + response.getMounts()));
     assertThat(mount.getRW()).as("the host data should be mounted as read-write").isTrue();
     assertThat(mount.getSource())
         .as("the mount's source should be the host data directory")
