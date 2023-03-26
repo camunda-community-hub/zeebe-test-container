@@ -21,11 +21,9 @@ import static org.junit.jupiter.api.condition.OS.LINUX;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse.Mount;
-import com.github.dockerjava.api.model.Volume;
 import io.zeebe.containers.util.TestSupport;
 import io.zeebe.containers.util.TestcontainersSupport.DisabledIfTestcontainersCloud;
 import java.nio.file.Path;
-import java.util.Objects;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.io.TempDir;
@@ -59,15 +57,17 @@ final class ZeebeHostDataTest {
     // then
     assertThat(response.getMounts()).as("our volume mount should be there").isNotEmpty();
 
-    final Mount mount = Objects.requireNonNull(response.getMounts()).get(0);
+    final String containerPath = ZeebeDefaults.getInstance().getDefaultDataPath();
+    final Mount mount =
+        response.getMounts().stream()
+            .filter(m -> m.getDestination() == null)
+            .filter(m -> containerPath.equals(m.getDestination().getPath()))
+            .findFirst()
+            .orElse(null);
+    assertThat(mount).as("our volume mount should be there").isNotNull();
     assertThat(mount.getRW()).as("the host data should be mounted as read-write").isTrue();
     assertThat(mount.getSource())
         .as("the mount's source should be the host data directory")
         .isEqualTo(dataDir.toString());
-    assertThat(mount.getDestination())
-        .as("the mount's destination should be the default data path in the Zeebe container")
-        .isNotNull()
-        .extracting(Volume::getPath)
-        .isEqualTo(ZeebeDefaults.getInstance().getDefaultDataPath());
   }
 }

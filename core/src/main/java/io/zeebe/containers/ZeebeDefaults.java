@@ -34,6 +34,8 @@ public final class ZeebeDefaults {
   private static final String DEFAULT_ZEEBE_VERSION =
       ZeebeClient.class.getPackage().getImplementationVersion();
   private static final String DEFAULT_ZEEBE_DATA_PATH = "/usr/local/zeebe/data";
+  private static final String DEFAULT_ZEEBE_LOGS_PATH = "/usr/local/zeebe/logs";
+  private static final String DEFAULT_ZEEBE_TMP_PATH = "/tmp";
 
   private ZeebeDefaults() {}
 
@@ -62,6 +64,16 @@ public final class ZeebeDefaults {
   /** Returns the default data directory of the container */
   public String getDefaultDataPath() {
     return DEFAULT_ZEEBE_DATA_PATH;
+  }
+
+  /** Returns the default logs directory of the container */
+  public String getDefaultLogsPath() {
+    return DEFAULT_ZEEBE_LOGS_PATH;
+  }
+
+  /** Returns the default tmp directory of the container */
+  public String getDefaultTmpPath() {
+    return DEFAULT_ZEEBE_TMP_PATH;
   }
 
   private static final class Singleton {
