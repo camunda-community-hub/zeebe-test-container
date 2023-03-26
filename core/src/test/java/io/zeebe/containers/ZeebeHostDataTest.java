@@ -60,7 +60,7 @@ final class ZeebeHostDataTest {
     final String containerPath = ZeebeDefaults.getInstance().getDefaultDataPath();
     final Mount mount =
         response.getMounts().stream()
-            .filter(m -> m.getDestination() == null)
+            .filter(m -> m.getDestination() != null)
             .filter(m -> containerPath.equals(m.getDestination().getPath()))
             .findFirst()
             .orElseThrow(
