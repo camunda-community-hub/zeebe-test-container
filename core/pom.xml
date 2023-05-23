@@ -15,7 +15,7 @@
 
   <properties>
     <!-- fix minimum JDK version to 8 -->
-    <version.java>1.8</version.java>
+    <version.java>8</version.java>
 
     <!-- disable jdk8 javadoc checks on release build -->
     <additionalparam>-Xdoclint:none</additionalparam>
