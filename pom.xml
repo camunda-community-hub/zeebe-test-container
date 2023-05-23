@@ -419,6 +419,7 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>${plugin.version.compiler}</version>
           <configuration combine.children="append">
+            <release>${version.java}</release>
             <!-- setting it to true unfortunately causes us to recompile every time -->
             <useIncrementalCompilation>false</useIncrementalCompilation>
           </configuration>
