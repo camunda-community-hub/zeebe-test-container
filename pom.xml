@@ -87,7 +87,7 @@
     <plugin.version.enforcer>3.3.0</plugin.version.enforcer>
     <plugin.version.flatten>1.5.0</plugin.version.flatten>
     <plugin.version.google-format>1.15.0</plugin.version.google-format>
-    <plugin.version.gpg>3.0.1</plugin.version.gpg>
+    <plugin.version.gpg>3.1.0</plugin.version.gpg>
     <plugin.version.jar>3.3.0</plugin.version.jar>
     <plugin.version.javadoc>3.5.0</plugin.version.javadoc>
     <plugin.version.resources>3.3.1</plugin.version.resources>
