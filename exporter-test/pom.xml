@@ -31,6 +31,12 @@
     </dependency>
 
     <dependency>
+      <groupId>io.camunda</groupId>
+      <artifactId>zeebe-exporter-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>io.zeebe</groupId>
       <artifactId>zeebe-test-container-exporter</artifactId>
       <scope>test</scope>
