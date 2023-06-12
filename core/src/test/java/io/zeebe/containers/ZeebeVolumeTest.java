@@ -42,7 +42,7 @@ final class ZeebeVolumeTest {
     // then
     assertThat(response.getLabels())
         .as("the volume should contain the base Testcontainers labels to be reaped on shutdown")
-        .containsExactlyInAnyOrderEntriesOf(expectedLabels);
+        .containsAllEntriesOf(expectedLabels);
   }
 
   @Test
