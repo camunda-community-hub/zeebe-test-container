@@ -98,15 +98,12 @@ public class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContaine
 
   @Override
   public ZeebeGatewayContainer withTopologyCheck(final ZeebeTopologyWaitStrategy topologyCheck) {
-    return waitingFor(
-        new WaitAllStrategy(Mode.WITH_OUTER_TIMEOUT)
-            .withStrategy(new HostPortWaitStrategy())
-            .withStrategy(topologyCheck));
+    return waitingFor(newDefaultWaitStrategy(topologyCheck));
   }
 
   @Override
   public ZeebeGatewayContainer withoutTopologyCheck() {
-    return waitingFor(new HostPortWaitStrategy());
+    return waitingFor(new HostPortWaitStrategy().withStartupTimeout(DEFAULT_STARTUP_TIMEOUT));
   }
 
   private void applyDefaultConfiguration() {
@@ -121,5 +118,12 @@ public class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContaine
             ZeebePort.GATEWAY.getPort(),
             ZeebePort.INTERNAL.getPort(),
             ZeebePort.MONITORING.getPort());
+  }
+
+  private WaitAllStrategy newDefaultWaitStrategy(ZeebeTopologyWaitStrategy topologyCheck) {
+    return new WaitAllStrategy(Mode.WITH_OUTER_TIMEOUT)
+        .withStrategy(new HostPortWaitStrategy())
+        .withStrategy(topologyCheck)
+        .withStartupTimeout(DEFAULT_STARTUP_TIMEOUT);
   }
 }

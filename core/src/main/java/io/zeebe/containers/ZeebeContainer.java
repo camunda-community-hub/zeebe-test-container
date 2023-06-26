@@ -88,7 +88,8 @@ public class ZeebeContainer extends GenericContainer<ZeebeContainer>
   protected WaitAllStrategy newDefaultWaitStrategy() {
     return new WaitAllStrategy(Mode.WITH_OUTER_TIMEOUT)
         .withStrategy(new HostPortWaitStrategy())
-        .withStrategy(ZeebeBrokerContainer.newDefaultBrokerReadyCheck());
+        .withStrategy(ZeebeBrokerContainer.newDefaultBrokerReadyCheck())
+        .withStartupTimeout(DEFAULT_STARTUP_TIMEOUT);
   }
 
   private void applyDefaultConfiguration() {
@@ -97,7 +98,6 @@ public class ZeebeContainer extends GenericContainer<ZeebeContainer>
         .withEnv("ZEEBE_BROKER_GATEWAY_ENABLE", "true")
         .withEnv("ZEEBE_BROKER_NETWORK_HOST", "0.0.0.0")
         .withEnv("ZEEBE_BROKER_NETWORK_ADVERTISEDHOST", getInternalHost())
-        .withStartupTimeout(DEFAULT_STARTUP_TIMEOUT)
         .addExposedPorts(
             ZeebePort.GATEWAY.getPort(),
             ZeebePort.COMMAND.getPort(),

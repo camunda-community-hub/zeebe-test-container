@@ -80,22 +80,6 @@ public class ZeebeBrokerContainer extends GenericContainer<ZeebeBrokerContainer>
     applyDefaultConfiguration();
   }
 
-  private void applyDefaultConfiguration() {
-    withNetwork(Network.SHARED)
-        .waitingFor(
-            new WaitAllStrategy(Mode.WITH_OUTER_TIMEOUT)
-                .withStrategy(new HostPortWaitStrategy())
-                .withStrategy(newDefaultBrokerReadyCheck()))
-        .withStartupTimeout(DEFAULT_STARTUP_TIMEOUT)
-        .withEnv("ZEEBE_BROKER_GATEWAY_ENABLE", "false")
-        .withEnv("ZEEBE_BROKER_NETWORK_HOST", "0.0.0.0")
-        .withEnv("ZEEBE_BROKER_NETWORK_ADVERTISEDHOST", getInternalHost())
-        .addExposedPorts(
-            ZeebePort.COMMAND.getPort(),
-            ZeebePort.INTERNAL.getPort(),
-            ZeebePort.MONITORING.getPort());
-  }
-
   /**
    * Creates a new {@link HttpWaitStrategy} configured for the default broker ready check. Available
    * publicly to be modified as desired.
@@ -108,5 +92,24 @@ public class ZeebeBrokerContainer extends GenericContainer<ZeebeBrokerContainer>
         .forPort(ZeebePort.MONITORING.getPort())
         .forStatusCode(204)
         .withReadTimeout(Duration.ofSeconds(10));
+  }
+
+  private WaitAllStrategy newDefaultWaitStrategy() {
+    return new WaitAllStrategy(Mode.WITH_OUTER_TIMEOUT)
+        .withStrategy(new HostPortWaitStrategy())
+        .withStrategy(newDefaultBrokerReadyCheck())
+        .withStartupTimeout(DEFAULT_STARTUP_TIMEOUT);
+  }
+
+  private void applyDefaultConfiguration() {
+    withNetwork(Network.SHARED)
+        .waitingFor(newDefaultWaitStrategy())
+        .withEnv("ZEEBE_BROKER_GATEWAY_ENABLE", "false")
+        .withEnv("ZEEBE_BROKER_NETWORK_HOST", "0.0.0.0")
+        .withEnv("ZEEBE_BROKER_NETWORK_ADVERTISEDHOST", getInternalHost())
+        .addExposedPorts(
+            ZeebePort.COMMAND.getPort(),
+            ZeebePort.INTERNAL.getPort(),
+            ZeebePort.MONITORING.getPort());
   }
 }
