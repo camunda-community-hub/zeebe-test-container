@@ -7,12 +7,12 @@
     <artifactId>community-hub-release-parent</artifactId>
     <version>1.4.2</version>
     <!-- do not remove empty tag - http://jira.codehaus.org/browse/MNG-4687 -->
-    <relativePath />
+    <relativePath/>
   </parent>
 
   <groupId>io.zeebe</groupId>
   <artifactId>zeebe-test-container-root</artifactId>
-  <version>3.6.1-SNAPSHOT</version>
+  <version>3.5.3-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Zeebe Test Container Root</name>
   <url>https://github.com/zeebe-io/zeebe-test-container</url>
@@ -473,7 +473,7 @@
                 <include>**/*.md</include>
               </includes>
 
-              <flexmark />
+              <flexmark/>
             </markdown>
           </configuration>
           <executions>
@@ -521,7 +521,7 @@
                 <goal>check</goal>
               </goals>
               <phase>validate</phase>
-              <configuration />
+              <configuration/>
             </execution>
           </executions>
         </plugin>
@@ -636,7 +636,7 @@
               <configuration>
                 <!-- see more https://maven.apache.org/enforcer/enforcer-rules/index.html -->
                 <rules>
-                  <banDuplicatePomDependencyVersions />
+                  <banDuplicatePomDependencyVersions/>
                 </rules>
               </configuration>
             </execution>
