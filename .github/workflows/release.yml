@@ -4,6 +4,10 @@ on:
     types: [ published ]
   workflow_dispatch: { }
 jobs:
+  test:
+    name: Test release
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
   deploy:
     name: Deploy artifacts
     uses: ./.github/workflows/deploy.yml

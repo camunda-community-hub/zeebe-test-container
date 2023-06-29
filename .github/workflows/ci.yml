@@ -20,6 +20,7 @@ on:
       - '.github/workflows/lint.yml'
   workflow_dispatch: { }
   merge_group: { }
+  workflow_call: { }
 
 concurrency:
   # add a sub-key using the run ID whenever this is called via workflow dispatch (i.e. manually by a user); in that
@@ -40,7 +41,7 @@ jobs:
     secrets: inherit
   deploy:
     # Only deploy SNAPSHOT if merging to main
-    if: github.ref == 'refs/heads/main'
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'workflow_call' }}
     name: Deploy SNAPSHOT
     needs: [lint, test]
     uses: ./.github/workflows/deploy.yml
