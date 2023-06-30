@@ -5,7 +5,7 @@
   <parent>
     <groupId>io.zeebe</groupId>
     <artifactId>zeebe-test-container-root</artifactId>
-    <version>3.5.3-SNAPSHOT</version>
+    <version>3.6.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
