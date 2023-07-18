@@ -7,7 +7,7 @@
     <artifactId>community-hub-release-parent</artifactId>
     <version>1.4.2</version>
     <!-- do not remove empty tag - http://jira.codehaus.org/browse/MNG-4687 -->
-    <relativePath />
+    <relativePath/>
   </parent>
 
   <groupId>io.zeebe</groupId>
@@ -473,7 +473,7 @@
                 <include>**/*.md</include>
               </includes>
 
-              <flexmark />
+              <flexmark/>
             </markdown>
           </configuration>
           <executions>
@@ -521,7 +521,7 @@
                 <goal>check</goal>
               </goals>
               <phase>validate</phase>
-              <configuration />
+              <configuration/>
             </execution>
           </executions>
         </plugin>
@@ -636,7 +636,7 @@
               <configuration>
                 <!-- see more https://maven.apache.org/enforcer/enforcer-rules/index.html -->
                 <rules>
-                  <banDuplicatePomDependencyVersions />
+                  <banDuplicatePomDependencyVersions/>
                 </rules>
               </configuration>
             </execution>
