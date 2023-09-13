@@ -65,7 +65,7 @@
     <version.compress>1.23.0</version.compress>
     <version.docker>3.3.3</version.docker>
     <version.duct-tape>1.0.8</version.duct-tape>
-    <version.feign>12.4</version.feign>
+    <version.feign>12.5</version.feign>
     <version.httpcore5>5.2.2</version.httpcore5>
     <version.jackson>2.15.2</version.jackson>
     <version.jcip>1.0</version.jcip>
