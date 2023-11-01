@@ -75,7 +75,7 @@
     <version.rest-assured>5.3.2</version.rest-assured>
     <version.revapi>0.28.1</version.revapi>
     <version.slf4j>2.0.1</version.slf4j>
-    <version.testcontainers>1.19.0</version.testcontainers>
+    <version.testcontainers>1.19.1</version.testcontainers>
     <version.wiremock>2.35.1</version.wiremock>
     <version.zeebe>8.2.13</version.zeebe>
 
