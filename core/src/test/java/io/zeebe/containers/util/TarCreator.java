@@ -21,7 +21,7 @@ import java.io.OutputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
@@ -63,7 +63,7 @@ public final class TarCreator {
 
   private void archivePath(final TarArchiveOutputStream archive, final Path path)
       throws IOException {
-    final ArchiveEntry entry = archive.createArchiveEntry(path.toFile(), path.toString());
+    final TarArchiveEntry entry = archive.createArchiveEntry(path.toFile(), path.toString());
     archive.putArchiveEntry(entry);
 
     if (Files.isDirectory(path)) {
@@ -73,7 +73,7 @@ public final class TarCreator {
         }
       }
     } else {
-      try (InputStream inputStream = Files.newInputStream(path)) {
+      try (final InputStream inputStream = Files.newInputStream(path)) {
         IOUtils.copy(inputStream, archive);
       }
       archive.closeArchiveEntry();
