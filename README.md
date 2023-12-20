@@ -115,8 +115,8 @@ testImplementation 'io.zeebe:zeebe-test-container:3.5.0'
 
 Zeebe Test Container is built for Java 8+, and will not work on lower Java versions.
 
-> You will need Java 17+ for development purposes, however, as many of our tests rely on shared
-> Zeebe libraries which are built for Java 17+.
+> You will need Java 21+ for development purposes, however, as many of our tests rely on shared
+> Zeebe libraries which are built for Java 21+.
 
 Additionally, you will need to comply with all the Testcontainers requirements, as defined
 [here](https://www.testcontainers.org/#prerequisites).
@@ -1178,7 +1178,7 @@ you will need to sign the [Contributor License Agreement](https://cla-assistant.
 In order to build from source, you will need to install maven 3.6+. You can find more about it on
 the [maven homepage](https://maven.apache.org/users/index.html).
 
-To build the project, you will need a JDK 17 installed locally. Note however that the `core` and `engine` modules
+To build the project, you will need a JDK 21 installed locally. Note however that the `core` and `engine` modules
 are targeting Java 8 for compatibility purposes, and we must ensure that we maintain compatibility.
 To do this, the CI pipeline will run the tests using Java 8.
 
@@ -1194,7 +1194,7 @@ The library is split into three modules:
 - `engine`: the implementation of `ZeebeTestEngine`, the compatibility layer between this library
   and [Zeebe Process Test](https://github.com/camunda/zeebe-process-test).
 - `exporter`: the debug exporter module. It will be packaged as a fat JAR and included as a resource
-  in the core module. It has to be a separate module as it targets Java 17, same as the
+  in the core module. It has to be a separate module as it targets Java 21, same as the
   `zeebe-exporter-api` module it implements.
 - `exporter-test`: a module to test the integration between `DebugReceiver` and `DebugExporter`,
   without having to run everything through an actual broker.
