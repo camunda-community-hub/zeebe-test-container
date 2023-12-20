@@ -1229,6 +1229,10 @@ Testing is done via GitHub actions, using two workflows:
   tests
   which need to run on the local job should be annotated with `@DisabledIfTestcontainersCloud`.
 
+One important thing to note is that we package and copy the debug exporter into the core module
+during the build process. This means that any tests which relies on the debug exporter being
+accessible has to be an integration test run by failsafe (i.e. test files ending with `IT`).
+
 ## Code style
 
 The project uses Spotless to apply consistent formatting and licensing to all project files. By
