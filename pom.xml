@@ -85,6 +85,7 @@
     <plugin.version.compiler>3.11.0</plugin.version.compiler>
     <plugin.version.dependency>3.6.0</plugin.version.dependency>
     <plugin.version.enforcer>3.4.1</plugin.version.enforcer>
+    <plugin.version.failsafe>3.2.2</plugin.version.failsafe>
     <plugin.version.flatten>1.5.0</plugin.version.flatten>
     <plugin.version.google-format>1.17.0</plugin.version.google-format>
     <plugin.version.gpg>3.1.0</plugin.version.gpg>
@@ -370,6 +371,13 @@
       <artifactId>slf4j-simple</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${version.junit-jupiter}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <repositories>
@@ -531,6 +539,25 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>${plugin.version.surefire}</version>
+          <configuration>
+            <failIfNoTests>false</failIfNoTests>
+            <trimStackTrace>false</trimStackTrace>
+            <redirectTestOutputToFile>true</redirectTestOutputToFile>
+          </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.junit.jupiter</groupId>
+              <artifactId>junit-jupiter-engine</artifactId>
+              <version>${version.junit-jupiter}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+
+        <!-- integration tests -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>${plugin.version.failsafe}</version>
           <configuration>
             <failIfNoTests>false</failIfNoTests>
             <trimStackTrace>false</trimStackTrace>
@@ -768,22 +795,39 @@
         <forkCount>1C</forkCount>
       </properties>
       <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <forkCount>${forkCount}</forkCount>
-              <reuseForks>true</reuseForks>
-              <properties>
-                <configurationParameters>junit.jupiter.execution.parallel.enabled = true
-                  junit.jupiter.execution.parallel.mode.default = concurrent
-                  junit.jupiter.execution.parallel.config.strategy = fixed
-                  junit.jupiter.execution.parallel.config.fixed.parallelism = 2</configurationParameters>
-              </properties>
-            </configuration>
-          </plugin>
-        </plugins>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-surefire-plugin</artifactId>
+              <configuration>
+                <forkCount>${forkCount}</forkCount>
+                <reuseForks>true</reuseForks>
+                <properties>
+                  <configurationParameters>junit.jupiter.execution.parallel.enabled = true
+                    junit.jupiter.execution.parallel.mode.default = concurrent
+                    junit.jupiter.execution.parallel.config.strategy = fixed
+                    junit.jupiter.execution.parallel.config.fixed.parallelism = 2</configurationParameters>
+                </properties>
+              </configuration>
+            </plugin>
+
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-failsafe-plugin</artifactId>
+              <configuration>
+                <forkCount>${forkCount}</forkCount>
+                <reuseForks>true</reuseForks>
+                <properties>
+                  <configurationParameters>junit.jupiter.execution.parallel.enabled = true
+                    junit.jupiter.execution.parallel.mode.default = concurrent
+                    junit.jupiter.execution.parallel.config.strategy = fixed
+                    junit.jupiter.execution.parallel.config.fixed.parallelism = 2</configurationParameters>
+                </properties>
+              </configuration>
+            </plugin>
+          </plugins>
+        </pluginManagement>
       </build>
     </profile>
 

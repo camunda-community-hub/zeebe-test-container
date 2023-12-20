@@ -51,7 +51,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  * io.zeebe.containers.ZeebeBrokerNode#withDebugExporter(int)}.
  */
 @Testcontainers
-final class BrokerWithDebugExporterTest {
+final class BrokerWithDebugExporterIT {
   private final List<Record<?>> records = new CopyOnWriteArrayList<>();
   private final DebugReceiver receiver = new DebugReceiver(records::add).start();
 

@@ -201,8 +201,7 @@
             <goals>
               <goal>copy</goal>
             </goals>
-            <!-- TODO: set to package, and run the relevant tests as integration tests -->
-            <phase>generate-resources</phase>
+            <phase>package</phase>
             <configuration>
               <artifactItems>
                 <artifactItem>
@@ -219,6 +218,11 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
       </plugin>
 
       <plugin>
