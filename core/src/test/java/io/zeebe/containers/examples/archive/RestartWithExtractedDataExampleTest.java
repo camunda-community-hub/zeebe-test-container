@@ -82,7 +82,10 @@ final class RestartWithExtractedDataExampleTest {
     final Path destination = tempDir.resolve(DATA_DIR);
 
     // when
-    try (final ZeebeContainer container = new ZeebeContainer().withZeebeData(volume)) {
+    try (final ZeebeContainer container =
+        new ZeebeContainer()
+            .withCreateContainerCmdModifier(cmd -> cmd.withUser("1001:0"))
+            .withZeebeData(volume)) {
       container.start();
       deployProcess(container);
     }
@@ -110,6 +113,7 @@ final class RestartWithExtractedDataExampleTest {
     // when
     try (final ZeebeContainer container =
         new ZeebeContainer()
+            .withCreateContainerCmdModifier(cmd -> cmd.withUser("1001:0"))
             .withCopyFileToContainer(
                 MountableFile.forHostPath(dataPath),
                 ZeebeDefaults.getInstance().getDefaultDataPath())) {
