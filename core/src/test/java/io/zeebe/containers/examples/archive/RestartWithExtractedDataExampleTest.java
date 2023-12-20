@@ -130,7 +130,7 @@ final class RestartWithExtractedDataExampleTest {
             .gatewayAddress(container.getExternalGatewayAddress())
             .build()) {
       client
-          .newDeployCommand()
+          .newDeployResourceCommand()
           .addProcessModel(
               Bpmn.createExecutableProcess(PROCESS_ID).startEvent().endEvent().done(),
               "process.bpmn")
