@@ -22,9 +22,8 @@ import static org.assertj.core.api.Assertions.within;
 import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.api.command.FinalCommandStep;
 import io.camunda.zeebe.protocol.record.Record;
-import io.zeebe.containers.ZeebeGatewayNode;
+import io.zeebe.containers.ZeebeContainer;
 import io.zeebe.containers.clock.ZeebeClock;
-import io.zeebe.containers.cluster.ZeebeCluster;
 import io.zeebe.containers.exporter.DebugReceiver;
 import java.io.IOException;
 import java.net.ConnectException;
@@ -33,46 +32,28 @@ import java.net.Socket;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.stream.Collectors;
-import org.agrona.CloseHelper;
 import org.awaitility.Awaitility;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.Network;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
-final class ZeebeClusterEngineTest {
-  private final Network network = Network.newNetwork();
+final class ZeebeContainerEngineIT {
   private final InfiniteList<Record<?>> records = new InfiniteList<>();
   private final DebugReceiver receiver = new DebugReceiver(records::add);
   private final DebugReceiverStream recordStream = new DebugReceiverStream(records, receiver);
-  private final ZeebeCluster cluster =
-      ZeebeCluster.builder()
-          .withEmbeddedGateway(true)
-          .withBrokersCount(2)
-          .withPartitionsCount(1)
-          .withReplicationFactor(2)
-          .build();
-
-  @AfterEach
-  void afterEach() {
-    CloseHelper.close(network);
-  }
+  private final ZeebeContainer container = new ZeebeContainer();
 
   @Test
   void shouldCloseEverythingOnStop() {
     // given
     final ZeebeClient client;
     final InetSocketAddress receiverAddress;
-    try (final ZeebeClusterEngine engine = new ZeebeClusterEngine(cluster, recordStream)) {
+    try (final ZeebeContainerEngine<?> engine =
+        new ZeebeContainerEngine<>(container, recordStream)) {
       engine.start();
       client = engine.createClient();
       receiverAddress = receiver.serverAddress();
@@ -87,7 +68,7 @@ final class ZeebeClusterEngineTest {
               assertThatCode(request::send)
                   .hasRootCauseInstanceOf(RejectedExecutionException.class);
             });
-    assertThat(cluster.getNodes().values()).allMatch(node -> !node.isRunning());
+    assertThat(container.isStarted()).isFalse();
     assertThatCode(() -> testServerConnection(receiverAddress))
         .isInstanceOf(ConnectException.class);
   }
@@ -99,8 +80,10 @@ final class ZeebeClusterEngineTest {
   }
 
   @Nested
-  final class WithClusterTest {
-    @Container final ZeebeClusterEngine engine = new ZeebeClusterEngine(cluster, recordStream);
+  final class WithContainerTest {
+    @Container
+    private final ZeebeContainerEngine<?> engine =
+        new ZeebeContainerEngine<>(container, recordStream);
 
     @Test
     void shouldCreateClient() {
@@ -122,34 +105,22 @@ final class ZeebeClusterEngineTest {
       final String address = engine.getGatewayAddress();
 
       // then
-      final Set<String> gatewayAddress =
-          cluster.getGateways().values().stream()
-              .map(ZeebeGatewayNode::getExternalGatewayAddress)
-              .collect(Collectors.toSet());
-      assertThat(address).isIn(gatewayAddress);
+      assertThat(address).isEqualTo(container.getExternalGatewayAddress());
     }
 
     @Test
     void shouldIncreaseTime() {
       // given
       final Duration offset = Duration.ofMinutes(5);
-      final Map<String, ZeebeClock> clocks = new HashMap<>();
-      cluster.getNodes().forEach((id, node) -> clocks.put(id, ZeebeClock.newDefaultClock(node)));
-      final Map<String, Instant> startTimes = new HashMap<>();
-      clocks.forEach((id, clock) -> startTimes.put(id, clock.getCurrentTime()));
+      final ZeebeClock clock = ZeebeClock.newDefaultClock(container);
 
       // when
+      final Instant startTime = clock.getCurrentTime();
       engine.increaseTime(offset);
+      final Instant endTime = clock.getCurrentTime();
 
       // then
-      final Map<String, Instant> endTimes = new HashMap<>();
-      clocks.forEach((id, clock) -> endTimes.put(id, clock.getCurrentTime()));
-
-      assertThat(endTimes)
-          .allSatisfy(
-              (id, endTime) ->
-                  assertThat(endTime)
-                      .isCloseTo(startTimes.get(id).plus(offset), within(10, ChronoUnit.SECONDS)));
+      assertThat(endTime).isCloseTo(startTime.plus(offset), within(10, ChronoUnit.SECONDS));
     }
   }
 }

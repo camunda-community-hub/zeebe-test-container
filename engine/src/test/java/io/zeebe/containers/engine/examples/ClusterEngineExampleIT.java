@@ -31,7 +31,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
-final class ClusterEngineExampleTest {
+final class ClusterEngineExampleIT {
   private final Network network = Network.newNetwork();
 
   // a container which will print out its log to the given logger
