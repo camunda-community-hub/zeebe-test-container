@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.Test;
 
-final class DebugReceiverStreamTest {
+final class DebugReceiverStreamIT {
   private final InfiniteList<Record<?>> records = new InfiniteList<>();
   private final DebugReceiver receiver = new DebugReceiver(records::add);
 
