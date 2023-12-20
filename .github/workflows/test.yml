@@ -34,7 +34,7 @@ jobs:
         run: >
           mvn -B -Pparallel-tests -DforkCount=2C -DskipChecks -pl core verify
       - name: Archive Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: cloud-core-test-results
@@ -60,7 +60,7 @@ jobs:
         run: >
           mvn -B -DskipChecks -Plocal-test -pl core verify
       - name: Archive Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: local-core-test-results
@@ -94,7 +94,7 @@ jobs:
         run: >
           mvn -B -Pparallel-tests -DforkCount=2C -DskipChecks -pl engine verify
       - name: Archive Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: cloud-core-test-results
@@ -118,7 +118,7 @@ jobs:
         run: >
           mvn -B -DskipChecks -pl exporter-test verify
       - name: Archive Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: local-exporter-test-results
