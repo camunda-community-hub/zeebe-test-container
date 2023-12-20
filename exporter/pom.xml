@@ -14,8 +14,8 @@
   <name>Zeebe Test Container Exporter</name>
 
   <properties>
-    <!-- fix minimum JDK to 17, meaning the exporter is not compatible with Zeebe < 8.x -->
-    <version.java>17</version.java>
+    <!-- fix minimum JDK to 21, meaning the exporter is not compatible with Zeebe < 8.4 -->
+    <version.java>21</version.java>
   </properties>
 
   <dependencies>

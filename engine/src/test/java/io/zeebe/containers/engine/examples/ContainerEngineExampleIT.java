@@ -45,8 +45,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  * href="https://github.com/camunda/zeebe-process-test">zeebe-process-test</a>.
  */
 @Testcontainers
-final class ContainerEngineExampleTest {
-  private static final Logger LOGGER = LoggerFactory.getLogger(ContainerEngineExampleTest.class);
+final class ContainerEngineExampleIT {
+  private static final Logger LOGGER = LoggerFactory.getLogger(ContainerEngineExampleIT.class);
 
   // a container which will print out its log to the given logger
   private final ZeebeContainer container =

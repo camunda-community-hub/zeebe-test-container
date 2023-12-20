@@ -37,7 +37,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  * of the grace period, thus slowing down your tests.
  */
 @Testcontainers
-final class GracePeriodExampleTest {
+final class GracePeriodExampleIT {
   @Container
   private final ContainerEngine engine =
       ContainerEngine.builder().withGracePeriod(Duration.ofSeconds(5)).build();
