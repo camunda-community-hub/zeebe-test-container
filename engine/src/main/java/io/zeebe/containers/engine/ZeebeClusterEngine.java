@@ -15,7 +15,10 @@
  */
 package io.zeebe.containers.engine;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.camunda.zeebe.client.ZeebeClient;
+import io.camunda.zeebe.client.ZeebeClientBuilder;
+import io.camunda.zeebe.client.impl.ZeebeObjectMapper;
 import io.camunda.zeebe.process.test.api.RecordStreamSource;
 import io.zeebe.containers.ZeebeNode;
 import io.zeebe.containers.clock.ZeebeClock;
@@ -25,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
+import java.util.function.UnaryOperator;
 import org.agrona.CloseHelper;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
@@ -65,10 +69,12 @@ final class ZeebeClusterEngine implements TestAwareContainerEngine {
 
   @Override
   public ZeebeClient createClient() {
-    final ZeebeClient client = cluster.newClientBuilder().build();
-    clients.add(client);
+    return createClient(UnaryOperator.identity());
+  }
 
-    return client;
+  @Override
+  public ZeebeClient createClient(final ObjectMapper customObjectMapper) {
+    return createClient(b -> b.withJsonMapper(new ZeebeObjectMapper(customObjectMapper)));
   }
 
   @Override
@@ -105,5 +111,15 @@ final class ZeebeClusterEngine implements TestAwareContainerEngine {
     clients.clear();
 
     CloseHelper.closeAll(cluster, recordStream);
+  }
+
+  private ZeebeClient createClient(final UnaryOperator<ZeebeClientBuilder> configurator) {
+    final ZeebeClientBuilder builder =
+        configurator.apply(
+            ZeebeClient.newClientBuilder().usePlaintext().gatewayAddress(getGatewayAddress()));
+    final ZeebeClient client = builder.build();
+    clients.add(client);
+
+    return client;
   }
 }
