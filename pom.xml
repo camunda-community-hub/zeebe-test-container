@@ -610,6 +610,7 @@
                 <!-- dependencies not directly used in all projects during tests -->
                 <ignoredUnusedDeclaredDependencies combine.children="append">
                   <dep>org.slf4j:slf4j-simple</dep>
+                  <dep>org.junit.jupiter:junit-jupiter</dep>
                 </ignoredUnusedDeclaredDependencies>
               </configuration>
             </execution>
