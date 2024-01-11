@@ -514,9 +514,12 @@ public final class MyExporterIT {
 
 #### Loading Docker image
 
-The idea here is to prepare a Docker image which already contains your packaged exporter JAR, so no
-file mounting or packaging is necessary in advance. However, you do need to re-package your Docker
-image after every code change to your exporter before running your QA test.
+The idea here is to prepare a Docker image based on
+[Zeebe's official image](https://hub.docker.com/r/camunda/zeebe) which already contains your
+packaged exporter JAR, so no file mounting or packaging is necessary in advance. Here's an example
+of such an image built using [Jib](https://github.com/GoogleContainerTools/jib): [Hazelcast Exporter](https://github.com/camunda-community-hub/zeebe-hazelcast-exporter/blob/bc0d17118150d21bd27d9eead5ef0003680e2f1a/exporter/pom.xml#L111).
+However, you do need to re-package your Docker  image after every code change to your exporter
+before running your QA test.
 
 Here are some projects which do exactly this:
 
