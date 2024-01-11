@@ -374,6 +374,185 @@ A series of examples are included as part of the tests, see
 
 > Note that these are written for junit5.
 
+Below you will find examples which are not part of the project itself, mostly due to requiring
+external resources or systems.
+
+### Testing a custom exporter
+
+You can use `zeebe-test-container` to test your custom exporter. There are two ways to go about
+this: with a pre-built Docker image containing your exporter, or by loading a pre-packaged JAR
+containing your exporter.
+
+#### Loading exporter JAR
+
+The idea here is to load your custom exporter, pre-packaged into a self-contained JAR, either as a
+[file or a classpath resource](https://java.testcontainers.org/features/files/#copying-to-a-container-before-startup).
+
+Here are some projects which do exactly this:
+
+- [Kafka Exporter](https://github.com/camunda-community-hub/zeebe-kafka-exporter/blob/main/qa/src/test/java/io/zeebe/exporters/kafka/qa/KafkaExporterIT.java)
+- [ClickHouse Exporter](https://github.com/camunda-community-hub/zeebe-clickhouse-exporter/blob/main/src/test/java/io/zeebe/clickhouse/exporter/ClickHouseExporterIT.java)
+
+You can do this in two ways:
+
+1. Ensure the artifact is packaged separately and made available via the file system
+2. Hook into your build pipeline to always have the latest JAR available to your QA tests
+
+The second option is more work, but it provides the better experience as running `mvn verify` for
+your QA module will always run your tests with the latest code changes seamlessly.
+
+##### Build and test the exporter JAR
+
+You can do this by creating a second module or project specifically to run integration tests for
+your exporter.
+
+> [!Note]
+> The following assumes you're using Maven, but it should be possible to adapt it to
+> Gradle.
+
+First, create the new project, say, `exporter-qa`. It will need to list your exporter module, say
+`exporter`, as a dependency. This will ensure that the `exporter` module is built before
+`exporter-qa`.
+
+For example:
+
+```xml
+<dependencies>
+  <!-- ensure the exporter project is built before the QA project -->
+  <dependency>
+    <groupId>com.acme</groupId>
+    <artifactId>exporter</artifactId>
+    <scope>provided</scope>
+    <optional>true</optional>
+  </dependency>
+</dependencies>
+```
+
+Next, you we need to copy the packaged JAR of the `exporter` module into the `exporter-qa` module:
+
+```xml
+<build>
+  <plugins>
+    <!-- copy over the exporter JAR as a resource -->
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-dependency-plugin</artifactId>
+      <version>${plugin.version.dependency}</version>
+      <configuration>
+        <!-- you may require this if you aren't actually referencing the exporter itself -->
+        <ignoredUnusedDeclaredDependencies>
+          <dep>com.acme:exporter</dep>
+        </ignoredUnusedDeclaredDependencies>
+      </configuration>
+      <dependencies>
+        <!-- Fake dependency on the exporter to ensure it's packaged beforehand -->
+        <dependency>
+          <groupId>com.acme</groupId>
+          <artifactId>exporter</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+      </dependencies>
+      <executions>
+        <execution>
+          <id>copy</id>
+          <goals>
+            <goal>copy</goal>
+          </goals>
+          <phase>package</phase>
+          <configuration>
+            <artifactItems>
+              <artifactItem>
+                <groupId>com.acme</groupId>
+                <artifactId>exporter</artifactId>
+                <version>${project.version}</version>
+                <type>jar</type>
+                <outputDirectory>${project.basedir}/src/main/resources</outputDirectory>
+                <destFileName>exporter.jar</destFileName>
+              </artifactItem>
+            </artifactItems>
+            <overWriteReleases>false</overWriteReleases>
+            <overWriteSnapshots>true</overWriteSnapshots>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
+  </plugins>
+</build>
+```
+
+Note that since we're copying the exporter in the package phase, you will need to run your QA tests
+in the `integration-test` phase. To simplify this, we recommend you use the Maven
+[failsafe](https://maven.apache.org/surefire/maven-failsafe-plugin/) plugin.
+
+Once done, you have everything you need to write an integration test in the `exporter-qa` module.
+For example:
+
+```java
+package com.acme.exporter.qa;
+
+import io.zeebe.containers.ZeebeContainer;
+import org.junit.jupiter.api.Test;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.MountableFile;
+
+@Testcontainers
+public final class MyExporterIT {
+  @Container
+  private final ZeebeContainer zeebe = new ZeebeContainer()
+    .withCopyFileToContainer(MountableFile.forClasspathResource("exporter.jar", 0775), "/usr/local/zeebe/exporters/exporter.jar")
+    .withEnv("ZEEBE_BROKER_EXPORTERS_ACME_CLASSNAME", "com.acme.exporter.Exporter")
+    .withEnv("ZEEBE_BROKER_EXPORTERS_ACME_JARPATH", "/usr/local/zeebe/exporters/exporter.jar")
+    .withEnv("ZEEBE_BROKER_EXPORTERS_ACME_ARGS_0_PROP", "foo");
+
+  @Test
+  void shouldExportData() {
+    // write your test here
+  }
+}
+```
+
+#### Loading Docker image
+
+The idea here is to prepare a Docker image which already contains your packaged exporter JAR, so no
+file mounting or packaging is necessary in advance. However, you do need to re-package your Docker
+image after every code change to your exporter before running your QA test.
+
+Here are some projects which do exactly this:
+
+- [Hazelcast Exporter](https://github.com/camunda-community-hub/zeebe-hazelcast-exporter/blob/main/exporter/src/test/java/io/zeebe/hazelcast/testcontainers/ZeebeTestContainer.java)
+- [Redis Exporter](https://github.com/camunda-community-hub/zeebe-redis-exporter/blob/main/exporter/src/test/java/io/zeebe/redis/testcontainers/ZeebeTestContainer.java)
+
+Let's say your build pipeline has already built the image as `ghcr.io/acme/exporter`, and the
+exporter JAR is located at `/usr/local/zeebe/exporters/exporter.jar` in that image. Then you could
+write the following test:
+
+```java
+package com.acme.exporter.qa;
+
+import io.zeebe.containers.ZeebeContainer;
+import org.junit.jupiter.api.Test;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
+
+@Testcontainers
+public final class MyExporterIT {
+  private static final DockerImageName TEST_IMAGE = DockerImageName.parse("ghcr.io/acme/exporter");
+
+  @Container
+  private final ZeebeContainer zeebe = new ZeebeContainer(TEST_IMAGE)
+    .withEnv("ZEEBE_BROKER_EXPORTERS_ACME_CLASSNAME", "com.acme.exporter.Exporter")
+    .withEnv("ZEEBE_BROKER_EXPORTERS_ACME_JARPATH", "/usr/local/zeebe/exporters/exporter.jar")
+    .withEnv("ZEEBE_BROKER_EXPORTERS_ACME_ARGS_0_PROP", "foo");
+
+  @Test
+  void shouldExportData() {
+    // write your test here
+  }
+}
+```
+
 ## Continuous Integration
 
 If you wish to use this with your continous integration pipeline (e.g. Jenkins, CircleCI), the
