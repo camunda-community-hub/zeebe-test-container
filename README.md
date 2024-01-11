@@ -408,7 +408,7 @@ your exporter.
 
 > [!Note]
 > The following assumes you're using Maven, but it should be possible to adapt it to
-Gradle.
+> Gradle.
 
 First, create the new project, say, `exporter-qa`. It will need to list your exporter module, say
 `exporter`, as a dependency. This will ensure that the `exporter` module is built before
