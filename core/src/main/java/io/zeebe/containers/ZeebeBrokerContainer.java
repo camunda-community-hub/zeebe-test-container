@@ -90,7 +90,7 @@ public class ZeebeBrokerContainer extends GenericContainer<ZeebeBrokerContainer>
     return new HttpWaitStrategy()
         .forPath("/ready")
         .forPort(ZeebePort.MONITORING.getPort())
-        .forStatusCode(204)
+        .forStatusCodeMatching(status -> status >= 200 && status < 300)
         .withReadTimeout(Duration.ofSeconds(10));
   }
 
