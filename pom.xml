@@ -59,13 +59,13 @@
     <version.agrona>1.20.0</version.agrona>
     <version.apiguardian>1.1.2</version.apiguardian>
     <version.asm>9.3</version.asm>
-    <version.assertj>3.25.1</version.assertj>
+    <version.assertj>3.25.2</version.assertj>
     <version.awaitility>4.2.0</version.awaitility>
     <version.checkstyle>9.3</version.checkstyle>
     <version.compress>1.25.0</version.compress>
     <version.docker>3.3.4</version.docker>
     <version.duct-tape>1.0.8</version.duct-tape>
-    <version.feign>13.1</version.feign>
+    <version.feign>13.2</version.feign>
     <version.httpcore5>5.2.4</version.httpcore5>
     <version.jackson>2.16.1</version.jackson>
     <version.jcip>1.0</version.jcip>
@@ -75,9 +75,9 @@
     <version.rest-assured>5.4.0</version.rest-assured>
     <version.revapi>0.28.1</version.revapi>
     <version.slf4j>2.0.1</version.slf4j>
-    <version.testcontainers>1.19.3</version.testcontainers>
+    <version.testcontainers>1.19.4</version.testcontainers>
     <version.wiremock>2.35.1</version.wiremock>
-    <version.zeebe>8.4.0</version.zeebe>
+    <version.zeebe>8.4.1</version.zeebe>
 
     <!-- plugin version -->
     <plugin.version.checkstyle>3.3.1</plugin.version.checkstyle>
