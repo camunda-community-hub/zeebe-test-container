@@ -30,12 +30,15 @@ import io.zeebe.containers.archive.ContainerArchiveBuilder;
 import io.zeebe.containers.util.TinyContainer;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.UnaryOperator;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.ResourceReaper;
 
 /**
  * A simple wrapper to create Docker volumes which are managed by Testcontainers. The created object
@@ -160,9 +163,13 @@ public class ZeebeVolume implements AutoCloseable, ZeebeData {
    */
   public static ZeebeVolume newVolume(final UnaryOperator<CreateVolumeCmd> configurator) {
     final DockerClient client = DockerClientFactory.instance().client();
-    try (final CreateVolumeCmd command = client.createVolumeCmd()) {
-      final CreateVolumeResponse response =
-          configurator.apply(command.withLabels(DockerClientFactory.DEFAULT_LABELS)).exec();
+    final Map<String, String> labels = new HashMap<>();
+    labels.putAll(DockerClientFactory.DEFAULT_LABELS);
+    //noinspection deprecation
+    labels.putAll(ResourceReaper.instance().getLabels());
+
+    try (final CreateVolumeCmd command = client.createVolumeCmd().withLabels(labels)) {
+      final CreateVolumeResponse response = configurator.apply(command).exec();
       return new ZeebeVolume(response.getName(), client);
     }
   }
