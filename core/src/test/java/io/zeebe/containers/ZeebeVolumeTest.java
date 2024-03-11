@@ -22,6 +22,8 @@ import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.InspectVolumeResponse;
 import com.github.dockerjava.api.model.AccessMode;
 import com.github.dockerjava.api.model.Bind;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
@@ -95,6 +97,39 @@ final class ZeebeVolumeTest {
       // then
       assertVolumeIsCorrectlyMounted(client, volume, container.getContainerId());
     }
+  }
+
+  @Test
+  void shouldCleanupVolume() {
+    // given
+    final DockerClient client = DockerClientFactory.lazyClient();
+    final ZeebeVolume volume = ZeebeVolume.newVolume();
+    final Runnable performCleanup = getCleanupRunnable();
+
+    // when
+    performCleanup.run();
+
+    // then
+    assertThat(client.listVolumesCmd().exec().getVolumes())
+        .as("the volume should be removed")
+        .noneMatch(v -> v.getName().equals(volume.getName()));
+  }
+
+  private Runnable getCleanupRunnable() {
+    return () -> {
+      try {
+        final Class<?> reaperClass =
+            Class.forName("org.testcontainers.utility.JVMHookResourceReaper");
+        final Constructor<?> constructor = reaperClass.getDeclaredConstructor();
+        constructor.setAccessible(true);
+        final Object reaper = constructor.newInstance();
+        final Method performCleanup = reaperClass.getDeclaredMethod("performCleanup");
+        performCleanup.setAccessible(true);
+        performCleanup.invoke(reaper);
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    };
   }
 
   private void assertVolumeIsCorrectlyMounted(
