@@ -354,7 +354,7 @@
       <dependency>
         <groupId>io.netty</groupId>
         <artifactId>netty-transport-native-unix-common</artifactId>
-        <version>4.1.107.Final</version>
+        <version>4.1.108.Final</version>
       </dependency>
 
       <dependency>
