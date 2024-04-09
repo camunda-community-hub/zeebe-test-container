@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.agrona.CloseHelper;
 import org.awaitility.Awaitility;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.io.TempDir;
@@ -46,8 +47,55 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.Network;
 
 final class ZeebeBrokerNodeTest {
+  private static final Network NETWORK = Network.newNetwork();
+
+  @AfterAll
+  static void afterAll() {
+    CloseHelper.quietClose(NETWORK);
+  }
+
+  private static ZeebeBrokerNode<?> provideBrokerWithHostData(
+      final ZeebeBrokerNode<?> broker, final Path dataDir) {
+    // configure the broker to use the same UID and GID as our current user so we can remove the
+    // temporary directory at the end. Note that this is only necessary when not running the tests
+    // as root
+    final ZeebeHostData data = new ZeebeHostData(dataDir.toAbsolutePath().toString());
+    final String runAsUser = TestSupport.getRunAsUser();
+    broker
+        .withZeebeData(data)
+        .self()
+        .withCreateContainerCmdModifier(cmd -> cmd.withUser(runAsUser));
+
+    return broker;
+  }
+
+  private static Stream<Arguments> reuseDataTestCases() {
+    return Stream.of(
+        new ReuseDataTestCase(
+            "broker with embedded gateway should reuse host data",
+            path -> provideBrokerWithHostData(new ZeebeContainer(), path)),
+        new ReuseDataTestCase(
+            "broker without embedded gateway should reuse host data",
+            path -> provideBrokerWithHostData(new ZeebeBrokerContainer(), path)),
+        new ReuseDataTestCase(
+            "broker with embedded gateway should reuse volume",
+            path -> new ZeebeContainer().withZeebeData(ZeebeVolume.newVolume())),
+        new ReuseDataTestCase(
+            "broker without embedded gateway should reuse volume",
+            path -> new ZeebeBrokerContainer().withZeebeData(ZeebeVolume.newVolume())));
+  }
+
+  private static Stream<Arguments> nodeProvider() {
+    final Stream<ZeebeBrokerNode<?>> nodes =
+        Stream.of(
+            new ZeebeContainer().withNetwork(NETWORK),
+            new ZeebeBrokerContainer().withNetwork(NETWORK));
+    return nodes.map(node -> Arguments.of(node.getClass().getSimpleName(), node));
+  }
+
   @SuppressWarnings("unused")
   @Timeout(value = 5, unit = TimeUnit.MINUTES)
   @ParameterizedTest(name = "{0} should be ready on start")
@@ -137,21 +185,6 @@ final class ZeebeBrokerNodeTest {
     }
   }
 
-  private static ZeebeBrokerNode<?> provideBrokerWithHostData(
-      final ZeebeBrokerNode<?> broker, final Path dataDir) {
-    // configure the broker to use the same UID and GID as our current user so we can remove the
-    // temporary directory at the end. Note that this is only necessary when not running the tests
-    // as root
-    final ZeebeHostData data = new ZeebeHostData(dataDir.toAbsolutePath().toString());
-    final String runAsUser = TestSupport.getRunAsUser();
-    broker
-        .withZeebeData(data)
-        .self()
-        .withCreateContainerCmdModifier(cmd -> cmd.withUser(runAsUser));
-
-    return broker;
-  }
-
   private ProcessInstanceEvent createSampleProcessInstance(final ZeebeClient client) {
     return client.newCreateInstanceCommand().bpmnProcessId("process").latestVersion().send().join();
   }
@@ -175,27 +208,7 @@ final class ZeebeBrokerNodeTest {
                     .isComplete(1, 1, 1));
   }
 
-  private static Stream<Arguments> reuseDataTestCases() {
-    return Stream.of(
-        new ReuseDataTestCase(
-            "broker with embedded gateway should reuse host data",
-            path -> provideBrokerWithHostData(new ZeebeContainer(), path)),
-        new ReuseDataTestCase(
-            "broker without embedded gateway should reuse host data",
-            path -> provideBrokerWithHostData(new ZeebeBrokerContainer(), path)),
-        new ReuseDataTestCase(
-            "broker with embedded gateway should reuse volume",
-            path -> new ZeebeContainer().withZeebeData(ZeebeVolume.newVolume())),
-        new ReuseDataTestCase(
-            "broker without embedded gateway should reuse volume",
-            path -> new ZeebeBrokerContainer().withZeebeData(ZeebeVolume.newVolume())));
-  }
-
-  private static Stream<Arguments> nodeProvider() {
-    final Stream<ZeebeBrokerNode<?>> nodes =
-        Stream.of(new ZeebeContainer(), new ZeebeBrokerContainer());
-    return nodes.map(node -> Arguments.of(node.getClass().getSimpleName(), node));
-  }
+  private interface BrokerNodeProvider extends Function<Path, ZeebeBrokerNode<?>> {}
 
   private static final class ReuseDataTestCase implements Arguments {
     private final String testName;
@@ -211,6 +224,4 @@ final class ZeebeBrokerNodeTest {
       return new Object[] {testName, brokerProvider};
     }
   }
-
-  private interface BrokerNodeProvider extends Function<Path, ZeebeBrokerNode<?>> {}
 }
