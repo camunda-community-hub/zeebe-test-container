@@ -88,7 +88,7 @@
     <plugin.version.failsafe>3.2.5</plugin.version.failsafe>
     <plugin.version.flatten>1.6.0</plugin.version.flatten>
     <plugin.version.google-format>1.17.0</plugin.version.google-format>
-    <plugin.version.gpg>3.2.2</plugin.version.gpg>
+    <plugin.version.gpg>3.2.3</plugin.version.gpg>
     <plugin.version.jar>3.3.0</plugin.version.jar>
     <plugin.version.javadoc>3.6.3</plugin.version.javadoc>
     <plugin.version.resources>3.3.1</plugin.version.resources>
