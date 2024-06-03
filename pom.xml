@@ -90,7 +90,7 @@
     <plugin.version.google-format>1.17.0</plugin.version.google-format>
     <plugin.version.gpg>3.2.4</plugin.version.gpg>
     <plugin.version.jar>3.4.1</plugin.version.jar>
-    <plugin.version.javadoc>3.6.3</plugin.version.javadoc>
+    <plugin.version.javadoc>3.7.0</plugin.version.javadoc>
     <plugin.version.resources>3.3.1</plugin.version.resources>
     <plugin.version.revapi>0.15.0</plugin.version.revapi>
     <plugin.version.shade>3.6.0</plugin.version.shade>
