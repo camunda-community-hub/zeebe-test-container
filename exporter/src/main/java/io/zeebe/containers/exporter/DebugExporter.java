@@ -135,7 +135,7 @@ public final class DebugExporter implements Exporter {
         .header("Content-Type", JSON_MIME_TYPE)
         .header("Accept", JSON_MIME_TYPE)
         .header("charset", "utf-8")
-        .header("User-Agent", "zpt-debug-exporter/4.0.0")
+        .header("User-Agent", "ztc-debug-exporter/4.0.0")
         .timeout(Duration.ofSeconds(5))
         .POST(
             BodyPublishers.ofByteArray(MAPPER.writeValueAsBytes(Collections.singletonList(record))))

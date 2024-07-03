@@ -36,6 +36,7 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.GenericContainer;
 
 /**
  * Receives records sent from one or more debug exporter instances. The receiver will start an HTTP
@@ -257,7 +258,10 @@ public final class DebugReceiver implements AutoCloseable {
         .setIOReactorConfig(config)
         .setCanonicalHostName("localhost")
         .setCharCodingConfig(CharCodingConfig.custom().setCharset(StandardCharsets.UTF_8).build())
-        .setHttpProcessor(HttpProcessors.server("zpt-debug/1.1"))
+        .setHttpProcessor(HttpProcessors.server("ztc-debug/1.1"))
+        // need to register the handler on both the primary and possibly Testcontainers' proxy for
+        // our local server, as otherwise the requests with hosts that do not match will be skipped
+        .registerVirtual(GenericContainer.INTERNAL_HOST_HOSTNAME, "/records", recordHandler)
         .register("/records", recordHandler)
         .create();
   }
