@@ -22,10 +22,10 @@ import io.camunda.zeebe.protocol.jackson.ZeebeProtocolModule;
 import io.camunda.zeebe.protocol.record.Record;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
@@ -72,7 +72,7 @@ final class RecordHandler implements AsyncServerRequestHandler<Message<HttpReque
 
   private final Consumer<Record<?>> recordConsumer;
   private final boolean autoAcknowledge;
-  private final Map<Integer, Long> positions = new HashMap<>();
+  private final Map<Integer, Long> positions = new ConcurrentHashMap<>();
 
   RecordHandler(final Consumer<Record<?>> recordConsumer, final boolean autoAcknowledge) {
     this.recordConsumer = Objects.requireNonNull(recordConsumer, "must specify a record consumer");
