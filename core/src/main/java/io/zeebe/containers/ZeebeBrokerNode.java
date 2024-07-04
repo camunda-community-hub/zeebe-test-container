@@ -105,7 +105,7 @@ public interface ZeebeBrokerNode<T extends GenericContainer<T> & ZeebeBrokerNode
             "ZEEBE_BROKER_EXPORTERS_DEBUG_CLASSNAME", "io.zeebe.containers.exporter.DebugExporter")
         .withEnv(
             "ZEEBE_BROKER_EXPORTERS_DEBUG_ARGS_URL",
-            GenericContainer.INTERNAL_HOST_HOSTNAME + ":" + containerPort + "/records");
+            "http://" + GenericContainer.INTERNAL_HOST_HOSTNAME + ":" + containerPort + "/records");
 
     return self();
   }
