@@ -62,7 +62,7 @@
     <version.assertj>3.26.0</version.assertj>
     <version.awaitility>4.2.2</version.awaitility>
     <version.checkstyle>9.3</version.checkstyle>
-    <version.compress>1.27.0</version.compress>
+    <version.compress>1.27.1</version.compress>
     <version.docker>3.3.6</version.docker>
     <version.duct-tape>1.0.8</version.duct-tape>
     <version.feign>13.3</version.feign>
