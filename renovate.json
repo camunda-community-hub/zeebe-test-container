@@ -1,1 +1,58 @@
-{ "enabled": false }
+{
+  "enabled": true,
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "commitMessagePrefix": "deps:",
+  "baseBranches": [
+    "/^stable\\/3\\..*/",
+    "main"
+  ],
+  "dependencyDashboard": true,
+  "prConcurrentLimit": 10,
+  "prHourlyLimit": 2,
+  "updateNotScheduled": false,
+  "schedule": [
+    "at any time"
+  ],
+  "vulnerabilityAlerts": {
+    "labels": ["area/security"],
+    "enabled": true
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true,
+    "addLabels": ["automerge"]
+  },
+  "packageRules": [
+    {
+      "description": "Only patch updates for our maintenance branches to avoid breaking changes.",
+      "matchBaseBranches": [
+        "/^stable\\/3\\..*/"
+      ],
+      "matchUpdateTypes": ["minor", "major"],
+      "enabled": false
+    },
+    {
+      "description": "Exclude SNAPSHOT versions, renovate may suggest them for pre-release values.",
+      "matchManagers": ["maven"],
+      "matchPackagePatterns": [".*"],
+      "allowedVersions": "!/-SNAPSHOT$/"
+    },
+    {
+      "description": "Exclude internal Maven modules and Maven dependencies lacking metadata.",
+      "matchManagers": ["maven"],
+      "matchPackagePatterns": [
+        "net.jcip:jcip-annotations"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Automerge all updates with green CI.",
+      "matchPackagePatterns": ["*"],
+      "automerge": true,
+      "addLabels": ["automerge"]
+    }
+  ]
+}
