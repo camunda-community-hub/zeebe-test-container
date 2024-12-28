@@ -19,7 +19,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: 'maven'
+          cache: ${{ runner.environment }}-${{ runner.os }}-mvn
       - name: Check
         run: mvn -B -T1C -DskipTests verify
   analyze:
@@ -37,7 +37,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
-          cache: 'maven'
+          cache: ${{ runner.environment }}-${{ runner.os }}-mvn
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:

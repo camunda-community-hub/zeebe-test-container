@@ -25,7 +25,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: 'maven'
+          cache: ${{ runner.environment }}-${{ runner.os }}-mvn
       - name: Build & Copy exporter
         run: >
           mvn -B -T1C -DskipTests -DskipChecks install
@@ -50,7 +50,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: 'maven'
+          cache: ${{ runner.environment }}-${{ runner.os }}-mvn
       - name: Build & Copy exporter
         run: >
           mvn -B -T1C -DskipTests -DskipChecks install
@@ -85,7 +85,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: 'maven'
+          cache: ${{ runner.environment }}-${{ runner.os }}-mvn
       - name: Build & Copy exporter
         run: >
           mvn -B -T1C -DskipTests -DskipChecks install
@@ -110,7 +110,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: 'maven'
+          cache: ${{ runner.environment }}-${{ runner.os }}-mvn
       - name: Build
         run: mvn -B -DskipTests -DskipChecks install
       - name: Test
