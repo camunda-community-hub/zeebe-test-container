@@ -18,7 +18,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: ${{ runner.environment }}-${{ runner.os }}-mvn
+          cache: 'maven'
           gpg-private-key: ${{ secrets.MAVEN_CENTRAL_GPG_SIGNING_KEY_SEC }}
           gpg-passphrase: MAVEN_CENTRAL_GPG_PASSPHRASE
       - name: Deploy SNAPSHOT / Release
