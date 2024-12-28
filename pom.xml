@@ -85,7 +85,7 @@
     <plugin.version.compiler>3.13.0</plugin.version.compiler>
     <plugin.version.dependency>3.8.0</plugin.version.dependency>
     <plugin.version.enforcer>3.5.0</plugin.version.enforcer>
-    <plugin.version.failsafe>3.5.1</plugin.version.failsafe>
+    <plugin.version.failsafe>3.5.2</plugin.version.failsafe>
     <plugin.version.flatten>1.6.0</plugin.version.flatten>
     <plugin.version.google-format>1.17.0</plugin.version.google-format>
     <plugin.version.gpg>3.2.7</plugin.version.gpg>
