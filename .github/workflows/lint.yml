@@ -21,7 +21,7 @@ jobs:
           distribution: 'temurin'
           cache: ${{ runner.environment }}-${{ runner.os }}-mvn
       - name: Check
-        run: mvn -B -T1C -DskipTests verify
+        run: ./mvnw -B -T1C -DskipTests verify
   analyze:
     name: CodeQL
     runs-on: ubuntu-latest
@@ -44,7 +44,7 @@ jobs:
           languages: java
           queries: +security-and-quality
       - name: Build
-        run: mvn -B -T1C -DskipTests -DskipChecks install
+        run: ./mvnw -B -T1C -DskipTests -DskipChecks install
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
   dependency-review:

@@ -28,11 +28,11 @@ jobs:
           cache: ${{ runner.environment }}-${{ runner.os }}-mvn
       - name: Build & Copy exporter
         run: >
-          mvn -B -T1C -DskipTests -DskipChecks install
+          ./mvnw -B -T1C -DskipTests -DskipChecks install
       - name: Test
         timeout-minutes: 20
         run: >
-          mvn -B -Pparallel-tests -DforkCount=2C -DskipChecks -pl core verify
+          ./mvnw -B -Pparallel-tests -DforkCount=2C -DskipChecks -pl core verify
       - name: Archive Test Results
         uses: actions/upload-artifact@v4
         if: always()
@@ -53,12 +53,12 @@ jobs:
           cache: ${{ runner.environment }}-${{ runner.os }}-mvn
       - name: Build & Copy exporter
         run: >
-          mvn -B -T1C -DskipTests -DskipChecks install
+          ./mvnw -B -T1C -DskipTests -DskipChecks install
       - name: Test
         timeout-minutes: 20
         # cannot run tests in parallel when using the local daemon
         run: >
-          mvn -B -DskipChecks -Plocal-test -pl core verify
+          ./mvnw -B -DskipChecks -Plocal-test -pl core verify
       - name: Archive Test Results
         uses: actions/upload-artifact@v4
         if: always()
@@ -88,11 +88,11 @@ jobs:
           cache: ${{ runner.environment }}-${{ runner.os }}-mvn
       - name: Build & Copy exporter
         run: >
-          mvn -B -T1C -DskipTests -DskipChecks install
+          ./mvnw -B -T1C -DskipTests -DskipChecks install
       - name: Test
         timeout-minutes: 20
         run: >
-          mvn -B -Pparallel-tests -DforkCount=2C -DskipChecks -pl engine verify
+          ./mvnw -B -Pparallel-tests -DforkCount=2C -DskipChecks -pl engine verify
       - name: Archive Test Results
         uses: actions/upload-artifact@v4
         if: always()
@@ -112,11 +112,11 @@ jobs:
           distribution: 'temurin'
           cache: ${{ runner.environment }}-${{ runner.os }}-mvn
       - name: Build
-        run: mvn -B -DskipTests -DskipChecks install
+        run: ./mvnw -B -DskipTests -DskipChecks install
       - name: Test
         timeout-minutes: 20
         run: >
-          mvn -B -DskipChecks -pl exporter-test verify
+          ./mvnw -B -DskipChecks -pl exporter-test verify
       - name: Archive Test Results
         uses: actions/upload-artifact@v4
         if: always()
