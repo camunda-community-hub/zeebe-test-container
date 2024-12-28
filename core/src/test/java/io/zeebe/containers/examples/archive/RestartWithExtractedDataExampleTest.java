@@ -18,6 +18,7 @@ package io.zeebe.containers.examples.archive;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.camunda.zeebe.client.ZeebeClient;
+import io.camunda.zeebe.client.api.response.ProcessInstanceEvent;
 import io.camunda.zeebe.client.api.response.ProcessInstanceResult;
 import io.camunda.zeebe.model.bpmn.Bpmn;
 import io.zeebe.containers.ZeebeContainer;
@@ -25,11 +26,13 @@ import io.zeebe.containers.ZeebeDefaults;
 import io.zeebe.containers.ZeebeVolume;
 import io.zeebe.containers.archive.ContainerArchive;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.Network;
 import org.testcontainers.utility.MountableFile;
 
@@ -42,7 +45,6 @@ import org.testcontainers.utility.MountableFile;
  * extracts the data to the local host. The second part then reuses that data and start a broker and
  * create a process instance from the previously deployed process.
  */
-@Execution(ExecutionMode.SAME_THREAD)
 final class RestartWithExtractedDataExampleTest {
   @AutoClose private static final Network NETWORK = Network.newNetwork();
 
@@ -71,25 +73,32 @@ final class RestartWithExtractedDataExampleTest {
     try (final ZeebeContainer container =
         new ZeebeContainer()
             .withNetwork(NETWORK)
-            .withCreateContainerCmdModifier(cmd -> cmd.withUser("1001:0"))
+            .withNetworkAliases("zeebe-0")
+            .withEnv("ZEEBE_BROKER_NETWORK_ADVERTISEDHOST", "zeebe-0")
+            .withCreateContainerCmdModifier(cmd -> cmd.withUser("1001:0").withName("zeebe-0"))
             .withZeebeData(volume)) {
       container.start();
       deployProcess(container);
     }
+    LoggerFactory.getLogger(RestartWithExtractedDataExampleTest.class)
+        .info("Extracting data to {}", dataPath);
     volume.extract(dataPath);
 
     // when - start a new container with the same data
     try (final ZeebeContainer container =
         new ZeebeContainer()
             .withNetwork(NETWORK)
-            .withCreateContainerCmdModifier(cmd -> cmd.withUser("1001:0"))
+            .withNetworkAliases("zeebe-0")
+            .withEnv("ZEEBE_BROKER_NETWORK_ADVERTISEDHOST", "zeebe-0")
+            .withEnv("ZEEBE_LOG_LEVEL", "DEBUG")
+            .withCreateContainerCmdModifier(cmd -> cmd.withUser("1001:0").withName("zeebe-0"))
             .withCopyFileToContainer(
-                MountableFile.forHostPath(dataPath),
+                MountableFile.forHostPath(dataPath.resolve("usr/local/zeebe/data"), 0777),
                 ZeebeDefaults.getInstance().getDefaultDataPath())) {
 
       // when
       container.start();
-      final ProcessInstanceResult result = createProcessInstance(container);
+      final ProcessInstanceEvent result = createProcessInstance(container);
 
       // then
       assertThat(result).isNotNull();
@@ -112,7 +121,7 @@ final class RestartWithExtractedDataExampleTest {
     }
   }
 
-  private ProcessInstanceResult createProcessInstance(final ZeebeContainer container) {
+  private ProcessInstanceEvent createProcessInstance(final ZeebeContainer container) {
     try (final ZeebeClient client =
         ZeebeClient.newClientBuilder()
             .usePlaintext()
@@ -122,7 +131,6 @@ final class RestartWithExtractedDataExampleTest {
           .newCreateInstanceCommand()
           .bpmnProcessId(PROCESS_ID)
           .latestVersion()
-          .withResult()
           .send()
           .join();
     }
