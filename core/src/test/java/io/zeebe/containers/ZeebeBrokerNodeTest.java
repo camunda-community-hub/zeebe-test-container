@@ -71,16 +71,21 @@ final class ZeebeBrokerNodeTest {
     return Stream.of(
         new ReuseDataTestCase(
             "broker with embedded gateway should reuse host data",
-            path -> provideBrokerWithHostData(new ZeebeContainer(), path)),
+            path -> provideBrokerWithHostData(new ZeebeContainer(), path).withNetwork(NETWORK)),
         new ReuseDataTestCase(
             "broker without embedded gateway should reuse host data",
-            path -> provideBrokerWithHostData(new ZeebeBrokerContainer(), path)),
+            path ->
+                provideBrokerWithHostData(new ZeebeBrokerContainer(), path).withNetwork(NETWORK)),
         new ReuseDataTestCase(
             "broker with embedded gateway should reuse volume",
-            path -> new ZeebeContainer().withZeebeData(ZeebeVolume.newVolume())),
+            path ->
+                new ZeebeContainer().withZeebeData(ZeebeVolume.newVolume()).withNetwork(NETWORK)),
         new ReuseDataTestCase(
             "broker without embedded gateway should reuse volume",
-            path -> new ZeebeBrokerContainer().withZeebeData(ZeebeVolume.newVolume())));
+            path ->
+                new ZeebeBrokerContainer()
+                    .withZeebeData(ZeebeVolume.newVolume())
+                    .withNetwork(NETWORK)));
   }
 
   @SuppressWarnings("resource")
@@ -153,6 +158,7 @@ final class ZeebeBrokerNodeTest {
     try (final ZeebeBrokerNode<?> broker = brokerNodeProvider.apply(dataDir);
         final ZeebeGatewayContainer gateway =
             new ZeebeGatewayContainer()
+                .withNetwork(NETWORK)
                 .withEnv(
                     "ZEEBE_GATEWAY_CLUSTER_CONTACTPOINT", broker.getInternalClusterAddress())) {
 
