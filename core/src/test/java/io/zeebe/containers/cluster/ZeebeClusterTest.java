@@ -51,14 +51,17 @@ final class ZeebeClusterTest {
     cluster.start();
 
     // then
-    final ZeebeClient client = cluster.newClientBuilder().build();
-    final Topology topology = client.newTopologyRequest().send().join();
+    final Topology topology;
+    try (final ZeebeClient client = cluster.newClientBuilder().build()) {
+      topology = client.newTopologyRequest().send().join();
+    }
+
     assertThat(topology.getPartitionsCount())
         .as("there is exactly one partition as configured")
-        .isEqualTo(1);
+        .isOne();
     assertThat(topology.getReplicationFactor())
         .as("there is a replication factor of 1 as configured")
-        .isEqualTo(1);
+        .isOne();
     TopologyAssert.assertThat(topology)
         .as("the topology is complete for a one broker, one partition cluster")
         .hasBrokersCount(1)
@@ -82,23 +85,22 @@ final class ZeebeClusterTest {
 
     // then
     for (final ZeebeGatewayNode<?> gateway : cluster.getGateways().values()) {
+      final Topology topology;
       try (final ZeebeClient client =
-          ZeebeClient.newClientBuilder()
-              .usePlaintext()
-              .gatewayAddress(gateway.getExternalGatewayAddress())
-              .build()) {
-        final Topology topology = client.newTopologyRequest().send().join();
-        assertThat(topology.getReplicationFactor())
-            .as("there is replication factor of 2 as configured")
-            .isEqualTo(2);
-        assertThat(topology.getPartitionsCount())
-            .as("there are exactly two partitions as configured")
-            .isEqualTo(2);
-        TopologyAssert.assertThat(topology)
-            .as("the topology is complete with 2 partitions and 2 brokers")
-            .hasBrokersCount(2)
-            .isComplete(2, 2, 2);
+          cluster.newClientBuilder().gatewayAddress(gateway.getExternalGatewayAddress()).build()) {
+        topology = client.newTopologyRequest().send().join();
       }
+
+      assertThat(topology.getReplicationFactor())
+          .as("there is replication factor of 2 as configured")
+          .isEqualTo(2);
+      assertThat(topology.getPartitionsCount())
+          .as("there are exactly two partitions as configured")
+          .isEqualTo(2);
+      TopologyAssert.assertThat(topology)
+          .as("the topology is complete with 2 partitions and 2 brokers")
+          .hasBrokersCount(2)
+          .isComplete(2, 2, 2);
     }
   }
 
@@ -119,19 +121,21 @@ final class ZeebeClusterTest {
     cluster.start();
 
     // then
+    final Topology topology;
     try (final ZeebeClient client = cluster.newClientBuilder().build()) {
-      final Topology topology = client.newTopologyRequest().send().join();
-      assertThat(topology.getPartitionsCount())
-          .as("there is exactly one partition as configured")
-          .isEqualTo(1);
-      assertThat(topology.getReplicationFactor())
-          .as("there is a replication factor of 1 as configured")
-          .isEqualTo(1);
-      TopologyAssert.assertThat(topology)
-          .as("the topology is complete for a one broker, one partition cluster")
-          .hasBrokersCount(1)
-          .isComplete(1, 1, 1);
+      topology = client.newTopologyRequest().send().join();
     }
+
+    assertThat(topology.getPartitionsCount())
+        .as("there is exactly one partition as configured")
+        .isOne();
+    assertThat(topology.getReplicationFactor())
+        .as("there is a replication factor of 1 as configured")
+        .isOne();
+    TopologyAssert.assertThat(topology)
+        .as("the topology is complete for a one broker, one partition cluster")
+        .hasBrokersCount(1)
+        .isComplete(1, 1, 1);
   }
 
   @Test
@@ -160,10 +164,10 @@ final class ZeebeClusterTest {
         final Topology topology = client.newTopologyRequest().send().join();
         assertThat(topology.getPartitionsCount())
             .as("there is exactly one partition as configured")
-            .isEqualTo(1);
+            .isOne();
         assertThat(topology.getReplicationFactor())
             .as("there is a replication factor of 1 as configured")
-            .isEqualTo(1);
+            .isOne();
         TopologyAssert.assertThat(topology)
             .as("the topology is complete for a one broker, one partition cluster")
             .isComplete(1, 1, 1)

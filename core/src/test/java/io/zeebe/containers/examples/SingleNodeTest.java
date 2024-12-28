@@ -32,7 +32,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
- * This example show cases how to create a simple test against a single node broker with embedded
+ * This example showcases how to create a simple test against a single node broker with embedded
  * gateway. A process is deployed, a new instance created, completed, and the result can then be
  * verified. In most cases, this is what you're looking for.
  */
@@ -59,7 +59,7 @@ final class SingleNodeTest {
     try (final ZeebeClient client = newZeebeClient(zeebeContainer)) {
       try (final JobWorker ignored = createJobWorker(variables, client)) {
         deploymentEvent =
-            client.newDeployCommand().addProcessModel(process, "process.bpmn").send().join();
+            client.newDeployResourceCommand().addProcessModel(process, "process.bpmn").send().join();
         workflowInstanceResult =
             client
                 .newCreateInstanceCommand()

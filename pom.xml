@@ -504,7 +504,8 @@
           <configuration>
             <configLocation>check/.checkstyle.xml</configLocation>
             <includeTestSourceDirectory>true</includeTestSourceDirectory>
-            <encoding>UTF-8</encoding>
+            <inputEncoding>UTF-8</inputEncoding>
+            <outputEncoding>UTF-8</outputEncoding>
             <failOnViolation>true</failOnViolation>
             <sourceDirectories>
               <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>

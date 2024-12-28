@@ -37,6 +37,7 @@ import org.apiguardian.api.API.Status;
  *
  * <p>NOTE: this is only compatible with Zeebe versions 1.3.x and above.
  */
+@SuppressWarnings("unused")
 @API(status = Status.EXPERIMENTAL)
 public interface ZeebeClock {
 
@@ -85,7 +86,18 @@ public interface ZeebeClock {
    * @return a default implementation of the clock targeting the given node
    */
   static ZeebeClock newDefaultClock(final ZeebeNode<?> zeebe) {
-    return new ZeebeClockImpl(new ZeebeClockTarget(zeebe));
+    return newDefaultClock(zeebe, "http");
+  }
+
+  /**
+   * Factory method for the default clock implementation, targeting the given {@link ZeebeNode}.
+   *
+   * @param zeebe the Zeebe node to interact with
+   * @param scheme the URL scheme to use, e.g. http or https
+   * @return a default implementation of the clock targeting the given node
+   */
+  static ZeebeClock newDefaultClock(final ZeebeNode<?> zeebe, final String scheme) {
+    return new ZeebeClockImpl(new ZeebeClockTarget(zeebe, scheme));
   }
 
   /**

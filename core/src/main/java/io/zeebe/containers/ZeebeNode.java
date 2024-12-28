@@ -30,7 +30,7 @@ import org.testcontainers.lifecycle.Startable;
  *
  * @param <T> the concrete type of the underlying container
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "resource"})
 public interface ZeebeNode<T extends GenericContainer<T> & ZeebeNode<T>>
     extends Container<T>, WaitStrategyTarget, Startable {
 
@@ -45,7 +45,7 @@ public interface ZeebeNode<T extends GenericContainer<T> & ZeebeNode<T>>
   }
 
   /**
-   * Returns an address accessible from outside of the container's network for the given port.
+   * Returns an address accessible outside the container's network for the given port.
    *
    * @param port the target port
    * @return externally accessible address for {@code port}
@@ -66,7 +66,7 @@ public interface ZeebeNode<T extends GenericContainer<T> & ZeebeNode<T>>
   }
 
   /**
-   * Returns the address that a Zeebe node outside of the docker network can use to talk to this
+   * Returns the address that a Zeebe node outside the docker network can use to talk to this
    * node.
    *
    * @return the external cluster address
@@ -134,8 +134,8 @@ public interface ZeebeNode<T extends GenericContainer<T> & ZeebeNode<T>>
    *   <li>restarting it
    * </ul>
    *
-   * <p>There is an issue opened for this
-   * https://github.com/testcontainers/testcontainers-java/issues/1000
+   * <p>There is an issue opened for this <a
+   * href="https://github.com/testcontainers/testcontainers-java/issues/1000">here</a>
    *
    * @param timeout must be greater than 1 second
    */

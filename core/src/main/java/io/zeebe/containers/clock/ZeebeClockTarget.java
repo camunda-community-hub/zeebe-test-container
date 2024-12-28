@@ -31,10 +31,6 @@ final class ZeebeClockTarget implements Target<ZeebeClockClient> {
   private final ZeebeNode<?> zeebe;
   private final String scheme;
 
-  ZeebeClockTarget(final ZeebeNode<?> zeebe) {
-    this(zeebe, "http");
-  }
-
   ZeebeClockTarget(final ZeebeNode<?> zeebe, final String scheme) {
     this.zeebe = zeebe;
     this.scheme = scheme;

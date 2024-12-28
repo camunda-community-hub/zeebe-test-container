@@ -30,7 +30,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
- * This example show cases how to create a simple test against a single node broker with embedded
+ * This example showcases how to create a simple test against a single node broker with embedded
  * gateway.
  */
 @Testcontainers

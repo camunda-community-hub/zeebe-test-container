@@ -52,7 +52,7 @@ final class ReusableVolumeExampleTest {
 
     // when
     try (final ZeebeClient client = newZeebeClient(zeebeContainer)) {
-      client.newDeployCommand().addProcessModel(process, "process.bpmn").send().join();
+      client.newDeployResourceCommand().addProcessModel(process, "process.bpmn").send().join();
     }
 
     // restart

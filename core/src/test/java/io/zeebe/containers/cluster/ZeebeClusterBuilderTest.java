@@ -33,6 +33,9 @@ import org.testcontainers.utility.DockerImageName;
 
 @SuppressWarnings("resource")
 final class ZeebeClusterBuilderTest {
+
+  public static final String EXPECTED_IMAGE = "camunda/zeebe:latest";
+
   @Test
   void shouldThrowIllegalArgumentIfBrokersCountIsNegative() {
     // given
@@ -185,10 +188,10 @@ final class ZeebeClusterBuilderTest {
     // then
     assertThat(cluster.getReplicationFactor())
         .as("there are is a default replication factor when the broker count is redefined")
-        .isEqualTo(1);
+        .isOne();
     assertThat(cluster.getPartitionsCount())
         .as("there are is a default partitions count when the broker count is redefined")
-        .isEqualTo(1);
+        .isOne();
   }
 
   @Test
@@ -203,7 +206,7 @@ final class ZeebeClusterBuilderTest {
     // then
     assertThat(cluster.getReplicationFactor())
         .as("the replication factor should be static even when the brokers count is changed after")
-        .isEqualTo(1);
+        .isOne();
     assertThat(cluster.getPartitionsCount())
         .as("the partitions should be static even when the brokers count is changed after")
         .isEqualTo(4);
@@ -769,8 +772,7 @@ final class ZeebeClusterBuilderTest {
     assertThat(cluster.getGateways().entrySet())
         .as("the only gateway created has the right docker image")
         .singleElement()
-        .satisfies(
-            gatewayEntry -> verifyZeebeHasImageName(gatewayEntry.getValue(), zeebeDockerImage));
+        .satisfies(gatewayEntry -> verifyZeebeHasImageName(gatewayEntry.getValue()));
   }
 
   @Test
@@ -788,8 +790,7 @@ final class ZeebeClusterBuilderTest {
     assertThat(cluster.getBrokers().entrySet())
         .as("the only broker created has the right docker image")
         .singleElement()
-        .satisfies(
-            brokerEntry -> verifyZeebeHasImageName(brokerEntry.getValue(), zeebeDockerImage));
+        .satisfies(brokerEntry -> verifyZeebeHasImageName(brokerEntry.getValue()));
   }
 
   @Test
@@ -811,17 +812,14 @@ final class ZeebeClusterBuilderTest {
     assertThat(cluster.getBrokers().entrySet())
         .as("the only broker created has the right docker image")
         .singleElement()
-        .satisfies(
-            brokerEntry -> verifyZeebeHasImageName(brokerEntry.getValue(), zeebeDockerImage));
+        .satisfies(brokerEntry -> verifyZeebeHasImageName(brokerEntry.getValue()));
     assertThat(cluster.getGateways().entrySet())
         .as("the only standalone gateway created has the right docker image")
         .singleElement()
-        .satisfies(
-            gatewayEntry -> verifyZeebeHasImageName(gatewayEntry.getValue(), zeebeDockerImage));
+        .satisfies(gatewayEntry -> verifyZeebeHasImageName(gatewayEntry.getValue()));
   }
 
-  private void verifyZeebeHasImageName(
-      final ZeebeNode<? extends GenericContainer<?>> zeebe, final String imageName) {
-    assertThat(zeebe.getDockerImageName()).isEqualTo(imageName);
+  private void verifyZeebeHasImageName(final ZeebeNode<? extends GenericContainer<?>> zeebe) {
+    assertThat(zeebe.getDockerImageName()).isEqualTo(EXPECTED_IMAGE);
   }
 }

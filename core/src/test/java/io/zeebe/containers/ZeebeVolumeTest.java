@@ -31,6 +31,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.SocatContainer;
 
 final class ZeebeVolumeTest {
+  @SuppressWarnings("resource")
   @Test
   void shouldCreateVolumeWithTestcontainersLabels() {
     // given
@@ -47,6 +48,7 @@ final class ZeebeVolumeTest {
         .containsAllEntriesOf(expectedLabels);
   }
 
+  @SuppressWarnings("resource")
   @Test
   void shouldCreateVolumeWithName() {
     // given

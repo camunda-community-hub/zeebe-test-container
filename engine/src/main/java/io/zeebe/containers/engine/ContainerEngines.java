@@ -44,6 +44,7 @@ import org.apiguardian.api.API.Status;
  *   <li>busy: a new record was exported within the timeout since the call
  * </ul>
  */
+@SuppressWarnings("unused")
 @API(status = Status.EXPERIMENTAL)
 public final class ContainerEngines {
   private ContainerEngines() {}
@@ -103,7 +104,7 @@ public final class ContainerEngines {
   @SuppressWarnings("java:S2095")
   public static ContainerEngine of(final Duration timeout, final ZeebeContainer container) {
     final InfiniteList<Record<?>> records = new InfiniteList<>(timeout);
-    return new ZeebeContainerEngine(container, new DebugReceiverStream(records));
+    return new ZeebeContainerEngine<>(container, new DebugReceiverStream(records));
   }
 
   /**

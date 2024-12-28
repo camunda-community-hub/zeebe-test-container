@@ -25,7 +25,7 @@ import org.testcontainers.containers.GenericContainer;
  * for a broker container. See {@link ZeebeDefaults#getDefaultDataPath()} for more.
  *
  * <p>NOTE: keep in mind that files will be written using the container's user. This means, if you
- * run it as root, it may create files that your use cannot delete afterwards.
+ * run it as root, it may create files that your use cannot delete afterward.
  *
  * <p>To work around this, on Linux, make sure to start your container with your user ID and group
  * ID. e.g.:

@@ -32,7 +32,7 @@ import org.testcontainers.containers.GenericContainer;
  * @param <T> the concrete type of the underlying container
  */
 @API(status = Status.STABLE)
-@SuppressWarnings("UnusedReturnValue")
+@SuppressWarnings({"UnusedReturnValue", "unused"})
 public interface ZeebeGatewayNode<T extends GenericContainer<T> & ZeebeGatewayNode<T>>
     extends ZeebeNode<T> {
 

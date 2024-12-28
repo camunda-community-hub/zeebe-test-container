@@ -52,10 +52,6 @@ final class DebugReceiverStream implements RecordStreamSource, AutoCloseable {
     this(records, new DebugReceiver(records::add));
   }
 
-  DebugReceiverStream(final InfiniteList<Record<?>> records, final Duration idlePeriod) {
-    this(records, new DebugReceiver(records::add), idlePeriod);
-  }
-
   DebugReceiverStream(final InfiniteList<Record<?>> records, final DebugReceiver receiver) {
     this(records, receiver, Duration.ofSeconds(1));
   }

@@ -27,6 +27,7 @@ import org.testcontainers.utility.MountableFile;
  *
  * @param <T> the concrete type of the underlying container
  */
+@SuppressWarnings("unused")
 @API(status = Status.STABLE)
 public interface ZeebeBrokerNode<T extends GenericContainer<T> & ZeebeBrokerNode<T>>
     extends ZeebeNode<T> {
@@ -42,7 +43,7 @@ public interface ZeebeBrokerNode<T extends GenericContainer<T> & ZeebeBrokerNode
   }
 
   /**
-   * Returns the address the command API of this broker from outside of its container network.
+   * Returns the address the command API of this broker outside its container network.
    *
    * @return the external command API address
    */
@@ -52,8 +53,8 @@ public interface ZeebeBrokerNode<T extends GenericContainer<T> & ZeebeBrokerNode
 
   /**
    * Allows reuse of the broker data across restarts by attaching the data folder to any valid
-   * implementation of {@link ZeebeData}, e.g. a Docker volume (see {@link ZeebeVolume} or a path on
-   * the host node (see {@link ZeebeHostData}).
+   * implementation of {@link ZeebeData}, e.g. a Docker volume (see {@link ZeebeVolume}) or a path
+   * on the host node (see {@link ZeebeHostData}).
    *
    * <p>NOTE: the container itself does not manage the given resource, so you should keep track of
    * it and close it if need be. In the case of {@link ZeebeVolume}, the implementation is aware of
@@ -93,6 +94,7 @@ public interface ZeebeBrokerNode<T extends GenericContainer<T> & ZeebeBrokerNode
    * @param port the host port of the {@link io.zeebe.containers.exporter.DebugReceiver}
    * @return this container for chaining
    */
+  @SuppressWarnings("HttpUrlsUsage")
   @API(status = Status.EXPERIMENTAL)
   default T withDebugExporter(final int port) {
     final int containerPort = HostPortForwarder.forwardHostPort(port, 5);

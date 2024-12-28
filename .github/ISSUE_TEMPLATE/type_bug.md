@@ -23,7 +23,7 @@ If possible add the full stacktrace or Zeebe log which contains the issue.
 <details>
 <summary>Full Stacktrace</summary>
 <pre>
-<STACKTRACE>
+STACKTRACE
 </pre>
 </details>
 

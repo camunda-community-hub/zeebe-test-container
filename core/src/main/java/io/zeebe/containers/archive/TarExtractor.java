@@ -43,9 +43,9 @@ final class TarExtractor {
    */
   public void extract(final TarArchiveInputStream archiveInput, final Path destination)
       throws IOException {
-    for (TarArchiveEntry entry = archiveInput.getNextTarEntry();
+    for (TarArchiveEntry entry = archiveInput.getNextEntry();
         entry != null;
-        entry = archiveInput.getNextTarEntry()) {
+        entry = archiveInput.getNextEntry()) {
       extractEntry(archiveInput, entry, destination);
     }
   }

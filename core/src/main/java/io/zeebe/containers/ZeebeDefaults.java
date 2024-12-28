@@ -26,7 +26,7 @@ import org.testcontainers.utility.TestcontainersConfiguration;
  * instance, {@link #getInstance()}.
  */
 @API(status = Status.STABLE)
-@SuppressWarnings({"squid:S1075", "WeakerAccess"})
+@SuppressWarnings({"squid:S1075", "WeakerAccess", "unused"})
 public final class ZeebeDefaults {
   private static final String ZEEBE_CONTAINER_IMAGE_PROPERTY = "zeebe.container.image";
   private static final String DEFAULT_ZEEBE_CONTAINER_IMAGE = "camunda/zeebe";

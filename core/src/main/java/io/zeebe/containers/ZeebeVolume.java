@@ -121,9 +121,8 @@ public class ZeebeVolume implements AutoCloseable, ZeebeData {
    * ContainerArchive#builder()} directly.
    *
    * @param destination the destination to extract the contents of this volume to
-   * @throws IOException if the archive cannot be extracted to the local destination
    */
-  public void extract(final Path destination) throws IOException {
+  public void extract(final Path destination) {
     extract(destination, UnaryOperator.identity());
   }
 
@@ -137,10 +136,9 @@ public class ZeebeVolume implements AutoCloseable, ZeebeData {
    *
    * @param destination the destination to extract the contents of this volume to
    * @param modifier an operator which takes in a pre-configured builder and can modify it
-   * @throws IOException if the archive cannot be extracted to the local destination
    */
-  public void extract(final Path destination, final UnaryOperator<ContainerArchiveBuilder> modifier)
-      throws IOException {
+  public void extract(
+      final Path destination, final UnaryOperator<ContainerArchiveBuilder> modifier) {
     try (final TinyContainer container = new TinyContainer()) {
       container.withCreateContainerCmdModifier(this::attachVolumeToContainer);
       container.start();

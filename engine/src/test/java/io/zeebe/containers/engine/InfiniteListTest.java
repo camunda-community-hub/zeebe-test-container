@@ -40,7 +40,7 @@ final class InfiniteListTest {
     final int finalSize = list.size();
 
     // then
-    assertThat(initialSize).isEqualTo(1);
+    assertThat(initialSize).isOne();
     assertThat(finalSize).isEqualTo(2);
   }
 
@@ -57,7 +57,7 @@ final class InfiniteListTest {
 
       // then
       assertThat(iterator).hasNext();
-      assertThat(iterator.next()).isEqualTo(1);
+      assertThat(iterator.next()).isOne();
     }
 
     @Test

@@ -31,9 +31,10 @@ import org.testcontainers.lifecycle.Startable;
  * A {@link ContainerEngine} is a {@link ZeebeTestEngine} implementation which wraps a container or
  * a set of containers.
  *
- * <p>You can use the provided {@link Builder} interface (via {@link #builder()} to build a custom
+ * <p>You can use the provided {@link Builder} interface (via {@link #builder()}) to build a custom
  * engine.
  */
+@SuppressWarnings("unused")
 @API(status = Status.EXPERIMENTAL)
 public interface ContainerEngine extends Startable, ZeebeTestEngine {
 
@@ -86,7 +87,7 @@ public interface ContainerEngine extends Startable, ZeebeTestEngine {
 
     /**
      * Sets the given container to be used as both gateway and broker. Will set any assigned cluster
-     * (via {@link #withCluster(ZeebeCluster)} to null.
+     * (via {@link #withCluster(ZeebeCluster)}) to null.
      *
      * @param container the container to use as a gateway and broker
      * @return itself for chaining

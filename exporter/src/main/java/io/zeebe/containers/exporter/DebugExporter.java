@@ -132,9 +132,8 @@ public final class DebugExporter implements Exporter {
   private HttpRequest buildRequestForRecord(final Record<?> record) throws JsonProcessingException {
     return HttpRequest.newBuilder()
         .uri(config.endpointURI())
-        .header("Content-Type", JSON_MIME_TYPE)
+        .header("Content-Type", JSON_MIME_TYPE + "; charset=utf-8")
         .header("Accept", JSON_MIME_TYPE)
-        .header("charset", "utf-8")
         .header("User-Agent", "ztc-debug-exporter/4.0.0")
         .timeout(Duration.ofSeconds(5))
         .POST(

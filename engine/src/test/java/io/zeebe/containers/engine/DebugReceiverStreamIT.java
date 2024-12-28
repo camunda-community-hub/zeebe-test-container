@@ -106,6 +106,7 @@ final class DebugReceiverStreamIT {
     }
   }
 
+  @SuppressWarnings("resource")
   @Test
   void shouldTimeoutWaitingForIdleStateWhenNoRecords() {
     // given
@@ -119,9 +120,12 @@ final class DebugReceiverStreamIT {
       // then
       assertThatCode(() -> stream.waitForIdleState(Duration.ofSeconds(2)))
           .isInstanceOf(TimeoutException.class);
+    } finally {
+      executor.shutdownNow();
     }
   }
 
+  @SuppressWarnings("resource")
   @Test
   void shouldWaitForBusyState() {
     // given

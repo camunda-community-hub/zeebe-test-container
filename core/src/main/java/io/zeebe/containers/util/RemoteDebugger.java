@@ -51,6 +51,7 @@ import org.testcontainers.containers.GenericContainer;
  * }
  * }</pre>
  */
+@SuppressWarnings("unused")
 @API(status = Status.EXPERIMENTAL)
 public final class RemoteDebugger {
 

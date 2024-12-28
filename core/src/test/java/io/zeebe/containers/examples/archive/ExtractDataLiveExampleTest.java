@@ -62,7 +62,7 @@ final class ExtractDataLiveExampleTest {
     try (final InputStream inputStream = Files.newInputStream(archivePath);
         final GzipCompressorInputStream gzipInput = new GzipCompressorInputStream(inputStream);
         final TarArchiveInputStream tarInput = new TarArchiveInputStream(gzipInput)) {
-      final TarArchiveEntry entry = tarInput.getNextTarEntry();
+      final TarArchiveEntry entry = tarInput.getNextEntry();
       assertThat(entry.getName()).isEqualTo("usr/local/zeebe/data/");
       assertThat(entry.isDirectory()).isTrue();
     }

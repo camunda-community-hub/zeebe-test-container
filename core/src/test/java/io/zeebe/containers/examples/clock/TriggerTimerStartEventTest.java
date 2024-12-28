@@ -73,8 +73,8 @@ final class TriggerTimerStartEventTest {
     // when
     final JobHandler handler = (client, job) -> activatedJobs.add(job);
     try (final ZeebeClient client = newZeebeClient(zeebeContainer);
-        final JobWorker worker = newJobWorker(handler, client)) {
-      client.newDeployCommand().addProcessModel(process, "process.bpmn").send().join();
+        final JobWorker ignored = newJobWorker(handler, client)) {
+      client.newDeployResourceCommand().addProcessModel(process, "process.bpmn").send().join();
       brokerTime = clock.addTime(TIME_OFFSET);
       Awaitility.await("until a job has been activated by the worker")
           .untilAsserted(() -> Assertions.assertThat(activatedJobs).hasSize(1));

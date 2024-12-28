@@ -107,7 +107,7 @@ final class ExporterIntegrationTest {
     private final Partition partitionTwo = new Partition();
 
     @BeforeEach
-    void beforeEach() throws Exception {
+    void beforeEach() {
       partitionOne.prepare(receiver.recordsEndpoint().toString());
       partitionTwo.prepare(receiver.recordsEndpoint().toString());
     }

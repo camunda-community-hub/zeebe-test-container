@@ -166,7 +166,7 @@ public final class DebugReceiver implements AutoCloseable {
    * receiver was not started.
    *
    * <p>NOTE: you can pass 0 as the port when constructing your receiver, and grab the bind address
-   * afterwards using this method.
+   * afterward using this method.
    *
    * @return the server's bind address
    * @throws IllegalStateException if the server was not yet started

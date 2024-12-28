@@ -428,7 +428,7 @@ For example:
 </dependencies>
 ```
 
-Next, you we need to copy the packaged JAR of the `exporter` module into the `exporter-qa` module:
+Next, we need to copy the packaged JAR of the `exporter` module into the `exporter-qa` module:
 
 ```xml
 <build>
@@ -583,7 +583,7 @@ dropped depending on their usefulness.
 A typical production Zeebe deployment will be a cluster of nodes, some brokers, and possibly some
 standalone gateways. It can be useful to test against such deployments for acceptance or E2E tests.
 
-While it's not too hard to manually link several containers, it can become tedious and error prone
+While it's not too hard to manually link several containers, it can become tedious and error-prone
 if you want to test many different configurations. The cluster API provides you with an easy way to
 programmatically build Zeebe deployments while minimizing the surface of configuration errors.
 
@@ -728,7 +728,7 @@ utility
 for this. By default, it will start your container and attach a debugging agent to it on port 5005.
 The container startup is then suspended until a debugger attaches to it.
 
-> NOTE: since the startup is suspended until a debugger connects to it, it's possible for a the
+> NOTE: since the startup is suspended until a debugger connects to it, it's possible for the
 > startup strategy to time out if no debugger connects to it.
 
 You can use it with any container as:
@@ -1443,7 +1443,7 @@ implementation details, and are not released anyway.
 
 ## Report issues or contact developers
 
-Work on Zeebe Test Container is done entirely through the Github repository. If you want to report a
+Work on Zeebe Test Container is done entirely through the GitHub repository. If you want to report a
 bug or request a new feature feel free to open a new issue
 on [GitHub issues](https://github.com/camunda-community-hub/zeebe-test-container/issues).
 
@@ -1474,7 +1474,7 @@ To work on an issue, follow the following steps:
    to open a draft PR.
 7. If you think you finished the issue please prepare the branch for reviewing. In general the
    commits should be squashed into meaningful commits with a helpful message. This means cleanup/fix
-   etc commits should be squashed into the related commit.
+   etc. commits should be squashed into the related commit.
 8. Finally, be sure to check on the CI results and fix any reported errors.
 
 ## Commit Message Guidelines

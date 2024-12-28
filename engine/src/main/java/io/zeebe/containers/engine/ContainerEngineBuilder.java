@@ -123,14 +123,7 @@ final class ContainerEngineBuilder implements Builder {
   @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
   public ContainerEngine build() {
-    final Duration listGracePeriod = Optional.ofNullable(gracePeriod).orElse(DEFAULT_GRACE_PERIOD);
-    final Duration receiveIdlePeriod = Optional.ofNullable(idlePeriod).orElse(DEFAULT_IDLE_PERIOD);
-    final InfiniteList<Record<?>> records = new InfiniteList<>(listGracePeriod);
-    final DebugReceiver receiver =
-        Optional.ofNullable(debugReceiver)
-            .orElse(new DebugReceiver(records::add, debugReceiverPort, autoAcknowledge));
-    final DebugReceiverStream recordStream =
-        new DebugReceiverStream(records, receiver, receiveIdlePeriod);
+    final DebugReceiverStream recordStream = createRecordStream();
 
     try {
       if (container != null) {
@@ -146,6 +139,17 @@ final class ContainerEngineBuilder implements Builder {
       recordStream.close();
       throw e;
     }
+  }
+
+  private DebugReceiverStream createRecordStream() {
+    final Duration listGracePeriod = Optional.ofNullable(gracePeriod).orElse(DEFAULT_GRACE_PERIOD);
+    final Duration receiveIdlePeriod = Optional.ofNullable(idlePeriod).orElse(DEFAULT_IDLE_PERIOD);
+    final InfiniteList<Record<?>> records = new InfiniteList<>(listGracePeriod);
+    final DebugReceiver receiver =
+        Optional.ofNullable(debugReceiver)
+            .orElse(new DebugReceiver(records::add, debugReceiverPort, autoAcknowledge));
+
+    return new DebugReceiverStream(records, receiver, receiveIdlePeriod);
   }
 
   private static final class Holder<

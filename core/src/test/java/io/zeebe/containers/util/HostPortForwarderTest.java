@@ -31,6 +31,7 @@ final class HostPortForwarderTest {
     final MutableInteger attempts = new MutableInteger();
     final PortForwarder forwarder =
         mapping -> {
+          //noinspection AssumeThatInsteadOfReturn
           if (attempts.incrementAndGet() >= retryCount) {
             return;
           }
@@ -56,6 +57,7 @@ final class HostPortForwarderTest {
         mapping -> {
           containerPorts.add(mapping.get(1024));
 
+          //noinspection AssumeThatInsteadOfReturn
           if (attempts.incrementAndGet() >= retryCount) {
             return;
           }

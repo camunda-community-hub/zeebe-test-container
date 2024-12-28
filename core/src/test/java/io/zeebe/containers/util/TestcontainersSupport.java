@@ -41,6 +41,7 @@ public final class TestcontainersSupport {
       return true;
     }
 
+    //noinspection resource
     final Info dockerInfo = DockerClientFactory.lazyClient().infoCmd().exec();
     return dockerInfo.getServerVersion() != null
         && dockerInfo.getServerVersion().endsWith("testcontainerscloud");

@@ -21,14 +21,16 @@ import java.io.OutputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import org.agrona.IoUtil;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
-import org.apache.commons.compress.utils.IOUtils;
 
 /** A test utility class to create TAR files (optionally zipped). */
 public final class TarCreator {
   public static final TarCreator INSTANCE = new TarCreator();
+  public static final int EOF = -1;
 
   /**
    * Creates a new zipped TAR file from the given {@code path}, saved at {@code destination}. The
@@ -73,10 +75,19 @@ public final class TarCreator {
         }
       }
     } else {
-      try (final InputStream inputStream = Files.newInputStream(path)) {
-        IOUtils.copy(inputStream, archive);
+      try (final InputStream input = Files.newInputStream(path)) {
+        copyArchive(input, archive);
       }
       archive.closeArchiveEntry();
+    }
+  }
+
+  private void copyArchive(final InputStream inputStream, final OutputStream archive)
+      throws IOException {
+    final byte[] buffer = new byte[IoUtil.BLOCK_SIZE];
+    int bytesRead;
+    while ((bytesRead = inputStream.read(buffer)) != EOF) {
+      archive.write(buffer, 0, bytesRead);
     }
   }
 }

@@ -72,6 +72,7 @@ final class ZeebeBrokerNodeTest {
     return broker;
   }
 
+  @SuppressWarnings("resource")
   private static Stream<Arguments> reuseDataTestCases() {
     return Stream.of(
         new ReuseDataTestCase(
@@ -88,6 +89,7 @@ final class ZeebeBrokerNodeTest {
             path -> new ZeebeBrokerContainer().withZeebeData(ZeebeVolume.newVolume())));
   }
 
+  @SuppressWarnings("resource")
   private static Stream<Arguments> nodeProvider() {
     final Stream<ZeebeBrokerNode<?>> nodes =
         Stream.of(
@@ -96,7 +98,7 @@ final class ZeebeBrokerNodeTest {
     return nodes.map(node -> Arguments.of(node.getClass().getSimpleName(), node));
   }
 
-  @SuppressWarnings("unused")
+  @SuppressWarnings({"unused", "HttpUrlsUsage"})
   @Timeout(value = 5, unit = TimeUnit.MINUTES)
   @ParameterizedTest(name = "{0} should be ready on start")
   @MethodSource("nodeProvider")
@@ -154,34 +156,34 @@ final class ZeebeBrokerNodeTest {
       final BrokerNodeProvider brokerNodeProvider,
       final @TempDir Path dataDir) {
     // given
-    final ZeebeBrokerNode<?> broker = brokerNodeProvider.apply(dataDir);
-    final ZeebeGatewayContainer gateway =
-        new ZeebeGatewayContainer()
-            .withEnv("ZEEBE_GATEWAY_CLUSTER_CONTACTPOINT", broker.getInternalClusterAddress());
+    try (final ZeebeBrokerNode<?> broker = brokerNodeProvider.apply(dataDir);
+        final ZeebeGatewayContainer gateway =
+            new ZeebeGatewayContainer()
+                .withEnv(
+                    "ZEEBE_GATEWAY_CLUSTER_CONTACTPOINT", broker.getInternalClusterAddress())) {
 
-    // when
-    broker.start();
-    gateway.start();
-
-    try (final ZeebeClient client = TestSupport.newZeebeClient(gateway)) {
-      // deploy a new process, which we can use on restart to assert that the data was correctly
-      // reused
-      final DeploymentEvent deployment = deploySampleProcess(client);
-      broker.stop();
-
-      // on restart we need to wait until the gateway is aware of the new leader
+      // when
       broker.start();
-      awaitUntilTopologyIsComplete(client);
-      final ProcessInstanceEvent processInstance = createSampleProcessInstance(client);
+      gateway.start();
 
-      // then
-      assertThat(processInstance)
-          .as("the process instance was successfully created")
-          .isNotNull()
-          .extracting(ProcessInstanceEvent::getProcessDefinitionKey)
-          .isEqualTo(deployment.getProcesses().get(0).getProcessDefinitionKey());
-    } finally {
-      CloseHelper.quietCloseAll(gateway, broker);
+      try (final ZeebeClient client = TestSupport.newZeebeClient(gateway)) {
+        // deploy a new process, which we can use on restart to assert that the data was correctly
+        // reused
+        final DeploymentEvent deployment = deploySampleProcess(client);
+        broker.stop();
+
+        // on restart, we need to wait until the gateway is aware of the new leader
+        broker.start();
+        awaitUntilTopologyIsComplete(client);
+        final ProcessInstanceEvent processInstance = createSampleProcessInstance(client);
+
+        // then
+        assertThat(processInstance)
+            .as("the process instance was successfully created")
+            .isNotNull()
+            .extracting(ProcessInstanceEvent::getProcessDefinitionKey)
+            .isEqualTo(deployment.getProcesses().get(0).getProcessDefinitionKey());
+      }
     }
   }
 

@@ -50,9 +50,9 @@ import org.testcontainers.containers.wait.strategy.WaitStrategyTarget;
 
 /**
  * Note: this suite relies heavily on mocking, as it's quite difficult to test the topology check in
- * a controlled way with real containers/a real client. It doesn't seem ideal to me so I'd gladly
- * welcome any suggestions to test it better. Note that it's somewhat integration-tested via the
- * normal container tests.
+ * a controlled way with real containers/a real client. It doesn't seem ideal, so I'd gladly welcome
+ * any suggestions to test it better. Note that it's somewhat integration-tested via the normal
+ * container tests.
  */
 @ExtendWith(MockitoExtension.class)
 @Timeout(value = 5, unit = TimeUnit.MINUTES)
@@ -246,6 +246,7 @@ final class ZeebeTopologyWaitStrategyTest {
     private final int mappedPort;
     private int originalPort;
 
+    @SuppressWarnings("SameParameterValue")
     private ReachableTarget(final int mappedPort) {
       this.mappedPort = mappedPort;
       this.containerInfo = new InspectContainerResponse();

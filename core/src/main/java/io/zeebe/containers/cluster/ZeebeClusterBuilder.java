@@ -123,7 +123,7 @@ public class ZeebeClusterBuilder {
       new HashMap<>();
 
   /**
-   * If true, the brokers created by this cluster will use embedded gateways. By default this is
+   * If true, the brokers created by this cluster will use embedded gateways. By default, this is
    * true.
    *
    * @param useEmbeddedGateway true or false to enable the embedded gateway on the brokers
@@ -154,8 +154,8 @@ public class ZeebeClusterBuilder {
    * this cluster will use this number as well for its {@link
    * ZeebeTopologyWaitStrategy#forBrokersCount(int)}.
    *
-   * <p>Note that it's possible to create a cluster with no brokers, as this is may be a valid set
-   * up for testing purposes. If that's the case, the gateways will not wait for the topology to be
+   * <p>Note that it's possible to create a cluster with no brokers, as this is maybe a valid set-up
+   * for testing purposes. If that's the case, the gateways will not wait for the topology to be
    * complete (as they cannot know the topology), and will not be configured with a contact point.
    *
    * <p>NOTE: setting this to 0 will also set the replication factor and partitions count to 0.

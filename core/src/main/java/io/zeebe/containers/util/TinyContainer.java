@@ -33,10 +33,10 @@ public final class TinyContainer extends GenericContainer<TinyContainer> {
     super(IMAGE);
   }
 
+  @SuppressWarnings("resource")
   @Override
   protected void configure() {
     super.configure();
-    withCommand("cat");
-    withCreateContainerCmdModifier(cmd -> cmd.withTty(true));
+    withCommand("cat").withCreateContainerCmdModifier(cmd -> cmd.withTty(true));
   }
 }
