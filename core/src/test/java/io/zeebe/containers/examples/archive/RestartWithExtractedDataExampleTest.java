@@ -45,18 +45,11 @@ import org.testcontainers.utility.MountableFile;
  * create a process instance from the previously deployed process.
  */
 @Execution(ExecutionMode.SAME_THREAD)
-@TestMethodOrder(OrderAnnotation.class)
 final class RestartWithExtractedDataExampleTest {
   @AutoClose private static final Network NETWORK = Network.newNetwork();
 
   private static final String DATA_DIR = "generated";
   private static final String PROCESS_ID = "process";
-  private static Path tempDir;
-
-  @BeforeAll
-  static void beforeAll(@TempDir final Path tempDir) {
-    RestartWithExtractedDataExampleTest.tempDir = tempDir;
-  }
 
   /**
    * Start a container with a volume, deploy a process, and extract the generated data to some
@@ -72,14 +65,11 @@ final class RestartWithExtractedDataExampleTest {
    * wouldn't even need to be using a volume.
    */
   @Test
-  @Order(1)
-  @Timeout(value = 5, unit = TimeUnit.MINUTES)
-  void shouldGenerateData() {
+  @Timeout(value = 10, unit = TimeUnit.MINUTES)
+  void shouldReuseData(final @TempDir Path tempDir) {
     // given
     final ZeebeVolume volume = ZeebeVolume.newVolume();
-    final Path destination = tempDir.resolve(DATA_DIR);
-
-    // when
+    final Path dataPath = tempDir.resolve(DATA_DIR);
     try (final ZeebeContainer container =
         new ZeebeContainer()
             .withNetwork(NETWORK)
@@ -88,28 +78,9 @@ final class RestartWithExtractedDataExampleTest {
       container.start();
       deployProcess(container);
     }
-    volume.extract(destination);
+    volume.extract(dataPath);
 
-    // then
-    assertThat(destination).isNotEmptyDirectory();
-  }
-
-  /**
-   * The test here will start a process based on the definition deployed in the previous test.
-   *
-   * <p>The data here is copied to avoid further modifying it. We could also use a {@link
-   * io.zeebe.containers.ZeebeHostData} if that was not a constraint.
-   */
-  @Test
-  @Order(2)
-  @Timeout(value = 5, unit = TimeUnit.MINUTES)
-  void shouldRestartWithGeneratedData() {
-    // given
-    final Path dataPath =
-        Paths.get(
-            tempDir.resolve(DATA_DIR).toString(), ZeebeDefaults.getInstance().getDefaultDataPath());
-
-    // when
+    // when - start a new container with the same data
     try (final ZeebeContainer container =
         new ZeebeContainer()
             .withNetwork(NETWORK)
