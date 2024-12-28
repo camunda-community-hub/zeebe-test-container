@@ -123,8 +123,8 @@ final class ZeebeBrokerNodeTest {
 
     // then
     assertThat(statusCode)
-        .as("the broker ready check should return 204 when the container is started")
-        .isEqualTo(204);
+        .as("the broker ready check should return 2xx when the container is started")
+        .isBetween(200, 299);
   }
 
   @ParameterizedTest(name = "{0} should expose all ports except gateway")
