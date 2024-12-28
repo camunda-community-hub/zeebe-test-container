@@ -21,19 +21,14 @@ import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.api.response.Topology;
 import io.zeebe.containers.ZeebeGatewayNode;
 import io.zeebe.containers.util.TopologyAssert;
-import org.agrona.CloseHelper;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.Network;
 
 final class ZeebeClusterTest {
-  private final Network network = Network.newNetwork();
-  private ZeebeCluster cluster;
+  @AutoClose private final Network network = Network.newNetwork();
 
-  @AfterEach
-  void afterEach() {
-    CloseHelper.quietCloseAll(cluster, network);
-  }
+  @AutoClose private ZeebeCluster cluster;
 
   @Test
   void shouldStartSingleNodeCluster() {

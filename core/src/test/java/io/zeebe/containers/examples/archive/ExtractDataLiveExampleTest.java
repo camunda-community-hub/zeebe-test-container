@@ -26,14 +26,19 @@ import java.nio.file.Path;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.testcontainers.containers.Network;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
 final class ExtractDataLiveExampleTest {
-  @Container private final ZeebeBrokerContainer container = new ZeebeBrokerContainer();
+  @AutoClose private static final Network NETWORK = Network.newNetwork();
+
+  @Container
+  private final ZeebeBrokerContainer container = new ZeebeBrokerContainer().withNetwork(NETWORK);
 
   @Test
   void shouldExtractData(@TempDir final Path tempDir) {

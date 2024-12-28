@@ -37,9 +37,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.agrona.CloseHelper;
 import org.awaitility.Awaitility;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.io.TempDir;
@@ -50,12 +49,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 
 final class ZeebeBrokerNodeTest {
-  private static final Network NETWORK = Network.newNetwork();
-
-  @AfterAll
-  static void afterAll() {
-    CloseHelper.quietClose(NETWORK);
-  }
+  @AutoClose private static final Network NETWORK = Network.newNetwork();
 
   private static ZeebeBrokerNode<?> provideBrokerWithHostData(
       final ZeebeBrokerNode<?> broker, final Path dataDir) {

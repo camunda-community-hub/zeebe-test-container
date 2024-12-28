@@ -30,8 +30,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import org.assertj.core.api.Assertions;
 import org.awaitility.Awaitility;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.testcontainers.containers.Network;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -47,13 +49,15 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  */
 @Testcontainers
 final class TriggerTimerStartEventTest {
+  @AutoClose private static final Network NETWORK = Network.newNetwork();
+
   private static final String JOB_TYPE = "type";
   private static final Duration TIME_OFFSET = Duration.ofDays(1);
   private static final Instant TIMER_DATE = Instant.now().plus(TIME_OFFSET);
 
   @Container
   private final ZeebeContainer zeebeContainer =
-      new ZeebeContainer().withEnv("ZEEBE_CLOCK_CONTROLLED", "true");
+      new ZeebeContainer().withNetwork(NETWORK).withEnv("ZEEBE_CLOCK_CONTROLLED", "true");
 
   @Test
   @Timeout(value = 5, unit = TimeUnit.MINUTES)

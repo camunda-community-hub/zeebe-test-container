@@ -39,9 +39,8 @@ import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.stream.Collectors;
-import org.agrona.CloseHelper;
 import org.awaitility.Awaitility;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.Network;
@@ -50,22 +49,23 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
 final class ZeebeClusterEngineIT {
-  private final Network network = Network.newNetwork();
+  @AutoClose private final Network network = Network.newNetwork();
   private final InfiniteList<Record<?>> records = new InfiniteList<>();
-  private final DebugReceiver receiver = new DebugReceiver(records::add);
+
+  @AutoClose private final DebugReceiver receiver = new DebugReceiver(records::add);
+
+  @AutoClose
   private final DebugReceiverStream recordStream = new DebugReceiverStream(records, receiver);
+
+  @AutoClose
   private final ZeebeCluster cluster =
       ZeebeCluster.builder()
           .withEmbeddedGateway(true)
           .withBrokersCount(2)
           .withPartitionsCount(1)
           .withReplicationFactor(2)
+          .withNetwork(network)
           .build();
-
-  @AfterEach
-  void afterEach() {
-    CloseHelper.close(network);
-  }
 
   @Test
   void shouldCloseEverythingOnStop() {

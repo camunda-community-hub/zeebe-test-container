@@ -28,7 +28,6 @@ import com.github.dockerjava.api.model.Volume;
 import io.zeebe.containers.archive.ContainerArchive;
 import io.zeebe.containers.archive.ContainerArchiveBuilder;
 import io.zeebe.containers.util.TinyContainer;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;

@@ -24,8 +24,10 @@ import io.camunda.zeebe.model.bpmn.BpmnModelInstance;
 import io.zeebe.containers.ZeebeContainer;
 import io.zeebe.containers.ZeebeVolume;
 import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.testcontainers.containers.Network;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -38,10 +40,13 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  */
 @Testcontainers
 final class ReusableVolumeExampleTest {
+  @AutoClose private static final Network NETWORK = Network.newNetwork();
+
   private final ZeebeVolume volume = ZeebeVolume.newVolume();
 
   @Container
-  private final ZeebeContainer zeebeContainer = new ZeebeContainer().withZeebeData(volume);
+  private final ZeebeContainer zeebeContainer =
+      new ZeebeContainer().withZeebeData(volume).withNetwork(NETWORK);
 
   @Test
   @Timeout(value = 5, unit = TimeUnit.MINUTES)

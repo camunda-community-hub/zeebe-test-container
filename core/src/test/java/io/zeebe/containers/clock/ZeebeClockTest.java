@@ -21,9 +21,11 @@ import io.zeebe.containers.ZeebeBrokerContainer;
 import java.time.Duration;
 import java.time.Instant;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.testcontainers.containers.Network;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -38,9 +40,11 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Execution(ExecutionMode.SAME_THREAD)
 @Testcontainers
 final class ZeebeClockTest {
+  @AutoClose private static final Network NETWORK = Network.newNetwork();
+
   @Container
   private static final ZeebeBrokerContainer BROKER =
-      new ZeebeBrokerContainer().withEnv("ZEEBE_CLOCK_CONTROLLED", "true");
+      new ZeebeBrokerContainer().withEnv("ZEEBE_CLOCK_CONTROLLED", "true").withNetwork(NETWORK);
 
   private final ZeebeClock clock = ZeebeClock.newDefaultClock(BROKER);
 

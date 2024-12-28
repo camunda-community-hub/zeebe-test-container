@@ -66,8 +66,7 @@ public interface ZeebeNode<T extends GenericContainer<T> & ZeebeNode<T>>
   }
 
   /**
-   * Returns the address that a Zeebe node outside the docker network can use to talk to this
-   * node.
+   * Returns the address that a Zeebe node outside the docker network can use to talk to this node.
    *
    * @return the external cluster address
    */

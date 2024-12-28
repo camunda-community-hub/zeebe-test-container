@@ -24,19 +24,15 @@ import io.zeebe.containers.ZeebeContainer;
 import io.zeebe.containers.ZeebeDefaults;
 import io.zeebe.containers.ZeebeVolume;
 import io.zeebe.containers.archive.ContainerArchive;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.testcontainers.containers.Network;
 import org.testcontainers.utility.MountableFile;
 
 /**
@@ -51,6 +47,8 @@ import org.testcontainers.utility.MountableFile;
 @Execution(ExecutionMode.SAME_THREAD)
 @TestMethodOrder(OrderAnnotation.class)
 final class RestartWithExtractedDataExampleTest {
+  @AutoClose private static final Network NETWORK = Network.newNetwork();
+
   private static final String DATA_DIR = "generated";
   private static final String PROCESS_ID = "process";
   private static Path tempDir;
@@ -76,7 +74,7 @@ final class RestartWithExtractedDataExampleTest {
   @Test
   @Order(1)
   @Timeout(value = 5, unit = TimeUnit.MINUTES)
-  void shouldGenerateData() throws IOException {
+  void shouldGenerateData() {
     // given
     final ZeebeVolume volume = ZeebeVolume.newVolume();
     final Path destination = tempDir.resolve(DATA_DIR);
@@ -84,6 +82,7 @@ final class RestartWithExtractedDataExampleTest {
     // when
     try (final ZeebeContainer container =
         new ZeebeContainer()
+            .withNetwork(NETWORK)
             .withCreateContainerCmdModifier(cmd -> cmd.withUser("1001:0"))
             .withZeebeData(volume)) {
       container.start();
@@ -113,6 +112,7 @@ final class RestartWithExtractedDataExampleTest {
     // when
     try (final ZeebeContainer container =
         new ZeebeContainer()
+            .withNetwork(NETWORK)
             .withCreateContainerCmdModifier(cmd -> cmd.withUser("1001:0"))
             .withCopyFileToContainer(
                 MountableFile.forHostPath(dataPath),

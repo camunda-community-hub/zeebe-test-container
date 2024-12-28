@@ -26,8 +26,10 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.util.Maps;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.testcontainers.containers.Network;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -38,7 +40,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  */
 @Testcontainers
 final class SingleNodeTest {
-  @Container private final ZeebeContainer zeebeContainer = new ZeebeContainer();
+  @AutoClose private static final Network NETWORK = Network.newNetwork();
+
+  @Container
+  private final ZeebeContainer zeebeContainer = new ZeebeContainer().withNetwork(NETWORK);
 
   @Test
   @Timeout(value = 5, unit = TimeUnit.MINUTES)
@@ -59,7 +64,11 @@ final class SingleNodeTest {
     try (final ZeebeClient client = newZeebeClient(zeebeContainer)) {
       try (final JobWorker ignored = createJobWorker(variables, client)) {
         deploymentEvent =
-            client.newDeployResourceCommand().addProcessModel(process, "process.bpmn").send().join();
+            client
+                .newDeployResourceCommand()
+                .addProcessModel(process, "process.bpmn")
+                .send()
+                .join();
         workflowInstanceResult =
             client
                 .newCreateInstanceCommand()
