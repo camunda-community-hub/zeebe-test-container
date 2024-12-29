@@ -24,6 +24,8 @@ import io.camunda.zeebe.model.bpmn.BpmnModelInstance;
 import io.zeebe.containers.ZeebeContainer;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import io.zeebe.containers.util.TestSupport;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.util.Maps;
 import org.junit.jupiter.api.AutoClose;
@@ -61,7 +63,7 @@ final class SingleNodeTest {
     final ProcessInstanceResult workflowInstanceResult;
 
     // when
-    try (final ZeebeClient client = newZeebeClient(zeebeContainer)) {
+    try (final ZeebeClient client = TestSupport.newZeebeClient(zeebeContainer)) {
       try (final JobWorker ignored = createJobWorker(variables, client)) {
         deploymentEvent =
             client
@@ -98,12 +100,5 @@ final class SingleNodeTest {
             (jobClient, job) ->
                 jobClient.newCompleteCommand(job.getKey()).variables(variables).send())
         .open();
-  }
-
-  private ZeebeClient newZeebeClient(final ZeebeContainer node) {
-    return ZeebeClient.newClientBuilder()
-        .gatewayAddress(node.getExternalGatewayAddress())
-        .usePlaintext()
-        .build();
   }
 }

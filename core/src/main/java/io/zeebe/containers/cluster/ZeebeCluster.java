@@ -234,7 +234,8 @@ public class ZeebeCluster implements Startable {
     final ZeebeGatewayNode<?> gateway = getAvailableGateway();
 
     return ZeebeClient.newClientBuilder()
-        .gatewayAddress(gateway.getExternalGatewayAddress())
+        .grpcAddress(gateway.getGrpcAddress())
+        .restAddress(gateway.getRestAddress())
         .usePlaintext();
   }
 

@@ -28,6 +28,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+
+import io.zeebe.containers.util.TestSupport;
 import org.assertj.core.api.Assertions;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AutoClose;
@@ -76,7 +78,7 @@ final class TriggerTimerStartEventTest {
 
     // when
     final JobHandler handler = (client, job) -> activatedJobs.add(job);
-    try (final ZeebeClient client = newZeebeClient(zeebeContainer);
+    try (final ZeebeClient client = TestSupport.newZeebeClient(zeebeContainer);
         final JobWorker ignored = newJobWorker(handler, client)) {
       client.newDeployResourceCommand().addProcessModel(process, "process.bpmn").send().join();
       brokerTime = clock.addTime(TIME_OFFSET);
@@ -95,12 +97,5 @@ final class TriggerTimerStartEventTest {
 
   private JobWorker newJobWorker(final JobHandler handler, final ZeebeClient client) {
     return client.newWorker().jobType(JOB_TYPE).handler(handler).open();
-  }
-
-  private ZeebeClient newZeebeClient(final ZeebeContainer node) {
-    return ZeebeClient.newClientBuilder()
-        .gatewayAddress(node.getExternalGatewayAddress())
-        .usePlaintext()
-        .build();
   }
 }

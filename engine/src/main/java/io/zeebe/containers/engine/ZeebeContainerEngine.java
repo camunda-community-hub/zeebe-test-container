@@ -75,6 +75,7 @@ final class ZeebeContainerEngine<
     return createClient(b -> b.withJsonMapper(new ZeebeObjectMapper(objectMapper)));
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public String getGatewayAddress() {
     return container.getExternalGatewayAddress();
@@ -114,7 +115,10 @@ final class ZeebeContainerEngine<
   private ZeebeClient createClient(final UnaryOperator<ZeebeClientBuilder> configurator) {
     final ZeebeClientBuilder builder =
         configurator.apply(
-            ZeebeClient.newClientBuilder().usePlaintext().gatewayAddress(getGatewayAddress()));
+            ZeebeClient.newClientBuilder()
+                .usePlaintext()
+                .grpcAddress(container.getGrpcAddress())
+                .restAddress(container.getRestAddress()));
     final ZeebeClient client = builder.build();
     clients.add(client);
 

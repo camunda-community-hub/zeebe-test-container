@@ -20,6 +20,7 @@ import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.ZeebeClientBuilder;
 import io.camunda.zeebe.client.impl.ZeebeObjectMapper;
 import io.camunda.zeebe.process.test.api.RecordStreamSource;
+import io.zeebe.containers.ZeebeGatewayNode;
 import io.zeebe.containers.ZeebeNode;
 import io.zeebe.containers.clock.ZeebeClock;
 import io.zeebe.containers.cluster.ZeebeCluster;
@@ -77,6 +78,7 @@ final class ZeebeClusterEngine implements TestAwareContainerEngine {
     return createClient(b -> b.withJsonMapper(new ZeebeObjectMapper(customObjectMapper)));
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public String getGatewayAddress() {
     return cluster.getAvailableGateway().getExternalGatewayAddress();
@@ -114,9 +116,13 @@ final class ZeebeClusterEngine implements TestAwareContainerEngine {
   }
 
   private ZeebeClient createClient(final UnaryOperator<ZeebeClientBuilder> configurator) {
+    final ZeebeGatewayNode<?> gateway = cluster.getAvailableGateway();
     final ZeebeClientBuilder builder =
         configurator.apply(
-            ZeebeClient.newClientBuilder().usePlaintext().gatewayAddress(getGatewayAddress()));
+            ZeebeClient.newClientBuilder()
+                .usePlaintext()
+                .grpcAddress(gateway.getGrpcAddress())
+                .restAddress(gateway.getRestAddress()));
     final ZeebeClient client = builder.build();
     clients.add(client);
 

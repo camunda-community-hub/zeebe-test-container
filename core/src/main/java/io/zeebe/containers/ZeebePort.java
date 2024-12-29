@@ -23,12 +23,24 @@ import org.apiguardian.api.API.Status;
 public enum ZeebePort {
   /** Port of the command API, i.e. the port used by the gateway to communicate with the broker */
   COMMAND(26501),
-  /** Port of the gateway API, i.e. the port used by the client to communicate with any gateway */
+  /**
+   * Deprecated reference to the old GATEWAY port, which is the gRPC port; use {@link #GATEWAY_REST}
+   * or {@link #GATEWAY_GRPC} in the future
+   */
+  @Deprecated
   GATEWAY(26500),
   /** Port for internal communication, i.e. what all nodes use to communicate for clustering */
   INTERNAL(26502),
   /** Port for the management server, i.e. actuators, metrics, etc. */
-  MONITORING(9600);
+  MONITORING(9600),
+  /**
+   * Port of the gateway REST API, i.e. the port used by the client to communicate with any gateway
+   */
+  GATEWAY_REST(8080),
+  /**
+   * Port of the gateway gRPC API, i.e. the port used by the client to communicate with any gateway
+   */
+  GATEWAY_GRPC(26500);
 
   private final int port;
 

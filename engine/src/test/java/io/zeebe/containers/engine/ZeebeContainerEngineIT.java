@@ -97,6 +97,7 @@ final class ZeebeContainerEngineIT {
           .succeedsWithin(Duration.ofSeconds(1));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     void shouldReturnGatewayAddress() {
       // given

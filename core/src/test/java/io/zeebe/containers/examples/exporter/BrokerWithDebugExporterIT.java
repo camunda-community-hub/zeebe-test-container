@@ -27,6 +27,8 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
+
+import io.zeebe.containers.util.TestSupport;
 import org.assertj.core.groups.Tuple;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
@@ -67,11 +69,7 @@ final class BrokerWithDebugExporterIT {
   @Test
   void shouldReadExportedRecords() {
     // given
-    try (final ZeebeClient client =
-        ZeebeClient.newClientBuilder()
-            .usePlaintext()
-            .gatewayAddress(container.getExternalGatewayAddress())
-            .build()) {
+    try (final ZeebeClient client = TestSupport.newZeebeClient(container)) {
 
       // when
       client
