@@ -134,11 +134,12 @@ final class ZeebeBrokerNodeTest {
     // given
     final List<Integer> expectedPorts =
         Arrays.stream(ZeebePort.values()).map(ZeebePort::getPort).collect(Collectors.toList());
+    final List<Integer> gatewayPorts =
+        Arrays.asList(ZeebePort.GATEWAY_GRPC.getPort(), ZeebePort.GATEWAY_REST.getPort());
+    expectedPorts.removeAll(gatewayPorts);
 
     // when
     final List<Integer> exposedPorts = node.getExposedPorts();
-    expectedPorts.remove((Integer) ZeebePort.GATEWAY_GRPC.getPort());
-    expectedPorts.remove((Integer) ZeebePort.GATEWAY_REST.getPort());
 
     // then
     assertThat(exposedPorts)
