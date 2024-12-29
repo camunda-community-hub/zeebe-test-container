@@ -26,6 +26,7 @@ import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.BrokerInfo;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.Partition;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.Partition.PartitionBrokerRole;
 import io.camunda.zeebe.gateway.protocol.GatewayOuterClass.TopologyResponse;
+import java.net.URI;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
@@ -70,7 +71,8 @@ final class ZeebeTopologyWaitStrategyTest {
 
   @BeforeEach
   void setup() {
-    Mockito.when(builder.gatewayAddress(Mockito.anyString())).thenReturn(builder);
+    Mockito.when(builder.grpcAddress(Mockito.any())).thenReturn(builder);
+    Mockito.when(builder.restAddress(Mockito.any())).thenReturn(builder);
     Mockito.when(builder.build()).thenReturn(client);
     Mockito.when(client.newTopologyRequest()).thenReturn(topologyRequest);
   }
@@ -132,8 +134,9 @@ final class ZeebeTopologyWaitStrategyTest {
     strategy.waitUntilReady(target);
 
     // then
-    Mockito.verify(builder, Mockito.timeout(5000).atLeastOnce())
-        .gatewayAddress(target.getHost() + ":" + target.mappedPort);
+    final URI expectedAddress = URI.create("http://" + target.getHost() + ":" + target.mappedPort);
+    Mockito.verify(builder, Mockito.timeout(5000).atLeastOnce()).grpcAddress(expectedAddress);
+    Mockito.verify(builder, Mockito.timeout(5000).atLeastOnce()).restAddress(expectedAddress);
   }
 
   @ParameterizedTest(name = "should timeout on incomplete topology when {0}")
