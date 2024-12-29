@@ -116,7 +116,8 @@ public class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContaine
         .withEnv("ZEEBE_STANDALONE_GATEWAY", "true")
         .withStartupTimeout(DEFAULT_STARTUP_TIMEOUT)
         .addExposedPorts(
-            ZeebePort.GATEWAY.getPort(),
+            ZeebePort.GATEWAY_REST.getPort(),
+            ZeebePort.GATEWAY_GRPC.getPort(),
             ZeebePort.INTERNAL.getPort(),
             ZeebePort.MONITORING.getPort());
   }

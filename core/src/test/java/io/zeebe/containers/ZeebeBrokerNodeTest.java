@@ -137,7 +137,8 @@ final class ZeebeBrokerNodeTest {
 
     // when
     final List<Integer> exposedPorts = node.getExposedPorts();
-    expectedPorts.remove((Integer) ZeebePort.GATEWAY.getPort());
+    expectedPorts.remove((Integer) ZeebePort.GATEWAY_GRPC.getPort());
+    expectedPorts.remove((Integer) ZeebePort.GATEWAY_REST.getPort());
 
     // then
     assertThat(exposedPorts)
