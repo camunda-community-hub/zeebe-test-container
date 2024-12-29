@@ -191,7 +191,8 @@ public class MyFeatureTest {
     // given
     final ZeebeClient client =
       ZeebeClient.newClientBuilder()
-        .gatewayAddress(zeebeContainer.getExternalGatewayAddress())
+        .grpcAddress(zeebeContainer.getGrpcAddress())
+        .restAddress(zeebeContainer.getRestAddress())
         .usePlaintext()
         .build();
     final BpmnModelInstance process =
@@ -249,7 +250,8 @@ public class MyFeatureTest {
     // given
     final ZeebeClient client =
       ZeebeClient.newClientBuilder()
-        .gatewayAddress(zeebeContainer.getExternalGatewayAddress())
+        .grpcAddress(zeebeContainer.getGrpcAddress())
+        .restAddress(zeebeContainer.getRestAddress())
         .usePlaintext()
         .build();
     final BpmnModelInstance process =
@@ -309,7 +311,7 @@ The container is considered started if and only if:
 > A topology is considered complete if there is a leader for all partitions.
 
 Once started, the container is ready to accept commands, and a client can connect to it by setting
-its `gatewayAddress` to `ZeebeContainer#getExternalGatewayAddress()`.
+its `grpcAddress` to `ZeebeContainer#getGrpcAddress()`, and its `restAddress` to `ZeebeContainer#getRestAddress()`.
 
 ## Standalone broker without gateway
 
@@ -348,7 +350,7 @@ The container is considered started if and only if:
 > A topology is considered complete if there is a leader for all partitions.
 
 Once started, the container is ready to accept commands, and a client can connect to it by setting
-its `gatewayAddress` to `ZeebeContainer#getExternalGatewayAddress()`.
+its `grpcAddress` to `ZeebeContainer#getGrpcAddress()`, and its `restAddress` to `ZeebeContainer#getRestAddress()`.
 
 ## Configuring your container
 
