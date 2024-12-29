@@ -24,6 +24,7 @@ import io.zeebe.containers.ZeebeContainer;
 import io.zeebe.containers.ZeebeDefaults;
 import io.zeebe.containers.ZeebeVolume;
 import io.zeebe.containers.archive.ContainerArchive;
+import io.zeebe.containers.util.TestSupport;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.*;
@@ -102,11 +103,7 @@ final class RestartWithExtractedDataExampleTest {
   }
 
   private void deployProcess(final ZeebeContainer container) {
-    try (final ZeebeClient client =
-        ZeebeClient.newClientBuilder()
-            .usePlaintext()
-            .gatewayAddress(container.getExternalGatewayAddress())
-            .build()) {
+    try (final ZeebeClient client = TestSupport.newZeebeClient(container)) {
       client
           .newDeployResourceCommand()
           .addProcessModel(
@@ -118,11 +115,7 @@ final class RestartWithExtractedDataExampleTest {
   }
 
   private ProcessInstanceEvent createProcessInstance(final ZeebeContainer container) {
-    try (final ZeebeClient client =
-        ZeebeClient.newClientBuilder()
-            .usePlaintext()
-            .gatewayAddress(container.getExternalGatewayAddress())
-            .build()) {
+    try (final ZeebeClient client = TestSupport.newZeebeClient(container)) {
       return client
           .newCreateInstanceCommand()
           .bpmnProcessId(PROCESS_ID)

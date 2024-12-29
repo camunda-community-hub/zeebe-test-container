@@ -56,13 +56,14 @@ import org.testcontainers.utility.DockerImageName;
  *
  * <pre>{@code
  * ZeebeClient.newClientBuilder()
- *   .brokerContainerPoint(container.getExternalGatewayAddress())
+ *   .grpcAddress(container.getGrpcAddress())
+ *   .restAddress(container.getRestAddress())
  *   .usePlaintext()
  *   .build();
  * }</pre>
  *
  * <p>Note that if your client is also a container within the same network, you can and should use
- * the {@link #getInternalGatewayAddress()}.
+ * the {@link #getInternalGrpcAddress()} and {@link #getInternalRestAddress()} variants.
  */
 @API(status = Status.STABLE)
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
@@ -115,7 +116,8 @@ public class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContaine
         .withEnv("ZEEBE_STANDALONE_GATEWAY", "true")
         .withStartupTimeout(DEFAULT_STARTUP_TIMEOUT)
         .addExposedPorts(
-            ZeebePort.GATEWAY.getPort(),
+            ZeebePort.GATEWAY_REST.getPort(),
+            ZeebePort.GATEWAY_GRPC.getPort(),
             ZeebePort.INTERNAL.getPort(),
             ZeebePort.MONITORING.getPort());
   }

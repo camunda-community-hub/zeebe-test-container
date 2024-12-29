@@ -23,6 +23,7 @@ import io.camunda.zeebe.model.bpmn.Bpmn;
 import io.camunda.zeebe.model.bpmn.BpmnModelInstance;
 import io.zeebe.containers.ZeebeContainer;
 import io.zeebe.containers.ZeebeVolume;
+import io.zeebe.containers.util.TestSupport;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.Test;
@@ -56,7 +57,7 @@ final class ReusableVolumeExampleTest {
         Bpmn.createExecutableProcess("process").startEvent().endEvent().done();
 
     // when
-    try (final ZeebeClient client = newZeebeClient(zeebeContainer)) {
+    try (final ZeebeClient client = TestSupport.newZeebeClient(zeebeContainer)) {
       client.newDeployResourceCommand().addProcessModel(process, "process.bpmn").send().join();
     }
 
@@ -67,7 +68,7 @@ final class ReusableVolumeExampleTest {
     // create a process instance from the one we previously deployed - this would fail if we hadn't
     // previously deployed our process model
     final ProcessInstanceEvent processInstance;
-    try (final ZeebeClient client = newZeebeClient(zeebeContainer)) {
+    try (final ZeebeClient client = TestSupport.newZeebeClient(zeebeContainer)) {
       processInstance =
           client.newCreateInstanceCommand().bpmnProcessId("process").latestVersion().send().join();
     }
@@ -76,12 +77,5 @@ final class ReusableVolumeExampleTest {
     assertThat(processInstance.getProcessInstanceKey())
         .as("a process instance was successfully created")
         .isPositive();
-  }
-
-  private ZeebeClient newZeebeClient(final ZeebeContainer node) {
-    return ZeebeClient.newClientBuilder()
-        .gatewayAddress(node.getExternalGatewayAddress())
-        .usePlaintext()
-        .build();
   }
 }

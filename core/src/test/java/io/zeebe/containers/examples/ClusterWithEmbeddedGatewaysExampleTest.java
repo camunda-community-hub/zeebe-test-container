@@ -116,7 +116,8 @@ final class ClusterWithEmbeddedGatewaysExampleTest {
 
   private ZeebeClient newZeebeClient(final ZeebeContainer node) {
     return ZeebeClient.newClientBuilder()
-        .gatewayAddress(node.getExternalGatewayAddress())
+        .grpcAddress(node.getGrpcAddress())
+        .restAddress(node.getRestAddress())
         .usePlaintext()
         .build();
   }

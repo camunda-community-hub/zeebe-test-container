@@ -23,6 +23,7 @@ import io.camunda.zeebe.protocol.record.ValueType;
 import io.camunda.zeebe.protocol.record.intent.MessageIntent;
 import io.zeebe.containers.ZeebeContainer;
 import io.zeebe.containers.exporter.DebugReceiver;
+import io.zeebe.containers.util.TestSupport;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -67,11 +68,7 @@ final class BrokerWithDebugExporterIT {
   @Test
   void shouldReadExportedRecords() {
     // given
-    try (final ZeebeClient client =
-        ZeebeClient.newClientBuilder()
-            .usePlaintext()
-            .gatewayAddress(container.getExternalGatewayAddress())
-            .build()) {
+    try (final ZeebeClient client = TestSupport.newZeebeClient(container)) {
 
       // when
       client

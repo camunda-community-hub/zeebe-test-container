@@ -82,7 +82,11 @@ final class ZeebeClusterTest {
     for (final ZeebeGatewayNode<?> gateway : cluster.getGateways().values()) {
       final Topology topology;
       try (final ZeebeClient client =
-          cluster.newClientBuilder().gatewayAddress(gateway.getExternalGatewayAddress()).build()) {
+          cluster
+              .newClientBuilder()
+              .grpcAddress(gateway.getGrpcAddress())
+              .restAddress(gateway.getRestAddress())
+              .build()) {
         topology = client.newTopologyRequest().send().join();
       }
 
@@ -154,7 +158,8 @@ final class ZeebeClusterTest {
       try (final ZeebeClient client =
           ZeebeClient.newClientBuilder()
               .usePlaintext()
-              .gatewayAddress(gateway.getExternalGatewayAddress())
+              .grpcAddress(gateway.getGrpcAddress())
+              .restAddress(gateway.getRestAddress())
               .build()) {
         final Topology topology = client.newTopologyRequest().send().join();
         assertThat(topology.getPartitionsCount())

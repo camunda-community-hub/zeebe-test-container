@@ -23,6 +23,7 @@ import io.camunda.zeebe.model.bpmn.Bpmn;
 import io.camunda.zeebe.model.bpmn.BpmnModelInstance;
 import io.zeebe.containers.ZeebeContainer;
 import io.zeebe.containers.clock.ZeebeClock;
+import io.zeebe.containers.util.TestSupport;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -76,7 +77,7 @@ final class TriggerTimerStartEventTest {
 
     // when
     final JobHandler handler = (client, job) -> activatedJobs.add(job);
-    try (final ZeebeClient client = newZeebeClient(zeebeContainer);
+    try (final ZeebeClient client = TestSupport.newZeebeClient(zeebeContainer);
         final JobWorker ignored = newJobWorker(handler, client)) {
       client.newDeployResourceCommand().addProcessModel(process, "process.bpmn").send().join();
       brokerTime = clock.addTime(TIME_OFFSET);
@@ -95,12 +96,5 @@ final class TriggerTimerStartEventTest {
 
   private JobWorker newJobWorker(final JobHandler handler, final ZeebeClient client) {
     return client.newWorker().jobType(JOB_TYPE).handler(handler).open();
-  }
-
-  private ZeebeClient newZeebeClient(final ZeebeContainer node) {
-    return ZeebeClient.newClientBuilder()
-        .gatewayAddress(node.getExternalGatewayAddress())
-        .usePlaintext()
-        .build();
   }
 }

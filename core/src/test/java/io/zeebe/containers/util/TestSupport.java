@@ -60,7 +60,8 @@ public final class TestSupport {
   public static ZeebeClient newZeebeClient(final ZeebeGatewayNode<?> gateway) {
     return ZeebeClient.newClientBuilder()
         .usePlaintext()
-        .gatewayAddress(gateway.getExternalGatewayAddress())
+        .grpcAddress(gateway.getGrpcAddress())
+        .restAddress(gateway.getRestAddress())
         .build();
   }
 

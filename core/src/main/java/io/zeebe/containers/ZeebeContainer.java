@@ -99,7 +99,8 @@ public class ZeebeContainer extends GenericContainer<ZeebeContainer>
         .withEnv("ZEEBE_BROKER_NETWORK_HOST", "0.0.0.0")
         .withEnv("ZEEBE_BROKER_NETWORK_ADVERTISEDHOST", getInternalHost())
         .addExposedPorts(
-            ZeebePort.GATEWAY.getPort(),
+            ZeebePort.GATEWAY_REST.getPort(),
+            ZeebePort.GATEWAY_GRPC.getPort(),
             ZeebePort.COMMAND.getPort(),
             ZeebePort.INTERNAL.getPort(),
             ZeebePort.MONITORING.getPort());

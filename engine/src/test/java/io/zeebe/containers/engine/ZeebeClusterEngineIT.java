@@ -114,6 +114,7 @@ final class ZeebeClusterEngineIT {
           .succeedsWithin(Duration.ofSeconds(1));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     void shouldReturnGatewayAddress() {
       // given
