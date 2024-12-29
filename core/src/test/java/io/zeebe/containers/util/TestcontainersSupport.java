@@ -26,7 +26,6 @@ import org.apiguardian.api.API.Status;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.condition.DisabledIf;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.Testcontainers;
 
 @API(status = Status.INTERNAL)
 public final class TestcontainersSupport {

@@ -31,7 +31,7 @@ jobs:
         env:
           TCC_ENABLED: true
         run: >
-          ./mvnw -B -Pparallel-tests -DforkCount=2C -DskipChecks -pl core verify
+          ./mvnw -B -Pparallel-tests -DforkCount=1C -DskipChecks -pl core verify
       - name: Terminate Testcontainers Cloud Client active sessions
         if: always()
         uses: atomicjar/testcontainers-cloud-setup-action@v1
@@ -95,7 +95,7 @@ jobs:
         env:
           TCC_ENABLED: true
         run: >
-          ./mvnw -B -Pparallel-tests -DforkCount=2C -DskipChecks -pl engine verify
+          ./mvnw -B -Pparallel-tests -DforkCount=1C -DskipChecks -pl engine verify
       - name: Terminate Testcontainers Cloud Client active sessions
         if: always()
         uses: atomicjar/testcontainers-cloud-setup-action@v1
