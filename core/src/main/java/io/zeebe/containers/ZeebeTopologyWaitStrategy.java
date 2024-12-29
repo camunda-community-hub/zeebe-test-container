@@ -22,6 +22,7 @@ import io.camunda.zeebe.client.ZeebeClientBuilder;
 import io.camunda.zeebe.client.api.response.BrokerInfo;
 import io.camunda.zeebe.client.api.response.PartitionInfo;
 import io.camunda.zeebe.client.api.response.Topology;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -233,11 +234,20 @@ public class ZeebeTopologyWaitStrategy extends AbstractWaitStrategy {
   }
 
   private ZeebeClient newZeebeClient(final WaitStrategyTarget waitStrategyTarget) {
-    final String gatewayHost = waitStrategyTarget.getHost();
-    final int exposedGatewayPort = waitStrategyTarget.getMappedPort(gatewayPort);
+    //noinspection HttpUrlsUsage
+    final URI gatewayAddress =
+        URI.create(
+            "http://"
+                + waitStrategyTarget.getHost()
+                + ":"
+                + waitStrategyTarget.getMappedPort(gatewayPort));
+
+    // use the same URI for the REST and gRPC address, and rely on the user to correctly set the
+    // port they wish to use
     return clientBuilderProvider
         .get()
-        .gatewayAddress(gatewayHost + ":" + exposedGatewayPort)
+        .restAddress(gatewayAddress)
+        .grpcAddress(gatewayAddress)
         .build();
   }
 
