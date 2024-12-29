@@ -22,6 +22,7 @@ import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.InspectVolumeResponse;
 import com.github.dockerjava.api.model.AccessMode;
 import com.github.dockerjava.api.model.Bind;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -117,6 +118,35 @@ final class ZeebeVolumeTest {
         .noneMatch(v -> v.getName().equals(volume.getName()));
   }
 
+  @Test
+  void shouldNotOverwriteOtherVolumeBinds() {
+    // given
+    //noinspection resource
+    final DockerClient client = DockerClientFactory.lazyClient();
+    try (final ZeebeBrokerContainer container = new ZeebeBrokerContainer()) {
+      final ZeebeVolume data = ZeebeVolume.newVolume(c -> c.withName("data"));
+      final ZeebeVolume logs = ZeebeVolume.newVolume(c -> c.withName("logs"));
+
+      // when
+      container
+          .withCreateContainerCmdModifier(data::attachVolumeToContainer)
+          .withCreateContainerCmdModifier(
+              cmd ->
+                  logs.attachVolumeToContainer(
+                      cmd, ZeebeDefaults.getInstance().getDefaultLogsPath()))
+          .start();
+
+      // then
+      final InspectContainerResponse containerResponse =
+          client.inspectContainerCmd(container.getContainerId()).exec();
+      final Bind[] volumeBinds = containerResponse.getHostConfig().getBinds();
+      assertThat(volumeBinds).hasSize(2);
+
+      assertVolumeBind(data, volumeBinds[0], ZeebeDefaults.getInstance().getDefaultDataPath());
+      assertVolumeBind(logs, volumeBinds[1], ZeebeDefaults.getInstance().getDefaultLogsPath());
+    }
+  }
+
   private Runnable getCleanupRunnable() {
     return () -> {
       try {
@@ -141,7 +171,10 @@ final class ZeebeVolumeTest {
     final Bind[] volumeBinds = containerResponse.getHostConfig().getBinds();
     assertThat(volumeBinds).hasSize(1);
 
-    final Bind bind = volumeBinds[0];
+    assertVolumeBind(volume, volumeBinds[0], ZeebeDefaults.getInstance().getDefaultDataPath());
+  }
+
+  private void assertVolumeBind(ZeebeVolume volume, Bind bind, final String mountPath) {
     assertThat(bind.getAccessMode())
         .as("the volume should be mounted in read-write")
         .isEqualTo(AccessMode.rw);
@@ -150,6 +183,6 @@ final class ZeebeVolumeTest {
         .isEqualTo(volume.getName());
     assertThat(bind.getVolume().getPath())
         .as("the volume path should be the default Zeebe data path")
-        .isEqualTo(ZeebeDefaults.getInstance().getDefaultDataPath());
+        .isEqualTo(mountPath);
   }
 }

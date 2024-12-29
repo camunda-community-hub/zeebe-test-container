@@ -80,11 +80,12 @@ public class ZeebeVolume implements AutoCloseable, ZeebeData {
   }
 
   /**
-   * Returns a pre-configured {@link Bind} which mounts this volume to the data folder of a Zeebe *
-   * broker.
+   * Convenience method which mounts the volume to a Zeebe broker's data folder.
+   *
+   * @param command the create command of the Zeebe broker container
    */
-  public Bind asZeebeBind() {
-    return asBind(ZeebeDefaults.getInstance().getDefaultDataPath());
+  public void attachVolumeToContainer(final CreateContainerCmd command) {
+    attachVolumeToContainer(command, ZeebeDefaults.getInstance().getDefaultDataPath());
   }
 
   /**
@@ -92,10 +93,15 @@ public class ZeebeVolume implements AutoCloseable, ZeebeData {
    *
    * @param command the create command of the Zeebe broker container
    */
-  public void attachVolumeToContainer(final CreateContainerCmd command) {
-    final HostConfig hostConfig =
-        Objects.requireNonNull(command.getHostConfig()).withBinds(asZeebeBind());
-    command.withHostConfig(hostConfig);
+  public void attachVolumeToContainer(final CreateContainerCmd command, final String mountPath) {
+    final HostConfig hostConfig = Objects.requireNonNull(command.getHostConfig());
+    final Bind[] binds = hostConfig.getBinds();
+    final Bind[] newBinds = new Bind[binds.length + 1];
+
+    System.arraycopy(binds, 0, newBinds, 0, binds.length);
+    newBinds[binds.length] = asBind(mountPath);
+
+    command.withHostConfig(hostConfig.withBinds(newBinds));
   }
 
   /**
