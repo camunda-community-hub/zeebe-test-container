@@ -32,11 +32,20 @@
         "patch": {
           "classification": {
             "BINARY": "NON_BREAKING",
-            "SOURCE": "BREAKING",
+            "SOURCE": "NON_BREAKING",
             "SEMANTIC": "BREAKING",
             "OTHER": "BREAKING"
           }
         }
+      },
+      "onAllowed": {
+        "classification": {
+          "BINARY": "EQUIVALENT",
+          "SOURCE": "EQUIVALENT",
+          "SEMANTIC": "EQUIVALENT",
+          "OTHER": "EQUIVALENT"
+        },
+        "justification": "Allowed due to semantic versioning rules"
       }
     }
   },
@@ -62,18 +71,6 @@
     "id": "intentional-api-changes",
     "configuration": {
       "differences": [
-        {
-          "ignore": true,
-          "code": "java.class.removed",
-          "old": "class io.zeebe.containers.archive.TarExtractor",
-          "justification": "Class was marked as internal but still publicly accessible in 3.3.0"
-        },
-        {
-          "ignore": true,
-          "code": "java.class.removed",
-          "old": "class io.zeebe.containers.clock.ZeebeClockImpl",
-          "justification": "Class was marked as internal but still publicly accessible in 3.3.0"
-        }
       ]
     }
   }

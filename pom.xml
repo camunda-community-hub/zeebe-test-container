@@ -634,6 +634,14 @@
               </configurationFile>
             </analysisConfigurationFiles>
             <oldVersion>RELEASE</oldVersion>
+            <pipelineConfiguration>
+              <transformBlocks>
+                <block>
+                  <item>intentional-api-changes</item>
+                  <item>revapi.versions</item>
+                </block>
+              </transformBlocks>
+            </pipelineConfiguration>
           </configuration>
           <dependencies>
             <dependency>
