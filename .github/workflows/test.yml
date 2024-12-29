@@ -28,6 +28,8 @@ jobs:
           token: ${{ secrets.TC_CLOUD_TOKEN }}
       - name: Test
         timeout-minutes: 20
+        env:
+          TCC_ENABLED: true
         run: >
           ./mvnw -B -Pparallel-tests -DforkCount=2C -DskipChecks -pl core verify
       - name: Terminate Testcontainers Cloud Client active sessions
@@ -90,6 +92,8 @@ jobs:
           token: ${{ secrets.TC_CLOUD_TOKEN }}
       - name: Test
         timeout-minutes: 20
+        env:
+          TCC_ENABLED: true
         run: >
           ./mvnw -B -Pparallel-tests -DforkCount=2C -DskipChecks -pl engine verify
       - name: Terminate Testcontainers Cloud Client active sessions

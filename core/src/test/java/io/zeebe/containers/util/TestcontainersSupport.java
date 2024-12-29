@@ -26,6 +26,7 @@ import org.apiguardian.api.API.Status;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.condition.DisabledIf;
 import org.testcontainers.DockerClientFactory;
+import org.testcontainers.Testcontainers;
 
 @API(status = Status.INTERNAL)
 public final class TestcontainersSupport {
@@ -37,7 +38,7 @@ public final class TestcontainersSupport {
    * <p>This isn't perfect as it's clearly breaking implementation details, but it works for now.
    */
   public static boolean isCloudEnv() {
-    if (System.getenv().containsKey("TC_CLOUD_TOKEN")) {
+    if (System.getenv().getOrDefault("TCC_ENABLED", "false").equals("true")) {
       return true;
     }
 
