@@ -8,7 +8,6 @@ on:
 jobs:
   core-cloud:
     env:
-      TC_CLOUD_TOKEN: ${{ secrets.TC_CLOUD_TOKEN }}
       TC_CLOUD_CONCURRENCY: 4
     name: Test (Cloud) - core
     runs-on: ubuntu-latest
@@ -31,6 +30,11 @@ jobs:
         timeout-minutes: 20
         run: >
           ./mvnw -B -Pparallel-tests -DforkCount=2C -DskipChecks -pl core verify
+      - name: Terminate Testcontainers Cloud Client active sessions
+        if: always()
+        uses: atomicjar/testcontainers-cloud-setup-action@v1
+        with:
+          action: terminate
       - name: Archive Test Results
         uses: actions/upload-artifact@v4
         if: always()
@@ -66,7 +70,6 @@ jobs:
           retention-days: 3
   engine:
     env:
-      TC_CLOUD_TOKEN: ${{ secrets.TC_CLOUD_TOKEN }}
       TC_CLOUD_CONCURRENCY: 4
     name: Test (Cloud) - engine
     runs-on: ubuntu-latest
@@ -89,6 +92,11 @@ jobs:
         timeout-minutes: 20
         run: >
           ./mvnw -B -Pparallel-tests -DforkCount=2C -DskipChecks -pl engine verify
+      - name: Terminate Testcontainers Cloud Client active sessions
+        if: always()
+        uses: atomicjar/testcontainers-cloud-setup-action@v1
+        with:
+          action: terminate
       - name: Archive Test Results
         uses: actions/upload-artifact@v4
         if: always()
