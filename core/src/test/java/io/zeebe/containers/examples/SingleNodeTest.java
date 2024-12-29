@@ -22,10 +22,9 @@ import io.camunda.zeebe.client.api.worker.JobWorker;
 import io.camunda.zeebe.model.bpmn.Bpmn;
 import io.camunda.zeebe.model.bpmn.BpmnModelInstance;
 import io.zeebe.containers.ZeebeContainer;
+import io.zeebe.containers.util.TestSupport;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import io.zeebe.containers.util.TestSupport;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.util.Maps;
 import org.junit.jupiter.api.AutoClose;

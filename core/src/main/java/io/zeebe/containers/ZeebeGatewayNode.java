@@ -15,11 +15,10 @@
  */
 package io.zeebe.containers;
 
+import java.net.URI;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 import org.testcontainers.containers.GenericContainer;
-
-import java.net.URI;
 
 /**
  * Represents common properties of nodes which can act as a gateway for a Zeebe cluster, e.g. {@link

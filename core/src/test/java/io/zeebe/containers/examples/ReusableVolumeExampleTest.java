@@ -23,9 +23,8 @@ import io.camunda.zeebe.model.bpmn.Bpmn;
 import io.camunda.zeebe.model.bpmn.BpmnModelInstance;
 import io.zeebe.containers.ZeebeContainer;
 import io.zeebe.containers.ZeebeVolume;
-import java.util.concurrent.TimeUnit;
-
 import io.zeebe.containers.util.TestSupport;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;

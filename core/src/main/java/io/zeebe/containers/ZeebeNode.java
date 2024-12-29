@@ -17,7 +17,6 @@ package io.zeebe.containers;
 
 import java.time.Duration;
 import java.util.List;
-
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 import org.testcontainers.containers.Container;

@@ -24,10 +24,9 @@ import io.zeebe.containers.ZeebeContainer;
 import io.zeebe.containers.ZeebeDefaults;
 import io.zeebe.containers.ZeebeVolume;
 import io.zeebe.containers.archive.ContainerArchive;
+import io.zeebe.containers.util.TestSupport;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
-
-import io.zeebe.containers.util.TestSupport;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.LoggerFactory;
