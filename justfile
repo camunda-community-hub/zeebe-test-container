@@ -22,7 +22,12 @@ default:
   ./mvnw clean -T2C {{ mvnArgs }}
 
 test +mvnArgs='':
- ./mvnw verify -DskipChecks -T1C {{ mvnArgs }}
+  ./mvnw verify -DskipChecks -T1C {{ mvnArgs }}
+
+# use only if you have a pretty beefy machine :) if not, you can always just set a lower forkCount by calling
+# `just fast-test -DforkCount=2` (or something like that)
+fast-test +mvnArgs='':
+  ./mvnw verify -DskipChecks -T1C -Pparallel-tests -DforkCount=3
 
 @ut +mvnArgs='': (test "-DskipITs" mvnArgs)
 @it +mvnArgs='': (test "-DskipUTs" mvnArgs)
