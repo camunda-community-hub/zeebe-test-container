@@ -16,6 +16,8 @@
 package io.zeebe.containers.exporter;
 
 import io.camunda.zeebe.protocol.record.Record;
+
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URI;
@@ -24,12 +26,21 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import net.jcip.annotations.ThreadSafe;
+import org.apache.hc.core5.http.EntityDetails;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
+import org.apache.hc.core5.http.impl.routing.RequestRouter;
+import org.apache.hc.core5.http.nio.AsyncDataConsumer;
+import org.apache.hc.core5.http.nio.AsyncFilterChain;
+import org.apache.hc.core5.http.nio.AsyncFilterHandler;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apiguardian.api.API;
@@ -257,11 +268,13 @@ public final class DebugReceiver implements AutoCloseable {
     return AsyncServerBootstrap.bootstrap()
         .setIOReactorConfig(config)
         .setCanonicalHostName("localhost")
+        .setExceptionCallback(e -> LOGGER.warn("Error occurred in DebugReceiver server", e))
         .setCharCodingConfig(CharCodingConfig.custom().setCharset(StandardCharsets.UTF_8).build())
         .setHttpProcessor(HttpProcessors.server("ztc-debug/1.1"))
         // need to register the handler on both the primary and possibly Testcontainers' proxy for
         // our local server, as otherwise the requests with hosts that do not match will be skipped
-        .registerVirtual(GenericContainer.INTERNAL_HOST_HOSTNAME, "/records", recordHandler)
+        .register(GenericContainer.INTERNAL_HOST_HOSTNAME, "/records", recordHandler)
+        .register("127.0.0.1", "/records", recordHandler)
         .register("/records", recordHandler)
         .create();
   }

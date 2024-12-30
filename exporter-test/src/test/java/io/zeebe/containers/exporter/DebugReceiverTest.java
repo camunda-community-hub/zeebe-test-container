@@ -129,7 +129,7 @@ final class DebugReceiverTest {
             .body(Collections.emptyList())
             .post(receiver.recordsEndpoint())
             .then()
-            .statusCode(204);
+            .statusCode(200);
       }
     }
 
@@ -145,7 +145,7 @@ final class DebugReceiverTest {
             .body(Collections.emptyList())
             .post(receiver.recordsEndpoint())
             .then()
-            .statusCode(204);
+            .statusCode(200);
       }
     }
 
@@ -209,6 +209,7 @@ final class DebugReceiverTest {
                 RestAssured.given()
                     .body(Collections.singletonList(record))
                     .contentType("application/json")
+                    .accept("application/json")
                     .post(receiver.recordsEndpoint())
                     .as(Map.class);
         assertThat(response).containsEntry("position", 20);
