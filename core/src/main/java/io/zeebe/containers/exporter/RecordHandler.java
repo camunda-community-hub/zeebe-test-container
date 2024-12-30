@@ -15,16 +15,15 @@
  */
 package io.zeebe.containers.exporter;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.camunda.zeebe.protocol.jackson.ZeebeProtocolModule;
 import io.camunda.zeebe.protocol.record.Record;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import org.apache.hc.core5.http.EntityDetails;
@@ -58,7 +57,7 @@ import org.slf4j.LoggerFactory;
  *   <li>200 - the records were passed through, and the response body will be a singleton map with
  *       one key, <em>position</em>, the value of which is the highest acknowledged position for the
  *       partition ID from which the records are coming from
- *   <li>204 - there were either no records passed, or there is no known acknowledged position yet
+ *   <li>200 - there were either no records passed, or there is no known acknowledged position yet
  *       for the partition form which the records are coming from
  *   <li>400 - if there is no request body, or the request body cannot be parsed as a list of
  *       records
@@ -69,6 +68,7 @@ final class RecordHandler implements AsyncServerRequestHandler<Message<HttpReque
   private static final Logger LOGGER = LoggerFactory.getLogger(RecordHandler.class);
   private static final ObjectMapper MAPPER =
       new ObjectMapper().registerModule(new ZeebeProtocolModule());
+  private static final byte[] EMPTY_BODY = "{}".getBytes(StandardCharsets.UTF_8);
 
   private final Consumer<Record<?>> recordConsumer;
   private final boolean autoAcknowledge;
@@ -96,32 +96,27 @@ final class RecordHandler implements AsyncServerRequestHandler<Message<HttpReque
       final HttpContext context)
       throws HttpException, IOException {
     final byte[] requestBody = requestObject.getBody();
+    final AsyncResponseProducer responseProducer = handleRequest(requestBody);
+    responseTrigger.submitResponse(responseProducer, context);
+  }
+
+  private AsyncResponseProducer handleRequest(final byte[] requestBody)
+      throws JsonProcessingException {
     if (requestBody == null || requestBody.length == 0) {
-      final BasicHttpResponse response =
-          new BasicHttpResponse(HttpStatus.SC_BAD_REQUEST, "must send a list of records as body");
-      responseTrigger.submitResponse(new BasicResponseProducer(response), context);
-      return;
+      return createErrorResponse(HttpStatus.SC_BAD_REQUEST, "Must send a list of records as body");
     }
 
     final List<Record<?>> records;
     try {
       records = MAPPER.readValue(requestBody, new TypeReference<List<Record<?>>>() {});
     } catch (final IOException e) {
-      final BasicHttpResponse response =
-          new BasicHttpResponse(
-              HttpStatus.SC_BAD_REQUEST,
-              "failed to deserialize records, see receiver logs for more");
-      responseTrigger.submitResponse(new BasicResponseProducer(response), context);
       LOGGER.warn("Failed to deserialize exported records", e);
-
-      return;
+      return createErrorResponse(
+          HttpStatus.SC_BAD_REQUEST, "Failed to deserialize records, see receiver logs for more");
     }
 
     if (records.isEmpty()) {
-      final BasicHttpResponse response =
-          new BasicHttpResponse(HttpStatus.SC_NO_CONTENT, "no records given");
-      responseTrigger.submitResponse(new BasicResponseProducer(response), context);
-      return;
+      LOGGER.debug("No records given, will return a successful response regardless");
     }
 
     for (final Record<?> record : records) {
@@ -132,26 +127,45 @@ final class RecordHandler implements AsyncServerRequestHandler<Message<HttpReque
       }
     }
 
-    final int partitionId = records.get(0).getPartitionId();
-    final AsyncResponseProducer responseProducer = createSuccessfulResponse(partitionId);
-    responseTrigger.submitResponse(responseProducer, context);
+    return createSuccessfulResponse(records);
   }
 
-  private AsyncResponseProducer createSuccessfulResponse(final int partitionId)
+  private AsyncResponseProducer createSuccessfulResponse(final List<Record<?>> records)
       throws JsonProcessingException {
-    final Long position = positions.get(partitionId);
-
-    if (position == null) {
-      final HttpResponse response =
-          new BasicHttpResponse(
-              HttpStatus.SC_NO_CONTENT, "no acknowledged position for partition " + partitionId);
-      return new BasicResponseProducer(response);
-    }
-
     final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK);
-    response.setHeader("Content-Type", "application/json");
     final byte[] responseBody =
-        MAPPER.writeValueAsBytes(Collections.singletonMap("position", position));
+        records.isEmpty()
+            ? EMPTY_BODY
+            : MAPPER.writeValueAsBytes(
+                Collections.singletonMap(
+                    "position", positions.get(records.get(0).getPartitionId())));
+
+    response.setHeader("Content-Type", "application/json; charset=UTF-8");
     return new BasicResponseProducer(response, new BasicAsyncEntityProducer(responseBody));
+  }
+
+  private AsyncResponseProducer createErrorResponse(final int status, final String message)
+      throws JsonProcessingException {
+    final ProblemDetail problem = new ProblemDetail(status, message);
+    final HttpResponse response = new BasicHttpResponse(status);
+    response.setHeader("Content-Type", "application/json; charset=UTF-8");
+
+    final byte[] responseBody = MAPPER.writeValueAsBytes(problem);
+    return new BasicResponseProducer(response, new BasicAsyncEntityProducer(responseBody));
+  }
+
+  @SuppressWarnings({"FieldCanBeLocal", "unused"})
+  @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+  private static final class ProblemDetail {
+    private final String type = "about:blank";
+    private final String instance = "/records";
+
+    private final int status;
+    private final String detail;
+
+    private ProblemDetail(int status, String detail) {
+      this.status = status;
+      this.detail = detail;
+    }
   }
 }

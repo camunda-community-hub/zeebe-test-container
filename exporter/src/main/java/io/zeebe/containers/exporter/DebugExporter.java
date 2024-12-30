@@ -30,6 +30,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Objects;
@@ -99,6 +100,13 @@ public final class DebugExporter implements Exporter {
       Thread.currentThread().interrupt();
       LangUtil.rethrowUnchecked(e);
     } catch (final Exception e) {
+      context
+          .getLogger()
+          .warn(
+              "Failed to export record {} of partition {}",
+              record.getPosition(),
+              record.getPartitionId(),
+              e);
       LangUtil.rethrowUnchecked(e);
     }
 
@@ -112,14 +120,15 @@ public final class DebugExporter implements Exporter {
     final HttpResponse<byte[]> response = client.send(request, BodyHandlers.ofByteArray());
     final int statusCode = response.statusCode();
     if (statusCode >= 400) {
+      final String error =
+          hasResponseBody(response) ? new String(response.body(), StandardCharsets.UTF_8) : "";
       throw new BadRequestException(
           String.format(
-              "Failed to push out record with position %d on partition %d: response code %d",
-              record.getPosition(), record.getPartitionId(), statusCode));
+              "Failed to push out record with position %d on partition %d: response code=%d, error='%s'",
+              record.getPosition(), record.getPartitionId(), statusCode, error));
     }
 
-    // is there a body to read?
-    if (statusCode != 204) {
+    if (hasResponseBody(response)) {
       handleAcknowledgment(response.body(), record.getPartitionId());
     }
 
@@ -127,6 +136,10 @@ public final class DebugExporter implements Exporter {
         .getLogger()
         .trace(
             "Exported record {} to {} (status code: {})", record, config.endpointURI(), statusCode);
+  }
+
+  private boolean hasResponseBody(final HttpResponse<byte[]> response) {
+    return response.body() != null && response.body().length > 0;
   }
 
   private HttpRequest buildRequestForRecord(final Record<?> record) throws JsonProcessingException {
@@ -144,9 +157,9 @@ public final class DebugExporter implements Exporter {
   private void handleAcknowledgment(final byte[] responseBody, final int partitionId)
       throws IOException {
     final RecordsResponse body = MAPPER.readValue(responseBody, RecordsResponse.class);
-    final long position = body.position;
+    final Long position = body.position;
 
-    if (position > -1) {
+    if (position != null && position > -1) {
       controller.updateLastExportedRecordPosition(position);
       context
           .getLogger()

@@ -30,6 +30,7 @@ import io.camunda.zeebe.exporter.test.ExporterTestController;
 import io.camunda.zeebe.protocol.record.Record;
 import io.camunda.zeebe.test.broker.protocol.ProtocolFactory;
 import java.net.ConnectException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -107,7 +108,13 @@ final class DebugExporterTest {
     void shouldHandleNoResponseBody() {
       // given
       final Record<?> record = recordFactory.generateRecord();
-      WireMock.stubFor(WireMock.post("/records").willReturn(WireMock.aResponse().withStatus(204)));
+      WireMock.stubFor(
+          WireMock.post("/records")
+              .willReturn(
+                  WireMock.aResponse()
+                      .withStatus(200)
+                      .withResponseBody(
+                          Body.fromJsonBytes("{}".getBytes(StandardCharsets.UTF_8)))));
       controller.updateLastExportedRecordPosition(10L);
 
       // when
@@ -141,7 +148,7 @@ final class DebugExporterTest {
       // given
       final Record<?> record = recordFactory.generateRecord();
       final String expectedRequestBody = Json.write(Collections.singletonList(record));
-      WireMock.stubFor(WireMock.post("/records").willReturn(WireMock.aResponse().withStatus(204)));
+      WireMock.stubFor(WireMock.post("/records").willReturn(WireMock.aResponse().withStatus(200)));
 
       // when
       exporter.export(record);
@@ -158,7 +165,7 @@ final class DebugExporterTest {
       // given
       final Record<?> firstRecord = recordFactory.generateRecord();
       final Record<?> secondRecord = recordFactory.generateRecord();
-      WireMock.stubFor(WireMock.post("/records").willReturn(WireMock.aResponse().withStatus(204)));
+      WireMock.stubFor(WireMock.post("/records").willReturn(WireMock.aResponse().withStatus(200)));
 
       // when
       exporter.export(firstRecord);
