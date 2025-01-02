@@ -18,9 +18,9 @@ package io.zeebe.containers;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.condition.OS.LINUX;
 
-import io.camunda.zeebe.client.ZeebeClient;
-import io.camunda.zeebe.client.api.response.DeploymentEvent;
-import io.camunda.zeebe.client.api.response.ProcessInstanceEvent;
+import io.camunda.client.CamundaClient;
+import io.camunda.client.api.response.DeploymentEvent;
+import io.camunda.client.api.response.ProcessInstanceEvent;
 import io.camunda.zeebe.model.bpmn.Bpmn;
 import io.camunda.zeebe.model.bpmn.BpmnModelInstance;
 import io.zeebe.containers.util.TestSupport;
@@ -168,7 +168,7 @@ final class ZeebeBrokerNodeTest {
       broker.start();
       gateway.start();
 
-      try (final ZeebeClient client = TestSupport.newZeebeClient(gateway)) {
+      try (final CamundaClient client = TestSupport.newZeebeClient(gateway)) {
         // deploy a new process, which we can use on restart to assert that the data was correctly
         // reused
         final DeploymentEvent deployment = deploySampleProcess(client);
@@ -189,11 +189,11 @@ final class ZeebeBrokerNodeTest {
     }
   }
 
-  private ProcessInstanceEvent createSampleProcessInstance(final ZeebeClient client) {
+  private ProcessInstanceEvent createSampleProcessInstance(final CamundaClient client) {
     return client.newCreateInstanceCommand().bpmnProcessId("process").latestVersion().send().join();
   }
 
-  private DeploymentEvent deploySampleProcess(final ZeebeClient client) {
+  private DeploymentEvent deploySampleProcess(final CamundaClient client) {
     final BpmnModelInstance sampleProcess =
         Bpmn.createExecutableProcess("process").startEvent().endEvent().done();
     return client
@@ -203,7 +203,7 @@ final class ZeebeBrokerNodeTest {
         .join();
   }
 
-  private void awaitUntilTopologyIsComplete(final ZeebeClient client) {
+  private void awaitUntilTopologyIsComplete(final CamundaClient client) {
     Awaitility.await("until topology is complete")
         .atMost(Duration.ofSeconds(30))
         .untilAsserted(
