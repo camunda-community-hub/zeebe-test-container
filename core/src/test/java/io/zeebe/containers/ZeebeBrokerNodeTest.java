@@ -29,6 +29,7 @@ import io.zeebe.containers.util.TopologyAssert;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Arrays;
@@ -52,14 +53,25 @@ final class ZeebeBrokerNodeTest {
   @AutoClose private static final Network NETWORK = Network.newNetwork();
 
   private static ZeebeBrokerNode<?> provideBrokerWithHostData(
-      final ZeebeBrokerNode<?> broker, final Path dataDir) {
+      final ZeebeBrokerNode<?> broker, final Path tmpDir) throws IOException {
     // configure the broker to use the same UID and GID as our current user so we can remove the
     // temporary directory at the end. Note that this is only necessary when not running the tests
     // as root
-    final ZeebeHostData data = new ZeebeHostData(dataDir.toAbsolutePath().toString());
+    Files.createDirectories(tmpDir.resolve("data"));
+    Files.createDirectories(tmpDir.resolve("logs"));
+
+    final ZeebeHostData data =
+        new ZeebeHostData(tmpDir.resolve("data").toAbsolutePath().toString());
+    final ZeebeHostData logs =
+        new ZeebeHostData(
+            tmpDir.resolve("logs").toAbsolutePath().toString(),
+            ZeebeDefaults.getInstance().getDefaultLogsPath());
+
+    // when
     final String runAsUser = TestSupport.getRunAsUser();
     broker
         .withZeebeData(data)
+        .withZeebeData(logs)
         .self()
         .withCreateContainerCmdModifier(cmd -> cmd.withUser(runAsUser));
 
@@ -155,9 +167,10 @@ final class ZeebeBrokerNodeTest {
   void shouldReuseHostDataOnRestart(
       @SuppressWarnings("unused") final String testName,
       final BrokerNodeProvider brokerNodeProvider,
-      final @TempDir Path dataDir) {
+      final @TempDir Path tempDir)
+      throws Exception {
     // given
-    try (final ZeebeBrokerNode<?> broker = brokerNodeProvider.apply(dataDir);
+    try (final ZeebeBrokerNode<?> broker = brokerNodeProvider.apply(tempDir);
         final ZeebeGatewayContainer gateway =
             new ZeebeGatewayContainer()
                 .withNetwork(NETWORK)
@@ -212,7 +225,10 @@ final class ZeebeBrokerNodeTest {
                     .isComplete(1, 1, 1));
   }
 
-  private interface BrokerNodeProvider extends Function<Path, ZeebeBrokerNode<?>> {}
+  @FunctionalInterface
+  private interface BrokerNodeProvider {
+    ZeebeBrokerNode<?> apply(final Path tmpDir) throws Exception;
+  }
 
   private static final class ReuseDataTestCase implements Arguments {
     private final String testName;

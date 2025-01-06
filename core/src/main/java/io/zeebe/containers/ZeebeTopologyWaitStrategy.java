@@ -104,7 +104,7 @@ public class ZeebeTopologyWaitStrategy extends AbstractWaitStrategy {
    */
   public ZeebeTopologyWaitStrategy(
       final int brokersCount, final int replicationFactor, final int partitionsCount) {
-    this(brokersCount, replicationFactor, partitionsCount, ZeebePort.GATEWAY_REST.getPort());
+    this(brokersCount, replicationFactor, partitionsCount, ZeebePort.GATEWAY_GRPC.getPort());
   }
 
   /**
