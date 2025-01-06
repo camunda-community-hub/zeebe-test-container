@@ -23,7 +23,6 @@ import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse.Mount;
 import io.zeebe.containers.util.TestSupport;
 import io.zeebe.containers.util.TestcontainersSupport.DisabledIfTestcontainersCloud;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -47,7 +46,8 @@ final class ZeebeHostDataTest {
     final Path dataDir = tmpDir.resolve("data");
     Files.createDirectories(dataDir);
 
-    // create logs directory to avoid errors since we'll be running with a different user than the usual "camunda:root"
+    // create logs directory to avoid errors since we'll be running with a different user than the
+    // usual "camunda:root"
     Files.createDirectories(tmpDir.resolve("logs"));
 
     // when
