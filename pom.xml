@@ -61,7 +61,7 @@
     <version.asm>9.3</version.asm>
     <version.assertj>3.27.3</version.assertj>
     <version.awaitility>4.3.0</version.awaitility>
-    <version.checkstyle>10.21.4</version.checkstyle>
+    <version.checkstyle>10.22.0</version.checkstyle>
     <version.compress>1.27.1</version.compress>
     <version.docker>3.4.2</version.docker>
     <version.duct-tape>1.0.8</version.duct-tape>
