@@ -63,7 +63,7 @@
     <version.awaitility>4.3.0</version.awaitility>
     <version.checkstyle>10.22.0</version.checkstyle>
     <version.compress>1.27.1</version.compress>
-    <version.docker>3.4.2</version.docker>
+    <version.docker>3.5.0</version.docker>
     <version.duct-tape>1.0.8</version.duct-tape>
     <version.feign>13.5</version.feign>
     <version.httpcore5>5.3.4</version.httpcore5>
