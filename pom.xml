@@ -56,7 +56,7 @@
     <spotless.check.skip>${skipChecks}</spotless.check.skip>
 
     <!-- project dependencies -->
-    <version.agrona>2.1.0</version.agrona>
+    <version.agrona>2.2.0</version.agrona>
     <version.apiguardian>1.1.2</version.apiguardian>
     <version.asm>9.3</version.asm>
     <version.assertj>3.27.3</version.assertj>
