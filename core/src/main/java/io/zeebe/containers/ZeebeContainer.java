@@ -98,6 +98,7 @@ public class ZeebeContainer extends GenericContainer<ZeebeContainer>
         .withEnv("ZEEBE_BROKER_GATEWAY_ENABLE", "true")
         .withEnv("ZEEBE_BROKER_NETWORK_HOST", "0.0.0.0")
         .withEnv("ZEEBE_BROKER_NETWORK_ADVERTISEDHOST", getInternalHost())
+        .withEnv("CAMUNDA_SECURITY_AUTHENTICATION_UNPROTECTEDAPI", "true")
         .addExposedPorts(
             ZeebePort.GATEWAY_REST.getPort(),
             ZeebePort.GATEWAY_GRPC.getPort(),
