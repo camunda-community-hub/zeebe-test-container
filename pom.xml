@@ -95,7 +95,7 @@
     <plugin.version.revapi>0.15.1</plugin.version.revapi>
     <plugin.version.shade>3.6.0</plugin.version.shade>
     <plugin.version.spotless>2.44.5</plugin.version.spotless>
-    <plugin.version.surefire>3.5.2</plugin.version.surefire>
+    <plugin.version.surefire>3.5.3</plugin.version.surefire>
 
     <!-- maven extensions -->
     <extension.version.os-maven-plugin>1.6.1</extension.version.os-maven-plugin>
@@ -547,13 +547,6 @@
             <trimStackTrace>false</trimStackTrace>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
           </configuration>
-          <dependencies>
-            <dependency>
-              <groupId>org.junit.jupiter</groupId>
-              <artifactId>junit-jupiter-engine</artifactId>
-              <version>${version.junit-jupiter}</version>
-            </dependency>
-          </dependencies>
         </plugin>
 
         <!-- integration tests -->
