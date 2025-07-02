@@ -115,6 +115,7 @@ public class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContaine
         .withEnv("ZEEBE_GATEWAY_CLUSTER_HOST", getInternalHost())
         .withEnv("ZEEBE_STANDALONE_GATEWAY", "true")
         .withEnv("CAMUNDA_SECURITY_AUTHENTICATION_UNPROTECTEDAPI", "true")
+        .withEnv("CAMUNDA_SECURITY_AUTHORIZATIONS_ENABLED", "false")
         .withStartupTimeout(DEFAULT_STARTUP_TIMEOUT)
         .addExposedPorts(
             ZeebePort.GATEWAY_REST.getPort(),
