@@ -547,13 +547,6 @@
             <trimStackTrace>false</trimStackTrace>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
           </configuration>
-          <dependencies>
-            <dependency>
-              <groupId>org.junit.jupiter</groupId>
-              <artifactId>junit-jupiter-engine</artifactId>
-              <version>${version.junit-jupiter}</version>
-            </dependency>
-          </dependencies>
         </plugin>
 
         <!-- integration tests -->
