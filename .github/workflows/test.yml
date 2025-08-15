@@ -12,7 +12,7 @@ jobs:
     name: Test (Cloud) - core
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -48,7 +48,7 @@ jobs:
     name: Test (Local) - core
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup JDK 21
         uses: actions/setup-java@v4
         with:
@@ -76,7 +76,7 @@ jobs:
     name: Test (Cloud) - engine
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup JDK 21
         uses: actions/setup-java@v4
         with:
@@ -112,7 +112,7 @@ jobs:
     name: Test (Local) - exporter
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
