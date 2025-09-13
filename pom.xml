@@ -95,7 +95,7 @@
     <plugin.version.revapi>0.15.1</plugin.version.revapi>
     <plugin.version.shade>3.6.1</plugin.version.shade>
     <plugin.version.spotless>2.46.1</plugin.version.spotless>
-    <plugin.version.surefire>3.5.3</plugin.version.surefire>
+    <plugin.version.surefire>3.5.4</plugin.version.surefire>
 
     <!-- maven extensions -->
     <extension.version.os-maven-plugin>1.6.1</extension.version.os-maven-plugin>
