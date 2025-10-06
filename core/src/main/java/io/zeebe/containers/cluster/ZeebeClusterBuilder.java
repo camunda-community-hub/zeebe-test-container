@@ -495,7 +495,8 @@ public class ZeebeClusterBuilder {
         gateway
             .dependsOn(contactPoint.self())
             .withEnv(
-                "ZEEBE_GATEWAY_CLUSTER_CONTACTPOINT", contactPoint.getInternalClusterAddress());
+                "ZEEBE_GATEWAY_CLUSTER_INITIALCONTACTPOINTS",
+                contactPoint.getInternalClusterAddress());
       }
     }
   }

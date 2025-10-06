@@ -56,7 +56,8 @@ final class ClusterWithGatewayExampleTest {
   private final ZeebeGatewayContainer gatewayContainer =
       new ZeebeGatewayContainer()
           .withEnv(
-              "ZEEBE_GATEWAY_CLUSTER_CONTACTPOINT", brokerZeroContainer.getInternalClusterAddress())
+              "ZEEBE_GATEWAY_CLUSTER_INITIALCONTACTPOINTS",
+              brokerZeroContainer.getInternalClusterAddress())
           .withNetwork(network)
           .withTopologyCheck(
               new ZeebeTopologyWaitStrategy().forBrokersCount(3).forReplicationFactor(3));

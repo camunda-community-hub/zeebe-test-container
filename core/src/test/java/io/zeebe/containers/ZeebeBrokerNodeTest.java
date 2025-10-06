@@ -162,7 +162,8 @@ final class ZeebeBrokerNodeTest {
             new ZeebeGatewayContainer()
                 .withNetwork(NETWORK)
                 .withEnv(
-                    "ZEEBE_GATEWAY_CLUSTER_CONTACTPOINT", broker.getInternalClusterAddress())) {
+                    "ZEEBE_GATEWAY_CLUSTER_INITIALCONTACTPOINTS",
+                    broker.getInternalClusterAddress())) {
 
       // when
       broker.start();

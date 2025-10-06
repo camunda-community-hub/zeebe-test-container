@@ -455,8 +455,9 @@ final class ZeebeClusterBuilderTest {
         cluster.getGateways().values().iterator().next();
 
     assertThat(gateway.getEnvMap())
-        .as("the gateway has the correct broker contact point configured")
-        .containsEntry("ZEEBE_GATEWAY_CLUSTER_CONTACTPOINT", broker.getInternalClusterAddress());
+        .as("the gateway has the correct broker initial contact points configured")
+        .containsEntry(
+            "ZEEBE_GATEWAY_CLUSTER_INITIALCONTACTPOINTS", broker.getInternalClusterAddress());
   }
 
   @Test
@@ -473,8 +474,8 @@ final class ZeebeClusterBuilderTest {
         cluster.getGateways().values().iterator().next();
 
     assertThat(gateway.getEnvMap())
-        .as("the gateway has no contact point configured since there are no brokers")
-        .doesNotContainKey("ZEEBE_GATEWAY_CLUSTER_CONTACTPOINT");
+        .as("the gateway has no initial contact points configured since there are no brokers")
+        .doesNotContainKey("ZEEBE_GATEWAY_CLUSTER_INITIALCONTACTPOINTS");
   }
 
   @Test
