@@ -20,7 +20,6 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
-import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
 import org.testcontainers.containers.wait.strategy.WaitAllStrategy.Mode;
 import org.testcontainers.utility.DockerImageName;
@@ -30,7 +29,6 @@ import org.testcontainers.utility.DockerImageName;
  * {@link ZeebePort} ports are exposed, and the container is considered ready if:
  *
  * <ul>
- *   <li>its ports are ready (see {@link HostPortWaitStrategy}
  *   <li>the broker check is successful (see {@link
  *       ZeebeBrokerContainer#newDefaultBrokerReadyCheck()}
  *   <li>the topology check is successful (see {@link
@@ -87,7 +85,6 @@ public class ZeebeContainer extends GenericContainer<ZeebeContainer>
   /** Returns the default wait strategy for this container */
   protected WaitAllStrategy newDefaultWaitStrategy() {
     return new WaitAllStrategy(Mode.WITH_OUTER_TIMEOUT)
-        .withStrategy(new HostPortWaitStrategy())
         .withStrategy(ZeebeBrokerContainer.newDefaultBrokerReadyCheck())
         .withStartupTimeout(DEFAULT_STARTUP_TIMEOUT);
   }

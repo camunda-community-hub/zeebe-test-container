@@ -20,7 +20,6 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
-import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.containers.wait.strategy.HttpWaitStrategy;
 import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
 import org.testcontainers.containers.wait.strategy.WaitAllStrategy.Mode;
@@ -33,7 +32,6 @@ import org.testcontainers.utility.DockerImageName;
  * <p>It is considered ready if:
  *
  * <ul>
- *   <li>its ports are ready (see {@link HostPortWaitStrategy})
  *   <li>the ready check is successful (see {@link #newDefaultBrokerReadyCheck()})
  * </ul>
  *
@@ -96,7 +94,6 @@ public class ZeebeBrokerContainer extends GenericContainer<ZeebeBrokerContainer>
 
   private WaitAllStrategy newDefaultWaitStrategy() {
     return new WaitAllStrategy(Mode.WITH_OUTER_TIMEOUT)
-        .withStrategy(new HostPortWaitStrategy())
         .withStrategy(newDefaultBrokerReadyCheck())
         .withStartupTimeout(DEFAULT_STARTUP_TIMEOUT);
   }

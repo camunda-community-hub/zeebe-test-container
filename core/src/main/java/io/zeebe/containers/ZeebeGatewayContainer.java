@@ -34,7 +34,6 @@ import org.testcontainers.utility.DockerImageName;
  * <p>The container is considered ready if:
  *
  * <ul>
- *   <li>its ports are ready (see {@link HostPortWaitStrategy}
  *   <li>the topology check is successful (see {@link #newDefaultTopologyCheck()}
  * </ul>
  *
@@ -126,7 +125,6 @@ public class ZeebeGatewayContainer extends GenericContainer<ZeebeGatewayContaine
 
   private WaitAllStrategy newDefaultWaitStrategy(ZeebeTopologyWaitStrategy topologyCheck) {
     return new WaitAllStrategy(Mode.WITH_OUTER_TIMEOUT)
-        .withStrategy(new HostPortWaitStrategy())
         .withStrategy(topologyCheck)
         .withStartupTimeout(DEFAULT_STARTUP_TIMEOUT);
   }
